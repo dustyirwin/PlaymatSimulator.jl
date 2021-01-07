@@ -7,7 +7,7 @@ using InteractiveUtils
 # ╔═╡ 0ce5327a-393b-11eb-1c38-4d48c8b2cdb6
 begin
 	using DrWatson
-	
+
 	function ingredients(path::String)
 	# this is from the Julia source code (evalfile in base/loading.jl)
 	# but with the modification that it returns the module instead of the last object
@@ -26,13 +26,13 @@ end;
 # ╔═╡ 18e233a2-393b-11eb-2a6e-e77e896a6ce3
 begin
 	@quickactivate
-	
+
 	using GZ2
 	using DataStructures
 
 	md"""
 	## GAME RULES (INACTIVE)
-	
+
 	Provide the game's rules (things to check for every frame) by defining custom types, functions, and objects below. Some basic rules funcionality is provided.
 	"""
 end
@@ -50,9 +50,8 @@ abstract type AbstractLand <: AbstractCard end
 mutable struct Card <: AbstractCard
 	id::Int
     name::String
-	front_actor::Actor
-	back_actor::Actor
-	effects::Vector{Function}
+	position::Rect
+	actors::Vector{Actor}
 	tapped::Bool
 	d::Dict{Symbol,Any}
 end
@@ -122,10 +121,10 @@ game_step = [
 # ╔═╡ 96f9024e-3aa7-11eb-2916-c3f03b94b5e6
 begin
 	resource_types = ["{W}","{U}","{B}","{R}","{G}",:E,:X,:L,:E,:P]
-	
+
 	md"""
 	Resource types:
-	
+
 	Mana
 	:W - white
 	:U - blue
@@ -133,17 +132,17 @@ begin
 	:R - red
 	:G - green
 	:C - colorless
-	
+
 	Other
 	:L - life
 	:E - energy
 	:P - poison
-	
+
 	"""
 end
 
 # ╔═╡ 084fbf90-393c-11eb-0e3f-e1cf9b126e31
-function declare_creature_attack(target::Union{Player, PlaneswalkerCard} creatures::Dict, opponents::Dict, planeswalkers::Dict)
+function declare_creature_attack(target::Union{Player, Planeswalker}, creatures::Dict, opponents::Dict, planeswalkers::Dict)
 end
 
 # ╔═╡ 712f3b76-393c-11eb-0ae4-f1c8a5eac20a
@@ -229,8 +228,8 @@ end
 # ╠═a938ca5c-393a-11eb-0557-d1580caa7d9d
 # ╟─16ac23e8-393b-11eb-2c98-b9460bc51ec1
 # ╟─26a74f36-393b-11eb-296b-5dce05b5e22c
-# ╠═96f9024e-3aa7-11eb-2916-c3f03b94b5e6
-# ╠═084fbf90-393c-11eb-0e3f-e1cf9b126e31
+# ╟─96f9024e-3aa7-11eb-2916-c3f03b94b5e6
+# ╟─084fbf90-393c-11eb-0e3f-e1cf9b126e31
 # ╟─712f3b76-393c-11eb-0ae4-f1c8a5eac20a
 # ╟─877f03ac-393c-11eb-1f6f-3bfb1f3a008a
 # ╟─9147eeda-393c-11eb-04ee-e1587dfb35c4

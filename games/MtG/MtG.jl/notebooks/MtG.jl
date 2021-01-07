@@ -79,7 +79,6 @@ function reset_deck!(gs::Dict)
 	CARD_IMG_RATIO = gs[:deck][:CARD_IMG_RATIO]
 	DECK_DIR = "$GAME_DIR/../$GAME_NAME/decks/$DECK_NAME"
 
-	"""
     for k in keys(gs[:zone])
         gs[:zone][k] = []
     end
@@ -87,15 +86,17 @@ function reset_deck!(gs::Dict)
     for k in keys(gs[:group])
         gs[:group][k] = []
     end
-	"""
 
     game_include("$DECK_DIR/$DECK_NAME.jl")
 
 	# TODO: write support code for souble-sided & split cards, expand into func `populate_zone`
-    gs[:zone][:library] = shuffle!([
-        PlaymatSimulator.Actors.Image(name,
+
+	gs[:zone][:library] = shuffle([
+        PlaymatSimulator.Actors.Image(
+			name,
 			imresize(img, ratio=CARD_IMG_RATIO),
-            w=CARD_WIDTH, h=CARD_HEIGHT) for (name, img) in zip(
+            w=CARD_WIDTH,
+			h=CARD_HEIGHT) for (name, img) in zip(
 				gs[:deck][:cards], gs[:deck][:CARD_IMGS])
 		])
 
@@ -104,9 +105,11 @@ function reset_deck!(gs::Dict)
 	#end
 
     gs[:zone][:command] = [
-		PlaymatSimulator.Actors.Image(name,
+		PlaymatSimulator.Actors.Image(
+			name,
 			imresize(img, ratio=CARD_IMG_RATIO),
-			w=CARD_WIDTH, h=CARD_HEIGHT) for (name, img) in zip(
+			w=CARD_WIDTH,
+			h=CARD_HEIGHT) for (name, img) in zip(
 				gs[:deck][:commanders], gs[:deck][:COMMANDER_IMGS])
         ]
 

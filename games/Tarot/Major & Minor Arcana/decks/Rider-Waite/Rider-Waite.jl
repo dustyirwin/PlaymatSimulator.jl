@@ -59,6 +59,7 @@ deck = Dict{Symbol,Any}(
 	:name => "Rider-Waite",
 	:cards => OrderedDict{String, String}(
 		"backside" => "http://blogimg.goo.ne.jp/user_image/07/b1/6ebb2d3d2427526a2e5b1318a56c1b70.jpg",
+		"The Hanged Man" => "https://i.imgur.com/KNiZDJ0.png",
 		"The Fool" => "http://blogimg.goo.ne.jp/user_image/7c/98/6cf5c9e139a36cb06a5cdd5a7505afde.jpg",
 		"The Magician" => "http://blogimg.goo.ne.jp/user_image/77/cb/481628b008f6379a765139553c4db783.jpg",
 		"The High Priestess" => "http://blogimg.goo.ne.jp/user_image/46/fc/2cf480c9bfd704f816b73911a620f44c.jpg",
@@ -77,7 +78,7 @@ Found $(length(deck[:cards])) cards in $(deck[:name])!
 md"""
 ##### *Adjust this slider to shrink / grow the cards while preserving the aspect ratio*
 
-$(@bind ratio Slider(0.1:0.05:1.5, default=0.5, show_value=true))
+$(@bind ratio Slider(0.1:0.05:1, default=0.5, show_value=true))
 """
 
 # ╔═╡ 614764b8-4648-11eb-0493-732a00df7bca
@@ -95,9 +96,6 @@ function get_card_img(img_uri::String)
 	card_img = img_resp.body |> IOBuffer |> load
 end
 
-# ╔═╡ 5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
-CARD_BACK_IMG = imresize(get_card_img(deck[:cards]["backside"]), ratio=ratio)
-
 # ╔═╡ 73d1cd18-4647-11eb-3994-7d4eb92eddca
 deck_card_img = imresize(get_card_img([ values(deck[:cards])...][i]), ratio=ratio)
 
@@ -109,7 +107,6 @@ end
 # ╔═╡ 5e6f7046-4da5-11eb-0122-bd82397aab4f
 begin
 	deck[:CARD_IMG_RATIO] = ratio
-	deck[:CARD_BACK_IMG] = ARGB.(CARD_BACK_IMG)
 	deck[:CARD_IMGS] = [ ARGB.(imresize(get_card_img(c), ratio=ratio)) for c in values(deck[:cards]) ]
 	#serialize("$(deck[:name]).jls", deck)
 	
@@ -119,11 +116,10 @@ end
 # ╔═╡ Cell order:
 # ╟─c7952ee6-45b5-11eb-1158-5bb2ff274ce9
 # ╟─0c145632-3927-11eb-19b9-877e05c1bcdc
-# ╠═621b08a4-384e-11eb-0109-61e9b9ecf125
+# ╟─621b08a4-384e-11eb-0109-61e9b9ecf125
 # ╟─fb61d01c-458d-11eb-2c2a-f711dc7ab7f4
-# ╟─5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
-# ╟─73d1cd18-4647-11eb-3994-7d4eb92eddca
-# ╟─1839b1f4-5020-11eb-0905-61ab4d615e87
+# ╠═73d1cd18-4647-11eb-3994-7d4eb92eddca
+# ╠═1839b1f4-5020-11eb-0905-61ab4d615e87
 # ╠═c5374766-4ef1-11eb-2555-c159dba953f0
 # ╟─614764b8-4648-11eb-0493-732a00df7bca
 # ╟─4e2ebff0-4d7a-11eb-30e1-33800c54c2c6
