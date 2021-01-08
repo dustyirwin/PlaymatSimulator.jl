@@ -21,6 +21,7 @@ begin
     using SimpleDirectMediaLayer
 
     import PlaymatSimulator.Actors.Text
+	import PlaymatSimulator.Actors.Image
 	import PlaymatSimulator.in_bounds
 	import PlaymatSimulator.kill_actor!
 	import PlaymatSimulator.Animations.flip_card!
@@ -87,31 +88,51 @@ function reset_deck!(gs::Dict)
         gs[:group][k] = []
     end
 
-    game_include("$DECK_DIR/$DECK_NAME.jl")
+    deck = deserialize("$DECK_DIR/$DECK_NAME.jls")
 
-	# TODO: write support code for souble-sided & split cards, expand into func `populate_zone`
+	deck[:Backside] = Image("Backside", deck[:CARD_BACK_IMG])
 
-	gs[:zone][:library] = shuffle([
-        PlaymatSimulator.Actors.Image(
+	CARDS = []
+
+	for (name, img) in zip(gs[:deck][:card_names], gs[:deck][:CARD_FRONT_IMGS])
+		c = Card(
+			rand(1:9999),
 			name,
-			imresize(img, ratio=CARD_IMG_RATIO),
-            w=CARD_WIDTH,
-			h=CARD_HEIGHT) for (name, img) in zip(
-				gs[:deck][:cards], gs[:deck][:CARD_IMGS])
-		])
+			"player1",
+			"player1",
+			:library,
+			[ Image(name, img), deck[:Backside] ],
+			false,
+			Dict(),
+			)
+
+		push!(CARDS, c)
+	end
+
+	COMMANDERS = []
+
+	for (name, img) in zip(gs[:deck][:commander_names], gs[:deck][:COMMANDER_FRONT_IMGS])
+		c = Card(
+			rand(1:9999),
+			name,
+			"player1",
+			"player1",
+			:library,
+			[ Image(name, img), deck[:Backside] ],
+			false,
+			Dict(),
+			)
+
+		push!(COMMANDERS, c)
+	end
+
+	gs[:zone][:library] = shuffle([ c.faces[begin] for c in CARDS ])
 
 	#for c in gs[:zone][:library]
 	#	PlaymatSimulator.Animations.flip_card!(c, gs[:deck][:CARD_BACK_PATH])
 	#end
 
-    gs[:zone][:command] = [
-		PlaymatSimulator.Actors.Image(
-			name,
-			imresize(img, ratio=CARD_IMG_RATIO),
-			w=CARD_WIDTH,
-			h=CARD_HEIGHT) for (name, img) in zip(
-				gs[:deck][:commanders], gs[:deck][:COMMANDER_IMGS])
-        ]
+    gs[:zone][:command] = [ c.faces[begin] for c in COMMANDERS ]
 
 	push!(gs[:group][:all_cards], gs[:zone][:command]...)
 	push!(gs[:group][:all_cards], gs[:zone][:library]...)

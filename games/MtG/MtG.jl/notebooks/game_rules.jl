@@ -28,7 +28,7 @@ begin
 	@quickactivate
 
 	using DataStructures
-	using GZ2	
+	using GZ2
 
 	md"""
 	## GAME RULES (INACTIVE)
@@ -53,7 +53,7 @@ mutable struct Card <: AbstractCard
 	owner::String
 	controller::String
 	zone::Symbol
-	actors::Vector{Actor}
+	faces::Vector{Actor}
 	tapped::Bool
 	d::Dict{Symbol,Any}
 end

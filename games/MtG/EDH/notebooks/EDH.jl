@@ -32,6 +32,8 @@ begin
 	using Serialization
     using PlaymatSimulator
 
+	AC = PlaymatSimulator.Actors
+
 	md"""
 	## Elder Dragon Highlander aka Commander
 
@@ -72,12 +74,11 @@ begin
 	deck[:CARDS] = [
 		Card(
 			rand(1:999),
-			all_cards[i]["name"],
+			deck[:card_names][i],
 			"player1",
 			"player1",
 			:library,
-			GZ2.Rect(0,0,size(deck[:CARD_FRONT_IMGS][i])...),
-			[ AC.Image(all_cards[i]["name"], deck[:CARD_FRONT_IMGS][i]), deck[:Backside] ],
+			[ AC.Image(deck[:card_names][i], deck[:CARD_FRONT_IMGS][i]), deck[:Backside] ],
 			false,
 			Dict()
 			) for i in 1:length(deck[:card_names])
@@ -86,12 +87,11 @@ begin
 	deck[:COMMANDERS] = [
 		Card(
 			rand(1:999),
-			all_cards[i]["name"],
+			deck[:commander_names][i],
 			"player1",
 			"player1",
 			:command,
-			GZ2.Rect(0,0,size(deck[:CARD_FRONT_IMGS][i])...),
-			[ AC.Image(all_cards[i]["name"], deck[:CARD_FRONT_IMGS][i]), deck[:Backside] ],
+			[ AC.Image(deck[:commander_names][i], deck[:CARD_FRONT_IMGS][i]), deck[:Backside] ],
 			false,
 			Dict()
 			) for i in 1:length(deck[:commander_names])
@@ -106,9 +106,6 @@ reset_deck!(gs)
 
 # ╔═╡ 32229134-4cc0-11eb-2c68-d11134987c56
 begin  # required GZ2 variables
-
-
-
 	SCREEN_HEIGHT = gs[:SCREEN_HEIGHT]
 	SCREEN_WIDTH = gs[:SCREEN_WIDTH]
 	BACKGROUND = gs[:BACKGROUND]

@@ -26,22 +26,21 @@ end;
 # ╔═╡ ac5c6510-3901-11eb-0c47-bb3143471434
 begin
     @quickactivate
-    
+
     using Colors
     using DataStructures
 
+	import PlaymatSimulator.Actors.Image
+
 	mtg_dir = projectdir() * "/games/MtG"
-	
+
 	PS = ingredients("$(projectdir())/src/PlaymatSimulator.jl")
 	GS = ingredients("$mtg_dir/MtG.jl/notebooks/game_settings.jl")
-	
+
 	SCREEN_WIDTH = GS.SCREEN_WIDTH
 	SCREEN_HEIGHT = GS.SCREEN_HEIGHT
 	SCREEN_BORDER = GS.SCREEN_BORDER
-	
-	Image = PS.PlaymatSimulator.Actors.Image
-	GIF = PS.PlaymatSimulator.Actors.GIF
-	
+
 	md"""
 	## GAME STAGE
 	This notebook should define the `stage` of the game. The `stage` should consist of elements to be drawn below the cards and other ui elements such as background images/ANations, some ui elements, game zone/area markers, etc. Provide those objects to the game engine by defining a single dictionary object, `stage = Dict{Symbol, Any}(...)`.
@@ -62,17 +61,17 @@ STAGE = OrderedDict(
 		),
 	:library => Image("area_blk",
 		load(SHADE_PATH),
-		x=SCREEN_BORDER, 
+		x=SCREEN_BORDER,
 		y=ceil(Int32, SCREEN_HEIGHT * 0.6) + SCREEN_BORDER,
-		w=ceil(Int32, SCREEN_WIDTH * 0.15) - SCREEN_BORDER, 
+		w=ceil(Int32, SCREEN_WIDTH * 0.15) - SCREEN_BORDER,
 		h=ceil(Int32, SCREEN_HEIGHT * 0.4) - 2SCREEN_BORDER,
 		alpha=50,
 		),
 	:battlefield => Image("area_blk",
 		load(SHADE_PATH),
-		x=ceil(Int32, SCREEN_WIDTH * 0.15) + SCREEN_BORDER, 
-		y=SCREEN_BORDER, 
-		w=ceil(Int32, SCREEN_WIDTH * 0.7) - SCREEN_BORDER, 
+		x=ceil(Int32, SCREEN_WIDTH * 0.15) + SCREEN_BORDER,
+		y=SCREEN_BORDER,
+		w=ceil(Int32, SCREEN_WIDTH * 0.7) - SCREEN_BORDER,
 		h=SCREEN_HEIGHT - 2SCREEN_BORDER,
 		alpha=50,
 		),
