@@ -50,13 +50,14 @@ mtg_dir = "$(projectdir())/games/MtG"
 begin
 	game_include("$mtg_dir/MtG.jl/notebooks/MtG.jl")
 	game_include("$mtg_dir/MtG.jl/notebooks/game_settings.jl")
-	deck = game_include("$mtg_dir/EDH/decks/$(USER_SETTINGS[:DECK_NAME])/$(USER_SETTINGS[:DECK_NAME]).jl")
-	gs = game_include("$mtg_dir/EDH/notebooks/game_state.jl")
+	game_include("$mtg_dir/MtG.jl/notebooks/game_rules.jl")
+	game_include("$mtg_dir/EDH/notebooks/game_state.jl")
 end
 
 # ╔═╡ 1e72fb94-4c0a-11eb-1186-e717e9acc1e6
 begin
 	merge!(gs, USER_SETTINGS)
+	deck = deserialize("$mtg_dir/EDH/decks/$(USER_SETTINGS[:DECK_NAME])/$(USER_SETTINGS[:DECK_NAME]).jls")
 	gs[:deck] = deck
 end
 
@@ -65,10 +66,11 @@ add_texts!(gs)
 
 # ╔═╡ 5d5e4990-4c1b-11eb-04c8-5da74ff7c314
 begin
-	deck[:Backside] = AC.Image("backside", CARD_BACK_IMG)
+	@show keys(deck)
+	deck[:Backside] = AC.Image("Backside", deck[:CARD_BACK_IMG])
 
 	deck[:CARDS] = [
-		GR.Card(
+		Card(
 			rand(1:999),
 			all_cards[i]["name"],
 			"player1",
@@ -82,14 +84,14 @@ begin
 		]
 
 	deck[:COMMANDERS] = [
-		GR.Card(
+		Card(
 			rand(1:999),
 			all_cards[i]["name"],
 			"player1",
 			"player1",
 			:command,
 			GZ2.Rect(0,0,size(deck[:CARD_FRONT_IMGS][i])...),
-			[ AC.Image(all_cards[i]["name"], CARD_FRONT_IMGS[i]), deck[:Backside] ],
+			[ AC.Image(all_cards[i]["name"], deck[:CARD_FRONT_IMGS][i]), deck[:Backside] ],
 			false,
 			Dict()
 			) for i in 1:length(deck[:commander_names])

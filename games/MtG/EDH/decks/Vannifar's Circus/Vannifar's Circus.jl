@@ -34,9 +34,6 @@ begin
 
 	plotly()
 
-	GS = game_include("$(projectdir())/games/MtG/MtG.jl/notebooks/game_settings.jl")
-	GR = game_include("$(projectdir())/games/MtG/MtG.jl/notebooks/game_rules.jl")
-
 	md"""
 	*game settings loaded!*
 
@@ -181,7 +178,7 @@ end
 begin  # note: this func only downloads the first card with a matching name and then moves to the next.
 	deck_cards = []
 	commander_cards = []
-	
+
 	for n in sort(deck[:card_names])
 
 		for c in mtg_cards
@@ -195,7 +192,7 @@ begin  # note: this func only downloads the first card with a matching name and 
 	for n in deck[:commander_names]
 
 		for c in mtg_cards
-		
+
 			if n == c["name"]
 				push!(commander_cards, c)
 			end
@@ -252,7 +249,7 @@ begin
 
 	COMMANDER_FRONT_IMGS, CARD_FRONT_IMGS
 	=#
-end;
+end
 
 # ╔═╡ ce216c54-468a-11eb-13b8-7f3dac7af44a
 function get_card_img(img_uri::String)
@@ -299,15 +296,15 @@ search_mtg_cards_by_keyword("Jwari", mtg_cards)
 
 # ╔═╡ 5e6f7046-4da5-11eb-0122-bd82397aab4f
 begin
-	#deck[:CARD_IMG_RATIO] = ratio
-	#deck[:CARD_FRONT_IMGS] = CARD_FRONT_IMGS
-	#deck[:COMMANDER_FRONT_IMGS] = COMMANDER_FRONT_IMGS
-	
+	#=
+	deck[:CARD_IMG_RATIO] = ratio
+	deck[:CARD_FRONT_IMGS] = CARD_FRONT_IMGS
+	deck[:CARD_BACK_IMG] = CARD_BACK_IMG
+	deck[:COMMANDER_FRONT_IMGS] = COMMANDER_FRONT_IMGS
+
 	fn = "$(projectdir())/games/MtG/EDH/decks/$(deck[:name])/$(deck[:name]).jls"
-	
-	#serialize(fn, deck)
-	deserialize(fn)
-	deck
+	serialize(fn, deck)
+	=#
 end
 
 # ╔═╡ Cell order:
