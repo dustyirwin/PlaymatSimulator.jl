@@ -64,13 +64,49 @@ end
 add_texts!(gs)
 
 # ╔═╡ 5d5e4990-4c1b-11eb-04c8-5da74ff7c314
-gs[:deck] = deck
+begin
+	deck[:Backside] = AC.Image("backside", CARD_BACK_IMG)
+
+	deck[:CARDS] = [
+		GR.Card(
+			rand(1:999),
+			all_cards[i]["name"],
+			"player1",
+			"player1",
+			:library,
+			GZ2.Rect(0,0,size(deck[:CARD_FRONT_IMGS][i])...),
+			[ AC.Image(all_cards[i]["name"], deck[:CARD_FRONT_IMGS][i]), deck[:Backside] ],
+			false,
+			Dict()
+			) for i in 1:length(deck[:card_names])
+		]
+
+	deck[:COMMANDERS] = [
+		GR.Card(
+			rand(1:999),
+			all_cards[i]["name"],
+			"player1",
+			"player1",
+			:command,
+			GZ2.Rect(0,0,size(deck[:CARD_FRONT_IMGS][i])...),
+			[ AC.Image(all_cards[i]["name"], CARD_FRONT_IMGS[i]), deck[:Backside] ],
+			false,
+			Dict()
+			) for i in 1:length(deck[:commander_names])
+	]
+
+	gs[:deck] = deck
+end
+
 
 # ╔═╡ 0146b240-4c0a-11eb-371c-19ef327394c7
 reset_deck!(gs)
 
 # ╔═╡ 32229134-4cc0-11eb-2c68-d11134987c56
 begin  # required GZ2 variables
+
+
+
 	SCREEN_HEIGHT = gs[:SCREEN_HEIGHT]
 	SCREEN_WIDTH = gs[:SCREEN_WIDTH]
 	BACKGROUND = gs[:BACKGROUND]

@@ -14,23 +14,7 @@ macro bind(def, element)
 end
 
 # ╔═╡ c7952ee6-45b5-11eb-1158-5bb2ff274ce9
-begin
-	using DrWatson
-
-	function ingredients(path::String)
-		# this is from the Julia source code (evalfile in base/loading.jl)
-		# but with the modification that it returns the module instead of the last object
-		name = Symbol(basename(path))
-		m = Module(name)
-		Core.eval(m,
-			Expr(:toplevel,
-				 :(eval(x) = $(Expr(:core, :eval))($name, x)),
-				 :(include(x) = $(Expr(:top, :include))($name, x)),
-				 :(include(mapexpr::Function, x) = $(Expr(:top, :include))(mapexpr, $name, x)),
-				 :(include($path))))
-		m
-	end
-end;
+using DrWatson
 
 # ╔═╡ 0c145632-3927-11eb-19b9-877e05c1bcdc
 begin
@@ -45,14 +29,14 @@ begin
 	using Serialization
 	using PlaymatSimulator
 	using ImageTransformations: imresize
-	
+
 	AC = PlaymatSimulator.Actors
 
 	plotly()
 
-	GS = include("$(projectdir())/games/MtG/MtG.jl/notebooks/game_settings.jl")
-	GR = include("$(projectdir())/games/MtG/MtG.jl/notebooks/game_rules.jl")
-	
+	GS = game_include("$(projectdir())/games/MtG/MtG.jl/notebooks/game_settings.jl")
+	GR = game_include("$(projectdir())/games/MtG/MtG.jl/notebooks/game_rules.jl")
+
 	md"""
 	*game settings loaded!*
 
@@ -66,10 +50,10 @@ end
 # ╔═╡ 621b08a4-384e-11eb-0109-61e9b9ecf125
 deck = Dict{Symbol,Any}(
 	:name => split(@__DIR__, "/")[end],
-    :commanders => [
+    :commander_names => [
         "Prime Speaker Vannifar",
     	],
-    :cards => [
+    :card_names => [
 		"Alchemist's Refuge",
 		"Birds of Paradise",
         "Botanical Sanctum",
@@ -173,7 +157,7 @@ deck = Dict{Symbol,Any}(
 )
 
 # ╔═╡ fb61d01c-458d-11eb-2c2a-f711dc7ab7f4
-(length(deck[:cards]) + length(deck[:commanders]))
+(length(deck[:card_names]) + length(deck[:commander_names]))
 
 # ╔═╡ c61fa79e-4583-11eb-3b71-2d334aca843d
 begin
@@ -197,33 +181,36 @@ end
 begin  # note: this func only downloads the first card with a matching name and then moves to the next.
 	deck_cards = []
 	commander_cards = []
+	
+	for n in sort(deck[:card_names])
 
-	for c in mtg_cards
-		
-		for n in deck[:cards]
-		 	
+		for c in mtg_cards
+
 			if n == c["name"]
 				push!(deck_cards, c)
 			end
 		end
+	end
 
-		for n in deck[:commanders]
-			
+	for n in deck[:commander_names]
+
+		for c in mtg_cards
+		
 			if n == c["name"]
 				push!(commander_cards, c)
 			end
 		end
 	end
 
-	all_cards = vcat(deck_cards, commander_cards)
-	
+	all_cards = vcat(commander_cards, deck_cards)
+
 	md"""
 	Found $(length(deck_cards) + length(commander_cards)) matching cards in mtg_cards!
 	"""
 end
 
 # ╔═╡ c31dd202-50c6-11eb-0631-13c70535635e
-missing_cards = filter!(x->!(x in [ c["name"] for c in all_cards ]), vcat(deck[:cards], deck[:commanders]))
+missing_cards = filter!(x->!(x in [ c["name"] for c in all_cards ]), vcat(deck[:card_names], deck[:commander_names]))
 
 # ╔═╡ 2775088a-4648-11eb-2218-af69e0e95f1f
 @bind i Slider(1:length(all_cards), show_value=true)
@@ -247,17 +234,37 @@ md"""
 TODO: write support for previews of double-sided cards
 """
 
+# ╔═╡ dfc9b56e-50ce-11eb-0e7f-83ec6e831901
+begin
+	#=
+	CARD_FRONT_IMGS = []
+	COMMANDER_FRONT_IMGS = []
+
+	for c in deck_cards
+		push!(CARD_FRONT_IMGS, get_mtg_card_front_img(c))
+		sleep(0.1)
+	end
+
+	for c in commander_cards
+		push!(COMMANDER_FRONT_IMGS, get_mtg_card_front_img(c))
+		sleep(0.1)
+	end
+
+	COMMANDER_FRONT_IMGS, CARD_FRONT_IMGS
+	=#
+end;
+
 # ╔═╡ ce216c54-468a-11eb-13b8-7f3dac7af44a
 function get_card_img(img_uri::String)
 	img_resp = HTTP.get(img_uri)
 	card_img = img_resp.body |> IOBuffer |> load
-end;
+end
 
 # ╔═╡ 2ab53d00-50cd-11eb-1cd4-5bf94ce53692
 function get_mtg_card_img(c)
 	if haskey(all_cards[i], "card_faces") && haskey(all_cards[i]["card_faces"][1], "image_uris")
-		imresize(vcat([ 
-			get_card_img(f["image_uris"]["border_crop"]) for f in all_cards[i]["card_faces"] 
+		imresize(vcat([
+			get_card_img(f["image_uris"]["border_crop"]) for f in all_cards[i]["card_faces"]
 			]...), ratio=ratio)
 	else
 		imresize(
@@ -266,7 +273,7 @@ function get_mtg_card_img(c)
 				), ratio=ratio
 			)
 	end
-end;
+end
 
 # ╔═╡ 73d1cd18-4647-11eb-3994-7d4eb92eddca
 if (@isdefined all_cards) && length(all_cards) > 0
@@ -280,80 +287,33 @@ function get_mtg_card_front_img(c)
 	else
 		get_card_img(c["image_uris"]["border_crop"])
 	end
-end;
-
-# ╔═╡ dfc9b56e-50ce-11eb-0e7f-83ec6e831901
-begin
-	CARD_FRONT_IMGS = []
-	
-	for c in all_cards
-		push!(CARD_FRONT_IMGS, get_mtg_card_front_img(c))
-		sleep(0.1)
-	end
-
-	CARD_FRONT_IMGS
 end
-
-# ╔═╡ e789a658-50d9-11eb-1911-0d9477db28fb
-length(CARD_FRONT_IMGS)
 
 # ╔═╡ d654ad1e-468a-11eb-2348-695621b7b9b0
 function search_mtg_cards_by_keyword(q::String, mtg_cards::Array)
 	[ n for n in [ c["name"] for c in mtg_cards ] if occursin(q, n) ]
-end;
+end
 
 # ╔═╡ cec924ac-50c7-11eb-3795-85b3c183a8eb
 search_mtg_cards_by_keyword("Jwari", mtg_cards)
 
-# ╔═╡ 055b5ea4-50cb-11eb-11ca-cfac1f7db510
-begin
-	CARDS = Card[]
-	CARD_BACKSIDE = AC.Image("Backside", CARD_BACK_IMG)
-	length(all_cards)
-end
-
 # ╔═╡ 5e6f7046-4da5-11eb-0122-bd82397aab4f
 begin
-	deck[:Backside] = AC.Image("backside", CARD_BACK_IMG)
-	
-	deck[:CARDS] = [ 
-		Card(
-			rand(1:999),
-			all_cards[i]["name"],
-			GZ2.Rect(0,0,size(CARD_FRONT_IMGS[i])...),
-			[ AC.Image(all_cards[i]["name"], CARD_FRONT_IMGS[i]), deck[:Backside] ],
-			false,
-			Dict() 
-			) for i in 1:length(deck_cards)
-		]
-	
-	deck[:COMMANDERS] = [ 
-		Card(
-			rand(1:999),
-			all_cards[i]["name"],
-			GZ2.Rect(0,0,size(CARD_FRONT_IMGS[i])...),
-			[ AC.Image(all_cards[i]["name"], CARD_FRONT_IMGS[i]), deck[:Backside] ],
-			false,
-			Dict() 
-			) for i in 1:length(commander_cards)
-	]
-	
-	deck[:CARD_IMG_RATIO] = ratio
+	#deck[:CARD_IMG_RATIO] = ratio
+	#deck[:CARD_FRONT_IMGS] = CARD_FRONT_IMGS
+	#deck[:COMMANDER_FRONT_IMGS] = COMMANDER_FRONT_IMGS
 	
 	fn = "$(projectdir())/games/MtG/EDH/decks/$(deck[:name])/$(deck[:name]).jls"
 	
-	serialize(fn, deck)
-
+	#serialize(fn, deck)
 	deserialize(fn)
+	deck
 end
-
-# ╔═╡ d90b027e-50dd-11eb-2142-b947a338dc42
-deck[:CARDS]
 
 # ╔═╡ Cell order:
 # ╟─c7952ee6-45b5-11eb-1158-5bb2ff274ce9
-# ╠═0c145632-3927-11eb-19b9-877e05c1bcdc
-# ╟─621b08a4-384e-11eb-0109-61e9b9ecf125
+# ╟─0c145632-3927-11eb-19b9-877e05c1bcdc
+# ╠═621b08a4-384e-11eb-0109-61e9b9ecf125
 # ╟─fb61d01c-458d-11eb-2c2a-f711dc7ab7f4
 # ╟─5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
 # ╟─c61fa79e-4583-11eb-3b71-2d334aca843d
@@ -364,12 +324,9 @@ deck[:CARDS]
 # ╟─2775088a-4648-11eb-2218-af69e0e95f1f
 # ╠═c5374766-4ef1-11eb-2555-c159dba953f0
 # ╟─614764b8-4648-11eb-0493-732a00df7bca
-# ╟─dfc9b56e-50ce-11eb-0e7f-83ec6e831901
-# ╟─e789a658-50d9-11eb-1911-0d9477db28fb
+# ╠═dfc9b56e-50ce-11eb-0e7f-83ec6e831901
 # ╟─ce216c54-468a-11eb-13b8-7f3dac7af44a
 # ╟─2ab53d00-50cd-11eb-1cd4-5bf94ce53692
 # ╟─97bc3768-50ce-11eb-3f74-95d4fefe3792
 # ╟─d654ad1e-468a-11eb-2348-695621b7b9b0
-# ╠═055b5ea4-50cb-11eb-11ca-cfac1f7db510
 # ╠═5e6f7046-4da5-11eb-0122-bd82397aab4f
-# ╠═d90b027e-50dd-11eb-2142-b947a338dc42

@@ -27,8 +27,8 @@ end;
 begin
 	@quickactivate
 
-	using GZ2
 	using DataStructures
+	using GZ2	
 
 	md"""
 	## GAME RULES (INACTIVE)
@@ -50,7 +50,9 @@ abstract type AbstractLand <: AbstractCard end
 mutable struct Card <: AbstractCard
 	id::Int
     name::String
-	position::Rect
+	owner::String
+	controller::String
+	zone::Symbol
 	actors::Vector{Actor}
 	tapped::Bool
 	d::Dict{Symbol,Any}
@@ -88,7 +90,7 @@ mutable struct Player
 end
 
 # ╔═╡ 88d425c0-5011-11eb-11f9-271c42ea3c50
-mutable struct Game
+mutable struct PlaymatSimulatorGame
 	player_names::Vector{Player}
 	global_effects::Vector{CardEffect}
 	server_address::String

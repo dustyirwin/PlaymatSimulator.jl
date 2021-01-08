@@ -1,5 +1,8 @@
 module Animations
 
+using DrWatson
+@quickactivate
+
 using Dates
 using Random
 using GZ2
@@ -96,7 +99,7 @@ function fade_card(c::Actor, f::Int=2)
     end
 end
 
-function reset_card(c::Actor, w::Int32, h::Int32)
+function reset_actor(c::Actor, w::Int32, h::Int32)
     c.w = w
     c.h = h
     c.angle = 0
@@ -106,26 +109,26 @@ function reset_card(c::Actor, w::Int32, h::Int32)
     end
 end
 
-function splay_cards(cards::Vector{Actor}, x::Int32, y::Int32,
+function splay_actors(actors::Vector{Actor}, x::Int32, y::Int32,
     SCREEN_HEIGHT::Int32, SCREEN_BORDER::Int32; pitch=Float64[10, 10])
 
-    for c in cards
+    for a in actors
 
         if pitch[2] < 0 && y < SCREEN_BORDER
-            y = SCREEN_HEIGHT - SCREEN_BORDER - c.h * c.scale[2]
-            x -= ceil(Int32, c.w * pitch[1] > 0 ? 0.5 : -0.5)
+            y = SCREEN_HEIGHT - SCREEN_BORDER - a.h * a.scale[2]
+            x -= ceil(Int32, a.w * pitch[1] > 0 ? 0.5 : -0.5)
         end
 
-        if pitch[2] > 0 && y + c.h * c.scale[2] > SCREEN_HEIGHT - SCREEN_BORDER
+        if pitch[2] > 0 && y + a.h * a.scale[2] > SCREEN_HEIGHT - SCREEN_BORDER
             y = SCREEN_BORDER
-            x -= ceil(Int32, c.w * pitch[1] > 0 ? 0.5 : -0.5)
+            x -= ceil(Int32, a.w * pitch[1] > 0 ? 0.5 : -0.5)
         end
 
-        c.x = x
-        c.y = y
+        a.x = x
+        a.y = y
 
-        x += ceil(Int32, c.w * c.scale[1] * pitch[1])
-        y += ceil(Int32, c.h * c.scale[2] * pitch[2])
+        x += ceil(Int32, a.w * a.scale[1] * pitch[1])
+        y += ceil(Int32, a.h * a.scale[2] * pitch[2])
     end
 end
 
@@ -140,8 +143,14 @@ function update_text_actor!(a::Actor, new_text::String)
 end
 
 function next_frame(a::Actor)
-    a.textures = circshift(a.textures, -1)
+    circshift!(a.textures, -1)
     a.data[:then] = now()
+	return a
+end
+
+function next_face(c::T) where T
+	circshift!(c.actors, -1)
+	return c
 end
 
 end # module
