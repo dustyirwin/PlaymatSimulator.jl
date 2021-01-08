@@ -116,12 +116,12 @@ function splay_actors(actors::Vector{Actor}, x::Int32, y::Int32,
 
         if pitch[2] < 0 && y < SCREEN_BORDER
             y = SCREEN_HEIGHT - SCREEN_BORDER - a.h * a.scale[2]
-            x -= ceil(Int32, a.w * pitch[1] > 0 ? 0.5 : -0.5)
+            x -= ceil(Int32, a.w * pitch[1] > 0 ? 0.4 : -0.4)
         end
 
         if pitch[2] > 0 && y + a.h * a.scale[2] > SCREEN_HEIGHT - SCREEN_BORDER
             y = SCREEN_BORDER
-            x -= ceil(Int32, a.w * pitch[1] > 0 ? 0.5 : -0.5)
+            x -= ceil(Int32, a.w * pitch[1] > 0 ? 0.4 : -0.4)
         end
 
         a.x = x

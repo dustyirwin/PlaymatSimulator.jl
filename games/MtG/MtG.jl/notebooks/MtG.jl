@@ -101,11 +101,11 @@ function reset_deck!(gs::Dict)
 			"player1",
 			"player1",
 			:library,
-			[ Image(name, img), deck[:Backside] ],
+			[ Image(name, imresize(img, ratio=deck[:CARD_IMG_RATIO])), deck[:Backside] ],
 			false,
 			false,
 			Dict(),
-			)
+		)
 
 		push!(CARDS, c)
 	end
@@ -119,7 +119,7 @@ function reset_deck!(gs::Dict)
 			"player1",
 			"player1",
 			:library,
-			[ Image(name, img), deck[:Backside] ],
+			[ Image(name, imresize(img, ratio=deck[:CARD_IMG_RATIO])), deck[:Backside] ],
 			false,
 			false,
 			Dict(),
@@ -304,7 +304,7 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
             end
 
         elseif !isempty(ib)
-            if ib[end] === gs[:zone][:library][end]
+            if ib[end] in gs[:zone][:library]
                 filter!(x->!(x in [gs[:zone][:hand]..., gs[:zone][:battlefield]...]), gs[:group][:clickables])
                 sorted = SortedDict(a.label=>a for a in gs[:zone][:library])
                 gs[:zone][:library] = [ values(sorted)... ]
@@ -316,10 +316,10 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
                     AN.splay_actors(
                         gs[:zone][:library],
                         ceil(Int32, gs[:stage][:hand].w + 2SCREEN_BORDER),
-                        SCREEN_BORDER,
+                        SCREEN_HEIGHT - DEFAULT_CARD_HEIGHT,
                         SCREEN_HEIGHT,
                         SCREEN_BORDER,
-                        pitch=[0.065, 0.1]
+                        pitch=[-0.045, 0.1]
                     )
                 else
                     for c in reverse(gs[:zone][:library])
@@ -558,14 +558,14 @@ function on_key_down(g::Game, key, keymod)
             if g.keyboard.RCTRL || g.keyboard.LCTRL
                 reset_deck!(gs)
             else
-                AN.reset_card.(gs[:group][:all_cards], DEFAULT_CARD_WIDTH, DEFAULT_CARD_HEIGHT)
+                AN.reset_actor.(gs[:group][:all_cards], DEFAULT_CARD_WIDTH, DEFAULT_CARD_HEIGHT)
             end
 
         elseif !isempty(gs[:group][:selected])
-            AN.reset_card.(gs[:group][:selected], DEFAULT_CARD_WIDTH, DEFAULT_CARD_HEIGHT)
+            AN.reset_actor.(gs[:group][:selected], DEFAULT_CARD_WIDTH, DEFAULT_CARD_HEIGHT)
 
         elseif !isempty(ib)
-            AN.reset_card(ib[end], DEFAULT_CARD_WIDTH, DEFAULT_CARD_HEIGHT)
+            AN.reset_actor(ib[end], DEFAULT_CARD_WIDTH, DEFAULT_CARD_HEIGHT)
         end
 
     elseif key == Keys.EQUALS

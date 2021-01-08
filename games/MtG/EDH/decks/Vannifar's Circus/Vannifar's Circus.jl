@@ -260,21 +260,17 @@ end
 # ╔═╡ 2ab53d00-50cd-11eb-1cd4-5bf94ce53692
 function get_mtg_card_img(c)
 	if haskey(all_cards[i], "card_faces") && haskey(all_cards[i]["card_faces"][1], "image_uris")
-		imresize(vcat([
+		vcat([
 			get_card_img(f["image_uris"]["border_crop"]) for f in all_cards[i]["card_faces"]
-			]...), ratio=ratio)
+			]...)
 	else
-		imresize(
-			get_card_img(
-				all_cards[i]["image_uris"]["border_crop"]
-				), ratio=ratio
-			)
+		get_card_img(all_cards[i]["image_uris"]["border_crop"])
 	end
 end
 
 # ╔═╡ 73d1cd18-4647-11eb-3994-7d4eb92eddca
 if (@isdefined all_cards) && length(all_cards) > 0
-	deck_card_preview = get_mtg_card_img(all_cards[i])
+	deck_card_preview = imresize(get_mtg_card_img(all_cards[i]), ratio=ratio)
 end
 
 # ╔═╡ 97bc3768-50ce-11eb-3f74-95d4fefe3792
@@ -310,7 +306,7 @@ end
 # ╔═╡ Cell order:
 # ╟─c7952ee6-45b5-11eb-1158-5bb2ff274ce9
 # ╟─0c145632-3927-11eb-19b9-877e05c1bcdc
-# ╠═621b08a4-384e-11eb-0109-61e9b9ecf125
+# ╟─621b08a4-384e-11eb-0109-61e9b9ecf125
 # ╟─fb61d01c-458d-11eb-2c2a-f711dc7ab7f4
 # ╟─5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
 # ╟─c61fa79e-4583-11eb-3b71-2d334aca843d
@@ -323,7 +319,7 @@ end
 # ╟─614764b8-4648-11eb-0493-732a00df7bca
 # ╠═dfc9b56e-50ce-11eb-0e7f-83ec6e831901
 # ╟─ce216c54-468a-11eb-13b8-7f3dac7af44a
-# ╟─2ab53d00-50cd-11eb-1cd4-5bf94ce53692
+# ╠═2ab53d00-50cd-11eb-1cd4-5bf94ce53692
 # ╟─97bc3768-50ce-11eb-3f74-95d4fefe3792
 # ╟─d654ad1e-468a-11eb-2348-695621b7b9b0
 # ╠═5e6f7046-4da5-11eb-0122-bd82397aab4f
