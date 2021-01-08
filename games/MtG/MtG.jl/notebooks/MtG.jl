@@ -103,6 +103,7 @@ function reset_deck!(gs::Dict)
 			:library,
 			[ Image(name, img), deck[:Backside] ],
 			false,
+			false,
 			Dict(),
 			)
 
@@ -119,6 +120,7 @@ function reset_deck!(gs::Dict)
 			"player1",
 			:library,
 			[ Image(name, img), deck[:Backside] ],
+			false,
 			false,
 			Dict(),
 			)

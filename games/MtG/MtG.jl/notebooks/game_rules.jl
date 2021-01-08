@@ -55,6 +55,7 @@ mutable struct Card <: AbstractCard
 	zone::Symbol
 	faces::Vector{Actor}
 	tapped::Bool
+	flipped::Bool
 	d::Dict{Symbol,Any}
 end
 
@@ -74,6 +75,7 @@ end
 
 # ╔═╡ d61fed94-5016-11eb-1b20-edc6a8b86bb5
 mutable struct Planeswalker
+	card::Card
 	loyalty::Int
 end
 

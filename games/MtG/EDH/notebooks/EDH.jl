@@ -32,7 +32,7 @@ begin
 	using Serialization
     using PlaymatSimulator
 
-	AC = PlaymatSimulator.Actors
+	import PlaymatSimulator.Actors.Image
 
 	md"""
 	## Elder Dragon Highlander aka Commander
@@ -69,7 +69,7 @@ add_texts!(gs)
 # ╔═╡ 5d5e4990-4c1b-11eb-04c8-5da74ff7c314
 begin
 	@show keys(deck)
-	deck[:Backside] = AC.Image("Backside", deck[:CARD_BACK_IMG])
+	deck[:Backside] = Image("Backside", deck[:CARD_BACK_IMG])
 
 	deck[:CARDS] = [
 		Card(
@@ -78,7 +78,8 @@ begin
 			"player1",
 			"player1",
 			:library,
-			[ AC.Image(deck[:card_names][i], deck[:CARD_FRONT_IMGS][i]), deck[:Backside] ],
+			[ Image(deck[:card_names][i], deck[:CARD_FRONT_IMGS][i]), deck[:Backside] ],
+			false,
 			false,
 			Dict()
 			) for i in 1:length(deck[:card_names])
@@ -91,7 +92,8 @@ begin
 			"player1",
 			"player1",
 			:command,
-			[ AC.Image(deck[:commander_names][i], deck[:CARD_FRONT_IMGS][i]), deck[:Backside] ],
+			[ Image(deck[:commander_names][i], deck[:CARD_FRONT_IMGS][i]), deck[:Backside] ],
+			false,
 			false,
 			Dict()
 			) for i in 1:length(deck[:commander_names])
