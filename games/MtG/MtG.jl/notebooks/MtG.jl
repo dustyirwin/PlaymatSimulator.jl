@@ -129,7 +129,7 @@ function reset_deck!(gs::Dict)
 	#	PlaymatSimulator.Animations.flip_card!(c, gs[:deck][:CARD_BACK_PATH])
 	#end
 
-    PlaymatSimulator.Animations.splay_cards(gs[:zone][:hand], 	# splay cards into hand zone
+    PlaymatSimulator.Animations.splay_actors(gs[:zone][:hand], 	# splay cards into hand zone
         SCREEN_BORDER,
         SCREEN_BORDER,
         SCREEN_HEIGHT,
@@ -137,7 +137,7 @@ function reset_deck!(gs::Dict)
         pitch=[0.05, 0.1],
     )
 
-    PlaymatSimulator.Animations.splay_cards(gs[:zone][:library],  # stack library cards into deck
+    PlaymatSimulator.Animations.splay_actors(gs[:zone][:library],  # stack library cards into deck
         SCREEN_BORDER,
         SCREEN_HEIGHT - SCREEN_BORDER - CARD_HEIGHT,
         SCREEN_HEIGHT,
@@ -290,7 +290,7 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
                 if SDL2.HasIntersection(
                     Ref(gs[:zone][:library][end].position), Ref(gs[:stage][:library].position))
 
-                    AN.splay_cards(
+                    AN.splay_actors(
                         gs[:zone][:library],
                         ceil(Int32, gs[:stage][:hand].w + 2SCREEN_BORDER),
                         SCREEN_BORDER,
@@ -313,7 +313,7 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
 						filter!(x->x==c, gs[:group][:clickables])
 					end
 
-                    AN.splay_cards(gs[:zone][:library],
+                    AN.splay_actors(gs[:zone][:library],
                         SCREEN_BORDER,
                         SCREEN_HEIGHT - SCREEN_BORDER - DEFAULT_CARD_HEIGHT,
                         SCREEN_HEIGHT,
@@ -565,7 +565,7 @@ function on_key_down(g::Game, key, keymod)
 
         if zone_sym !== nothing
             if zone_sym == :graveyard
-                AN.splay_cards(
+                AN.splay_actors(
                     gs[:zone][zone_sym],
                     gs[:stage][zone_sym].x,
                     gs[:stage][zone_sym].y,
@@ -574,7 +574,7 @@ function on_key_down(g::Game, key, keymod)
                     pitch=[0.02, 0.04],
                     )
             elseif zone_sym !== :library
-                AN.splay_cards(
+                AN.splay_actors(
                     gs[:zone][zone_sym],
                     gs[:stage][zone_sym].x,
                     gs[:stage][zone_sym].y,
@@ -584,7 +584,7 @@ function on_key_down(g::Game, key, keymod)
                 )
             end
         end
-        play_sound("$GAME_DIR/sounds/splay_cards.mp3")
+        play_sound("$GAME_DIR/sounds/splay_actors.mp3")
 
     elseif key == Keys.BACKQUOTE
         try
@@ -732,7 +732,7 @@ function add_texts!(gs::Dict)
         values(gs[:texts])...,
         )
 
-    PlaymatSimulator.Animations.splay_cards(Actor[ s for s in values(gs[:ui][:horizontal_spinners])],
+    PlaymatSimulator.Animations.splay_actors(Actor[ s for s in values(gs[:ui][:horizontal_spinners])],
         ceil(Int32, SCREEN_WIDTH * 0.955),
         Int32(2SCREEN_BORDER),
         SCREEN_HEIGHT,

@@ -7,7 +7,7 @@ using InteractiveUtils
 # ╔═╡ b99805ba-3931-11eb-0e18-6ffb5497630d
 begin
 	using DrWatson
-	
+
 	function ingredients(path::String)
 	# this is from the Julia source code (evalfile in base/loading.jl)
 	# but with the modification that it returns the module instead of the last object
@@ -26,14 +26,15 @@ end;
 # ╔═╡ d840fcce-3931-11eb-0d08-59ed4b60b2f9
 begin
 	@quickactivate
-	
+
 	using GZ2
 	using Random
     using DataStructures
     using Serialization
-	
+	using PlaymatSimulator
+
 	mtg_dir = projectdir() * "/games/MtG"
-	
+
 	md"""
 	## EDH GAME STATE
 	Provide an initial game state function for the game engine to load upon launch by defining a `gs` Dict{Symbol,Any}(...) object below with all of the game assets.
@@ -41,7 +42,7 @@ begin
 end
 
 # ╔═╡ dc7d18dc-4c04-11eb-17b2-f76e6de70440
-PS = game_include("$(projectdir())/src/PlaymatSimulator.jl")
+PS = PlaymatSimulator
 
 # ╔═╡ e0c99ac6-4da3-11eb-2660-4dadb1ca26c9
 AN = PS.PlaymatSimulator.Animations
@@ -80,18 +81,18 @@ gs = Dict{Symbol,Any}(
 			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png"), alpha=50, w=0, h=0),
 		:glass_counters => Dict{Symbol, Any}(
             :red_counter => AC.Image("red_counter",
-				load("$mtg_dir/MtG.jl/ui/counters/red_glass_counter_sm.png"), 
-                x=ceil(Int32, SCREEN_WIDTH * 0.7), 
+				load("$mtg_dir/MtG.jl/ui/counters/red_glass_counter_sm.png"),
+                x=ceil(Int32, SCREEN_WIDTH * 0.7),
 				y=SCREEN_HEIGHT - 5SCREEN_BORDER
 				),
             :blue_counter => AC.Image("blue_counter",
 				load("$mtg_dir/MtG.jl/ui/counters/blue_glass_counter_sm.png"),
-                x=ceil(Int32, SCREEN_WIDTH * 0.7275), 
+                x=ceil(Int32, SCREEN_WIDTH * 0.7275),
 				y=SCREEN_HEIGHT - 5SCREEN_BORDER
 				),
             :green_counter => AC.Image("green_counter",
 				load("$mtg_dir/MtG.jl/ui/counters/green_glass_counter_sm.png"),
-                x=ceil(Int32, SCREEN_WIDTH * 0.7550), 
+                x=ceil(Int32, SCREEN_WIDTH * 0.7550),
 				y=SCREEN_HEIGHT - 5SCREEN_BORDER
 				),
             ),
@@ -110,7 +111,7 @@ gs = Dict{Symbol,Any}(
         :life=>40,  # EDH life adjustment
         ),
     :sfx => OrderedDict(
-        :shade_wht=>AC.Image("shade_wht", 
+        :shade_wht=>AC.Image("shade_wht",
 			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png")),
         :shade_blk=>AC.Image("shade_blk",
 			load("$mtg_dir/MtG.jl/ui/zones/area_blk.png")),
