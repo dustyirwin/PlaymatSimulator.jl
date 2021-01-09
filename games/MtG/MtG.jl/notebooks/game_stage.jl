@@ -54,7 +54,7 @@ SHADE_PATH = "$mtg_dir/MtG.jl/ui/zones/area_blk.png"
 zone_shade = load(SHADE_PATH)
 
 # ╔═╡ 235edb4c-38fe-11eb-3112-bde291f6f5b5
-STAGE = OrderedDict(
+STAGE = Dict(
 	:background => Image("$(GS.BKG_NAME)",
 		load(GS.BKG_PATH),
 		w=SCREEN_WIDTH, h=SCREEN_HEIGHT

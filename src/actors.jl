@@ -123,7 +123,7 @@ function GIF(gif_name::String, gif; x=0, y=0, kv...)
         0,
         255,
         Dict(
-            :gif=>gif,  
+            :gif=>gif,
             :fade=>false,
             :fade_out=>true,
             :spin=>false,

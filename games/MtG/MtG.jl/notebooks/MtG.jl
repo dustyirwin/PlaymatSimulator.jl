@@ -174,9 +174,22 @@ function on_mouse_move(g::Game, pos::Tuple)
         if c == gs[:ui][:sel_box]
             c.w = gs[:ui][:cursor].x - c.x
             c.h = gs[:ui][:cursor].y - c.y
-        elseif !(g.keyboard.RSHIFT || g.keyboard.LSHIFT)
-            c.x = gs[:MOUSE_POS][1] + c.data[:mouse_offset][1]
-            c.y = gs[:MOUSE_POS][2] + c.data[:mouse_offset][2]
+
+		elseif !(g.keyboard.RSHIFT || g.keyboard.LSHIFT)
+
+			if c isa Card
+	            c.position.x = gs[:MOUSE_POS][1] + c.data[:mouse_offset][1]
+	            c.position.y = gs[:MOUSE_POS][2] + c.data[:mouse_offset][2]
+
+				for a in c.faces
+					a.x = c.position.x
+					a.y = c.position.y
+				end
+
+			else
+				c.x = gs[:MOUSE_POS][1] + c.data[:mouse_offset][1]
+	            c.y = gs[:MOUSE_POS][2] + c.data[:mouse_offset][2]
+			end
         end
     end
 end
@@ -186,7 +199,6 @@ function draw(g::Game)
     draw.([
         # bottom layer
         values(gs[:stage])...,
-        [ (values(gs[:zone])... )... ]...,
         [ (values(gs[:overlay])... )... ]...,
         values(gs[:texts])...,
         values(gs[:ui][:glass_counters])...,
@@ -658,22 +670,17 @@ function on_key_down(g::Game, key, keymod)
     elseif key == Keys.F
 
         if !isempty(gs[:group][:selected])
-			@show [ a.label for a in gs[:group][:selected] ]
 
-			for (a, c) in zip(gs[:group][:selected], gs[:ALL_CARDS])
-                c.faces = circshift(c.faces, 1)
-				continue
+			for c in gs[:group][:selected]
+				if c isa Card
+                	c.faces = circshift(c.faces, 1)
+					continue
+				end
             end
 
 		elseif !isempty(ib)
-			@show ib[end].label
-
-			for c in gs[:ALL_CARDS]
-				@show ib[end].label, c.name
-				if ib[end].label == c.name
-					c.faces = circshift(c.faces, 1)
-					break
-				end
+			if ib[end] isa Card
+				ib[end].faces = circshift(ib[end].faces, 1)
 			end
         end
 
@@ -806,7 +813,7 @@ function update(g::Game)
         if a.data[:fade]; AN.fade_card(a) end
         if haskey(a.data, :next_frame) && a.data[:next_frame]
             if now() - a.data[:then] > a.data[:frame_delays][begin]
-                AN.next_frame(a)
+                AN.next_frame!(a)
             end
         end
     end
@@ -814,7 +821,6 @@ end
 
 # ╔═╡ 70d25e54-468e-11eb-160f-9bdafa1ee16c
 begin
-	draw(c::Card) = draw(c.faces[begin])
 	#play_music(gs[:music][end], 1)  # play_music(name, loops=-1)
 
 	#SDL2.SetWindowFullscreen(game[].screen.window, SDL2.WINDOW_FULLSCREEN_DESKTOP)

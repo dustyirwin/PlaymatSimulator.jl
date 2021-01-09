@@ -119,6 +119,7 @@ gs = Dict{Symbol,Any}(
     :overlay => OrderedDict(
         :shades => Actor[],
         :texts => Actor[],
+		:cards => Actor[],
         :effects => Actor[],
 		:counters => Actor[],
         ),
@@ -130,9 +131,9 @@ gs = Dict{Symbol,Any}(
         :hand => Card[],
         ),
     :group => OrderedDict(
-        :clickables => Any[],
+        :clickables => Union{Actor,Card}[],
         :all_cards => Card[],
-        :selected => Any[],
+        :selected => Union{Actor,Card}[],
         ),
 	:stack => OrderedDict(),
 	)

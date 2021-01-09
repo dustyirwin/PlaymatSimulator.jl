@@ -130,7 +130,7 @@ function update_text_actor!(a::Actor, new_text::String)
     return a
 end
 
-function next_frame(a::Actor)
+function next_frame!!(a::Actor)
     circshift!(a.textures, -1)
     a.data[:then] = now()
 	return a
