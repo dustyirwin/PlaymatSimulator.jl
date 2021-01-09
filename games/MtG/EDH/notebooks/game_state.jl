@@ -123,17 +123,18 @@ gs = Dict{Symbol,Any}(
 		:counters => Actor[],
         ),
     :zone => OrderedDict(
-        :command => Actor[],  # EDH zone
-        :graveyard => Actor[],
-        :battlefield => Actor[],
-        :library => Actor[],
-        :hand => Actor[],
+        :command => Card[],  # EDH zone
+        :graveyard => Card[],
+        :battlefield => Card[],
+        :library => Card[],
+        :hand => Card[],
         ),
     :group => OrderedDict(
-        :clickables => Actor[],
-        :all_cards => Actor[],
-        :selected => Actor[],
+        :clickables => Any[],
+        :all_cards => Card[],
+        :selected => Any[],
         ),
+	:stack => OrderedDict(),
 	)
 
 # ╔═╡ 4339c7e0-4c1f-11eb-1372-5b42b11fa88e

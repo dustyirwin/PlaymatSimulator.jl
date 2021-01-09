@@ -48,11 +48,11 @@ abstract type AbstractLand <: AbstractCard end
 
 # ╔═╡ 09703f54-4fcf-11eb-3a14-45a4cfafbe5d
 mutable struct Card <: AbstractCard
-	id::Int
+	id::Int32
     name::String
 	owner::String
 	controller::String
-	zone::Symbol
+	position::Rect
 	faces::Vector{Actor}
 	tapped::Bool
 	flipped::Bool

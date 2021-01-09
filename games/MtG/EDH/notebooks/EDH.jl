@@ -68,40 +68,7 @@ add_texts!(gs)
 
 # ╔═╡ 5d5e4990-4c1b-11eb-04c8-5da74ff7c314
 begin
-	@show keys(deck)
-	deck[:Backside] = Image("Backside", deck[:CARD_BACK_IMG])
-
-	deck[:CARDS] = [
-		Card(
-			rand(1:999),
-			deck[:card_names][i],
-			"player1",
-			"player1",
-			:library,
-			[ Image(deck[:card_names][i], deck[:CARD_FRONT_IMGS][i]), deck[:Backside] ],
-			false,
-			false,
-			Dict()
-			) for i in 1:length(deck[:card_names])
-		]
-
-	deck[:COMMANDERS] = [
-		Card(
-			rand(1:999),
-			deck[:commander_names][i],
-			"player1",
-			"player1",
-			:command,
-			[ Image(deck[:commander_names][i], deck[:CARD_FRONT_IMGS][i]), deck[:Backside] ],
-			false,
-			false,
-			Dict()
-			) for i in 1:length(deck[:commander_names])
-	]
-
-	gs[:deck] = deck
 end
-
 
 # ╔═╡ 0146b240-4c0a-11eb-371c-19ef327394c7
 reset_deck!(gs)

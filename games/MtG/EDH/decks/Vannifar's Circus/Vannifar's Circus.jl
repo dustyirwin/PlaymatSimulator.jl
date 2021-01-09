@@ -216,13 +216,13 @@ missing_cards = filter!(x->!(x in [ c["name"] for c in all_cards ]), vcat(deck[:
 md"""
 ##### *Adjust this slider to shrink / grow the cards while preserving the aspect ratio*
 
-$(@bind ratio Slider(0.1:0.05:1.5, default=0.5, show_value=true))
+$(@bind card_ratio Slider(0.1:0.05:1.25, default=0.5, show_value=true))
 """
 
 # ╔═╡ 5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
 begin
 	CARD_BACK_PATH = "$(projectdir())/games/MtG/MtG.jl/ui/cards/card_back.png"
-	CARD_BACK_IMG = imresize(load(CARD_BACK_PATH), ratio=ratio)
+	CARD_BACK_IMG = imresize(load(CARD_BACK_PATH), ratio=card_ratio)
 end
 
 # ╔═╡ 614764b8-4648-11eb-0493-732a00df7bca
@@ -238,12 +238,12 @@ begin
 	COMMANDER_FRONT_IMGS = []
 
 	for c in deck_cards
-		push!(CARD_FRONT_IMGS, get_mtg_card_front_img(c))
+		push!(CARD_FRONT_IMGS, imresize(get_mtg_card_front_img(c), ratio=card_ratio))
 		sleep(0.1)
 	end
 
 	for c in commander_cards
-		push!(COMMANDER_FRONT_IMGS, get_mtg_card_front_img(c))
+		push!(COMMANDER_FRONT_IMGS, imresize(get_mtg_card_front_img(c), ratio=card_ratio+0.05))
 		sleep(0.1)
 	end
 
@@ -260,7 +260,7 @@ end
 # ╔═╡ 2ab53d00-50cd-11eb-1cd4-5bf94ce53692
 function get_mtg_card_img(c)
 	if haskey(all_cards[i], "card_faces") && haskey(all_cards[i]["card_faces"][1], "image_uris")
-		vcat([
+		hcat([
 			get_card_img(f["image_uris"]["border_crop"]) for f in all_cards[i]["card_faces"]
 			]...)
 	else
@@ -270,7 +270,9 @@ end
 
 # ╔═╡ 73d1cd18-4647-11eb-3994-7d4eb92eddca
 if (@isdefined all_cards) && length(all_cards) > 0
-	deck_card_preview = imresize(get_mtg_card_img(all_cards[i]), ratio=ratio)
+	deck_card_preview = imresize(get_mtg_card_img(all_cards[i]), ratio=card_ratio)
+else
+	nothing
 end
 
 # ╔═╡ 97bc3768-50ce-11eb-3f74-95d4fefe3792
@@ -293,7 +295,8 @@ search_mtg_cards_by_keyword("Jwari", mtg_cards)
 # ╔═╡ 5e6f7046-4da5-11eb-0122-bd82397aab4f
 begin
 	#=
-	deck[:CARD_IMG_RATIO] = ratio
+	deck[:CARD_WIDTH] = Int32(size(CARD_BACK_IMG)[1])
+	deck[:CARD_HEIGHT] = Int32(size(CARD_BACK_IMG)[2])
 	deck[:CARD_FRONT_IMGS] = CARD_FRONT_IMGS
 	deck[:CARD_BACK_IMG] = CARD_BACK_IMG
 	deck[:COMMANDER_FRONT_IMGS] = COMMANDER_FRONT_IMGS
@@ -319,7 +322,7 @@ end
 # ╟─614764b8-4648-11eb-0493-732a00df7bca
 # ╠═dfc9b56e-50ce-11eb-0e7f-83ec6e831901
 # ╟─ce216c54-468a-11eb-13b8-7f3dac7af44a
-# ╠═2ab53d00-50cd-11eb-1cd4-5bf94ce53692
+# ╟─2ab53d00-50cd-11eb-1cd4-5bf94ce53692
 # ╟─97bc3768-50ce-11eb-3f74-95d4fefe3792
 # ╟─d654ad1e-468a-11eb-2348-695621b7b9b0
 # ╠═5e6f7046-4da5-11eb-0122-bd82397aab4f

@@ -53,18 +53,6 @@ md"""
 $(SCREEN_BORDER = Int32( 10 )) pixels
 """
 
-# ╔═╡ bb07906a-3db6-11eb-0a62-7f1f1a07ddc4
-md"""
-`CARD_HEIGHT:`
-$(CARD_HEIGHT = ceil(Int32, SCREEN_HEIGHT / 3.5 )) pixels
-"""
-
-# ╔═╡ f41ff52e-3db6-11eb-0fbc-b179d4818776
-md"""
-`CARD_WIDTH:`
-$(CARD_WIDTH = ceil(Int32, CARD_HEIGHT * 2.5 / 3.5 )) pixels
-"""
-
 # ╔═╡ a913a358-3930-11eb-104b-a1e5b1b9091c
 md"""
 `DEFAULT_FONT:`
@@ -83,7 +71,7 @@ begin
 	
 	md"""
 	`BKG_NAMES:`
-	$(@bind BKG_NAME Select(BKG_NAMES,  default="sakura_blossom.png"))
+	$(@bind BKG_NAME Select(BKG_NAMES,  default="progenitus.jpg"))
 	"""
 end
 
@@ -109,8 +97,6 @@ GS = Dict(
 	:SCREEN_WIDTH=>SCREEN_WIDTH,
 	:SCREEN_HEIGHT=>SCREEN_HEIGHT,
 	:SCREEN_BORDER=>SCREEN_BORDER,
-	:CARD_WIDTH=>CARD_WIDTH,
-	:CARD_HEIGHT=>CARD_HEIGHT,
 	:BACKGROUND=>BACKGROUND,
 	:DEFAULT_FONT=>DEFAULT_FONT,
 	:MAX_FPS=>MAX_FPS,
@@ -123,13 +109,11 @@ GS = Dict(
 # ╟─3ffcf8a4-385b-11eb-25da-fd9bfc189e06
 # ╟─519b147e-385b-11eb-30ef-9354da78c3b2
 # ╟─731afc68-385b-11eb-1084-1f85f3b05ed0
-# ╟─bb07906a-3db6-11eb-0a62-7f1f1a07ddc4
-# ╟─f41ff52e-3db6-11eb-0fbc-b179d4818776
 # ╟─a913a358-3930-11eb-104b-a1e5b1b9091c
 # ╟─2936eba6-3942-11eb-14ec-05cab84f472d
-# ╟─3fe53d58-4d9c-11eb-11c3-1f1ea0505f98
+# ╠═3fe53d58-4d9c-11eb-11c3-1f1ea0505f98
 # ╟─089d469c-4da1-11eb-2c82-6132328b548c
-# ╟─2b99d0d8-4d9d-11eb-3f90-2fd6c50a9fa8
+# ╠═2b99d0d8-4d9d-11eb-3f90-2fd6c50a9fa8
 # ╟─0c14a126-3852-11eb-2561-9dd3f0f435b0
 # ╟─1fd3ee0a-4faa-11eb-1ee9-a5b89af3d078
 # ╠═e3105084-4c1e-11eb-297d-e1654170ec4a

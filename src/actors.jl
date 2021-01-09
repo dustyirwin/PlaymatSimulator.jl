@@ -34,7 +34,7 @@ function Image(img_name::String, img; x=0, y=0, kv...)
         0,
         255,
         Dict(
-            :front=>img,
+            :img=>img,
             :label=>img_name,
             :surfaces=>[sf],
             :fade=>false,
@@ -123,7 +123,7 @@ function GIF(gif_name::String, gif; x=0, y=0, kv...)
         0,
         255,
         Dict(
-            :front=>gif,
+            :gif=>gif,  
             :fade=>false,
             :fade_out=>true,
             :spin=>false,

@@ -9,8 +9,6 @@ using GZ2
 using DataStructures
 using SimpleDirectMediaLayer
 
-export flip_card!
-
 SDL2 = SimpleDirectMediaLayer
 AN_list = [:spin, :shake, :fade, :grow, :shrink, :squish]
 
@@ -36,19 +34,6 @@ end
 
 function spin_card(c::Actor; dθ=1)
     c.angle += c.data[:spin_cw] ? dθ : -dθ
-end
-
-function flip_card!(c::Actor, CARD_BACK_PATH::String)
-	if c.label == CARD_BACK_PATH
-		c.label = c.data[:label]
-		c.surfaces = c.data[:surfaces]
-	else
-		c.label = c.data[:label]
-		c.data[:surfaces] = c.surfaces
-		c.surfaces = [ GZ2.image_surface(CARD_BACK_PATH) ]
-	end
-	c.textures = []
-	return c
 end
 
 function squish_card(c::Actor, dir=:horizontal, limit=10, f=10)
@@ -99,29 +84,32 @@ function fade_card(c::Actor, f::Int=2)
     end
 end
 
-function reset_actor(c::Actor, w::Int32, h::Int32)
-    c.w = w
-    c.h = h
+function reset_actor!(c::Actor, h::Int32, w::Int32)
+	c.w = w
+	c.h = h
     c.angle = 0
 
     for AN_sym in AN_list
         c.data[AN_sym] = false
     end
+
+	return c
 end
 
 function splay_actors(actors::Vector{Actor}, x::Int32, y::Int32,
-    SCREEN_HEIGHT::Int32, SCREEN_BORDER::Int32; pitch=Float64[10, 10])
+    SCREEN_HEIGHT::Int32, SCREEN_BORDER::Int32; pitch=Float64[1, 1])
 
     for a in actors
 
         if pitch[2] < 0 && y < SCREEN_BORDER
             y = SCREEN_HEIGHT - SCREEN_BORDER - a.h * a.scale[2]
-            x -= ceil(Int32, a.w * pitch[1] > 0 ? 0.4 : -0.4)
+            x += ceil(Int32, a.w * pitch[1] > 0 ? 0.75 : -0.75)
         end
 
         if pitch[2] > 0 && y + a.h * a.scale[2] > SCREEN_HEIGHT - SCREEN_BORDER
+			@show x, y, pitch
             y = SCREEN_BORDER
-            x -= ceil(Int32, a.w * pitch[1] > 0 ? 0.4 : -0.4)
+            x -= ceil(Int32, a.w * pitch[1] > 0 ? 1 : -1)
         end
 
         a.x = x
@@ -146,11 +134,6 @@ function next_frame(a::Actor)
     circshift!(a.textures, -1)
     a.data[:then] = now()
 	return a
-end
-
-function next_face(c::T) where T
-	circshift!(c.actors, -1)
-	return c
 end
 
 end # module

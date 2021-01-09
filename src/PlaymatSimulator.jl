@@ -3,7 +3,7 @@ module PlaymatSimulator
 using GZ2
 using SimpleDirectMediaLayer
 
-export Actors, Animations, make_name_safe, in_bounds, copy_actor
+export Actors, Animations, in_bounds, copy_actor
 
 SDL2 = SimpleDirectMediaLayer
 Animations = include("animations.jl")
@@ -13,12 +13,6 @@ include("auth.jl")
 include("IO.jl")
 include("logging.jl")
 
-function make_name_safe(card_name::String)
-    card_name = lowercase(card_name)
-    card_name = replace(card_name, " "=>"_")
-    card_name = replace(card_name, ","=>"")
-    card_name = replace(card_name, "//"=>"--")
-end
 
 function copy_actor(a::Actor)
     c = occursin(".", a.label) ? Actors.Image(a.label) : Actors.Text(a.label, a.data[:font_path])
@@ -28,27 +22,6 @@ function copy_actor(a::Actor)
     c.y = a.y + 20
     c.data = a.data
     return c
-end
-
-function in_bounds(gs::Dict, as=Actor[])
-    for a in gs[:group][:clickables]
-        pos = if a.angle == 90 || a.angle == 270  # corrects for 90 & 270 rot abt center
-            SDL2.Rect(
-                ceil(a.x - (a.scale[2] * a.h - a.scale[1] * a.w) / 2),
-                ceil(a.y + (a.scale[2] * a.h - a.scale[1] * a.w) / 2),
-                a.h,
-                a.w,
-            )
-        else
-            a.position
-        end
-
-        if SDL2.HasIntersection(
-            Ref(pos), Ref(gs[:ui][:cursor].position))
-            push!(as, a)
-        end
-    end
-    return as
 end
 
 function download_card_by_name(card_name::String, card_data::Array, found_card=false)
