@@ -124,6 +124,7 @@ function reset_deck!(gs::Dict)
 
 	push!(gs[:group][:all_cards], gs[:zone][:command]...)
 	push!(gs[:group][:all_cards], gs[:zone][:library]...)
+	push!(gs[:overlay][:cards], [ c.faces[begin] for c in gs[:group][:all_cards] ]...)
 	pushfirst!(gs[:group][:clickables], values(gs[:ui][:horizontal_spinners])...)
 	pushfirst!(gs[:group][:clickables], values(gs[:ui][:vertical_spinners])...)
 	pushfirst!(gs[:group][:clickables], values(gs[:ui][:glass_counters])...)
@@ -600,39 +601,43 @@ function on_mouse_up(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
             end
 
         elseif !isempty(gs[:group][:selected]) && !(g.keyboard.LSHIFT || g.keyboard.RSHIFT)
-            for c in gs[:group][:selected]
+
+			for c in gs[:group][:selected]
+
 				if c isa Card
 					c.faces[begin].scale = [1, 1]
+					z = zone_check(c, gs)
+
+	                if z !== nothing
+	                    filter!(x->x !== c, gs[:zone][z])
+	                    push!(gs[:zone][z], c)
+	                end
+
+					AN.update_text_actor!(gs[:texts][:deck_info],
+		                "Library: $(length(gs[:zone][:library]))"
+		            )
+		            AN.update_text_actor!(gs[:texts][:hand_info],
+		                "Hand: $(length(gs[:zone][:hand]))"
+		            )
+		            AN.update_text_actor!(gs[:texts][:graveyard_info],
+		                "Graveyard: $(length(gs[:zone][:graveyard]))"
+		            )
+		            AN.update_text_actor!(gs[:texts][:command_info],
+		                "Command / Exile: $(length(gs[:zone][:command]))"
+		            )
+		            AN.update_text_actor!(gs[:texts][:battlefield_info],
+		                "Battlefield: $(length(gs[:zone][:battlefield]))"
+		            )
+
+					filter!(x->x !== c, gs[:group][:clickables])
+
 				else
 					c.scale = [1, 1]
 				end
 
-                z = zone_check(c, gs)
+			end
 
-                if z !== nothing
-                    filter!(x->x !== c, gs[:zone][z])
-                    push!(gs[:zone][z], c)
-                end
-
-                filter!(x->x !== c, gs[:group][:clickables])
-            end
-            push!(gs[:group][:clickables], gs[:group][:selected]...)
-
-            AN.update_text_actor!(gs[:texts][:deck_info],
-                "Library: $(length(gs[:zone][:library]))"
-            )
-            AN.update_text_actor!(gs[:texts][:hand_info],
-                "Hand: $(length(gs[:zone][:hand]))"
-            )
-            AN.update_text_actor!(gs[:texts][:graveyard_info],
-                "Graveyard: $(length(gs[:zone][:graveyard]))"
-            )
-            AN.update_text_actor!(gs[:texts][:command_info],
-                "Command / Exile: $(length(gs[:zone][:command]))"
-            )
-            AN.update_text_actor!(gs[:texts][:battlefield_info],
-                "Battlefield: $(length(gs[:zone][:battlefield]))"
-            )
+			push!(gs[:group][:clickables], gs[:group][:selected]...)
             gs[:group][:selected] = Any[]
         end
     end
