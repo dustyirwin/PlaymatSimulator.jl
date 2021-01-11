@@ -1,9 +1,10 @@
 try
     using Pluto
+    using Revise
 catch
     Pkg.instantiate()
-    using Revise
     using Pluto
+    using Revise
 end
 
 function real_main()

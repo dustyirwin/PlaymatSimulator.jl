@@ -27,6 +27,7 @@ end;
 begin
 	@quickactivate
 
+	using SimpleDirectMediaLayer
 	using DataStructures
 	using GZ2
 
@@ -38,39 +39,59 @@ begin
 end
 
 # ╔═╡ 2e3ae5ee-5019-11eb-0e4f-fd8ceaa8a8f7
-abstract type AbstractCard end
+begin
+	abstract type AbstractCard end
+
+	abstract type AbstractAbility end
+
+	abstract type AbstractSpell <: AbstractCard end
+end
 
 # ╔═╡ 387cd682-5019-11eb-16b6-7dff158de31b
-abstract type AbstractSpell <: AbstractCard end
+abstract type AbstractLand <: AbstractCard end
 
 # ╔═╡ 62ea38ec-5019-11eb-0060-c5e3ae62838c
-abstract type AbstractLand <: AbstractCard end
+begin
+	abstract type TriggeredAbility <: AbstractAbility end
+
+	abstract type ActivatedAbility <: AbstractAbility end
+
+	stack = Union{AbstractSpell,AbstractAbility}[]
+end
+
+
 
 # ╔═╡ 09703f54-4fcf-11eb-3a14-45a4cfafbe5d
 mutable struct Card <: AbstractCard
-	id::Int32
+	id::String
     name::String
 	owner::String
 	controller::String
-	position::Rect
 	faces::Vector{Actor}
 	tapped::Bool
 	flipped::Bool
-	d::Dict{Symbol,Any}
+	scale::Vector{Float32}
+	data::Dict{Symbol,Any}
 end
 
 # ╔═╡ 49b31c24-5012-11eb-2d79-9bfc1514c3aa
-mutable struct CardEffect
-	source::Card
-	effect::Function
-	exit_condition::Function
+begin
+	mutable struct Ability <: AbstractAbility
+		source::Card
+		effect::Function
+	end
+
+	mutable struct Spell <: AbstractSpell
+		card::Card
+		ability::Ability
+	end
 end
+
 
 # ╔═╡ 7b5b091c-500d-11eb-35c5-45af2e6c4e29
 mutable struct Zone
 	name::String
 	cards::Vector{Card}
-	effects::Vector{CardEffect}
 end
 
 # ╔═╡ d61fed94-5016-11eb-1b20-edc6a8b86bb5
@@ -87,16 +108,16 @@ mutable struct Player
     poison::Int
     priority::Bool
     resources::Dict{Symbol,Any}
-    effects::Vector{CardEffect}
+    effects::Vector{Ability}
     zones::Vector{Zone}
 end
 
 # ╔═╡ 88d425c0-5011-11eb-11f9-271c42ea3c50
 mutable struct PlaymatSimulatorGame
 	player_names::Vector{Player}
-	global_effects::Vector{CardEffect}
+	global_effects::Vector{Ability}
 	server_address::String
-	stack::Vector{CardEffect}
+	stack::Vector{Ability}
 	gs::Dict
 end
 

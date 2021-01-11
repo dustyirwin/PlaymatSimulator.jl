@@ -36,67 +36,65 @@ function spin_card(c::Actor; dθ=1)
     c.angle += c.data[:spin_cw] ? dθ : -dθ
 end
 
-function squish_card(c::Actor, dir=:horizontal, limit=10, f=10)
+function squish_actor(a::Actor, dir=:horizontal, limit=10, f=10)
 	if dir == :horizontal
-		if c.w > limit
-			c.w -= f
+		if a.w > limit
+			a.w -= f
 		end
 	elseif dir == :vertical
-		if c.h > limit
-			c.w -= f
+		if a.h > limit
+			a.h -= f
 		end
 	end
 end
 
-function shrink_card(c::Actor, h::Number, w::Number, f=25)
-    if c.h > h / 2.5 || c.w > w / 2.5
-        c.w -= ceil(w / f)
-        c.h -= ceil(h / f)
+function shrink_actror!(a::Actor, h::Number, w::Number, f=25)
+	if a.h > h / 2.5 || a.w > w / 2.5
+        a.w -= ceil(Int32, w / f)
+        a.h -= ceil(Int32, h / f)
     end
 end
 
-function grow_card(c::Actor, oh::Number, ow::Number, f=25)
-    if c.h < oh * 2.5 || c.w < ow * 2.5
-        c.w += ceil(ow / f)
-        c.h += ceil(oh / f)
+function grow_actor!(a::Actor, oh::Number, ow::Number, f=25)
+	if a.h < oh * 2.5 || a.w < ow * 2.5
+        a.w += ceil(Int32, ow / f)
+        a.h += ceil(Int32, oh / f)
     end
 end
 
-function fade_card(c::Actor, f::Int=2)
-    if c.data[:fade_out]
-        if c.alpha - f < 0
-            c.alpha = 0
-            c.data[:fade] = false
-            c.data[:fade_out] = false
-            return
+function fade_actor!(a::Actor, f::Int=2)
+    if a.data[:fade_out]
+        if a.alpha - f < 0
+            a.alpha = 0
+            a.data[:fade] = false
+            a.data[:fade_out] = false
         else
-            c.alpha -= f
+            a.alpha -= f
         end
     else
-        if c.alpha + f > 255
-            c.alpha = 255
-            c.data[:fade] = false
-            c.data[:fade_out] = true
-            return
+        if a.alpha + f > 255
+            a.alpha = 255
+            a.data[:fade] = false
+            a.data[:fade_out] = true
         else
-            c.alpha += f
+            a.alpha += f
         end
     end
 end
 
-function reset_actor!(c::Actor, h::Int32, w::Int32)
-	c.w = w
-	c.h = h
-    c.angle = 0
+function reset_actor!(a::Actor, h::Int32, w::Int32)
+	a.w = w
+	a.h = h
+    a.angle = 0
 
     for AN_sym in AN_list
-        c.data[AN_sym] = false
+        a.data[AN_sym] = false
     end
 
-	return c
+	return a
 end
 
-function splay_actors(actors::Vector{Actor}, x::Int32, y::Int32,
+function splay_actors!(actors::Vector{Actor}, x::Int32, y::Int32,
     SCREEN_HEIGHT::Int32, SCREEN_BORDER::Int32; pitch=Float64[1, 1])
 
     for a in actors
@@ -118,6 +116,8 @@ function splay_actors(actors::Vector{Actor}, x::Int32, y::Int32,
         x += ceil(Int32, a.w * a.scale[1] * pitch[1])
         y += ceil(Int32, a.h * a.scale[2] * pitch[2])
     end
+
+	return actors
 end
 
 function update_text_actor!(a::Actor, new_text::String)

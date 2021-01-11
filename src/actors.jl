@@ -23,7 +23,7 @@ function Image(img_name::String, img; x=0, y=0, kv...)
         SDL2.PIXELFORMAT_ARGB32,
     )
 
-    r = Rect(x, y, w, h)
+    r = SDL2.Rect(x, y, w, h)
     a = Actor(
         img_name,
         [sf],
@@ -112,7 +112,7 @@ function GIF(gif_name::String, gif; x=0, y=0, kv...)
         push!(surfaces, sf)
     end
 
-    r = Rect(x, y, w, h)
+    r = SDL2.Rect(x, y, w, h)
     a = Actor(
         gif_name,
         surfaces,
