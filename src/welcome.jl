@@ -25,7 +25,7 @@ begin
 	using PlutoUI
 	using Serialization
 	
-	GAME_TYPES = [ gt => gt for gt in readdir("../games") if !(occursin(".", gt)) ]
+	GAME_TYPES = [ gt => gt for gt in readdir("$(projectdir())/games") if !(occursin(".", gt)) ]
 	pushfirst!(GAME_TYPES, ""=>"")
 	
 	md"""

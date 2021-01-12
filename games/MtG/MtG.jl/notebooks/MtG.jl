@@ -23,10 +23,8 @@ begin
     import PlaymatSimulator.Actors.Text
 	import PlaymatSimulator.Actors.Image
 	import PlaymatSimulator.kill_actor!
-	import PlaymatSimulator.Animations.change_face!
-	import PlaymatSimulator.Animations.splay_actors!
-	import PlaymatSimulator.Animations.reset_actor!
 
+	const AN = PlaymatSimulator.Animations
 	const SDL2 = SimpleDirectMediaLayer
 
 	game_include("game_rules.jl")
@@ -40,8 +38,9 @@ end
 function zone_check(a::Actor, gs::Dict)
     for zone in keys(gs[:zone])
         if SDL2.HasIntersection(
-            Ref(SDL2.Rect(Int32[ceil(a.position.x + a.position.w * a.scale[1]/2),
-				ceil(a.position.y + a.position.h * a.scale[2]/2), 1, 1]...)), # intersection determined from top-left most pixel
+            Ref(SDL2.Rect(Int32[
+				ceil(a.x + a.w * a.scale[1]/2),
+				ceil(a.y + a.h * a.scale[2]/2), 1, 1]...)), # intersection determined from top-left most pixel
             Ref(gs[:stage][zone].position))
             return zone
         end
@@ -78,9 +77,7 @@ function reset_deck!(gs::Dict)
     end
 
     deck = deserialize("$DECK_DIR/$DECK_NAME.jls")
-
 	deck[:Backside] = Image("Backside", deck[:CARD_BACK_IMG])
-
 	gs[:CARDS] = []
 
 	for (name, img) in zip(gs[:deck][:card_names], gs[:deck][:CARD_FRONT_IMGS])
@@ -125,16 +122,17 @@ function reset_deck!(gs::Dict)
 		push!(gs[:COMMANDERS], c)
 	end
 
+	gs[:zone]["Command"] = gs[:COMMANDERS]
 	gs[:zone]["Library"] = shuffle(gs[:CARDS])
 	gs[:zone]["Hand"] = reverse([ pop!(gs[:zone]["Library"]) for i in 1:7 ])
-	gs[:zone]["Command"] = gs[:COMMANDERS]
+
 	for c in gs[:zone]["Hand"]
 		c.faces = circshift(c.faces, 1)
 	end
 
 	gs[:ALL_CARDS] = vcat(gs[:zone]["Library"], gs[:zone]["Hand"], gs[:zone]["Command"])
 
-	push!(gs[:overlay][:cards], [ c.faces[begin] for c in gs[:ALL_CARDS] ]...)
+	#push!(gs[:overlay][:cards], [ c.faces[begin] for c in gs[:ALL_CARDS] ]...)
 	pushfirst!(gs[:group][:clickables], values(gs[:ui][:horizontal_spinners])...)
 	pushfirst!(gs[:group][:clickables], values(gs[:ui][:vertical_spinners])...)
 	pushfirst!(gs[:group][:clickables], values(gs[:ui][:glass_counters])...)
@@ -143,7 +141,7 @@ function reset_deck!(gs::Dict)
 	pushfirst!(gs[:group][:clickables], [ c.faces[begin] for c in gs[:zone][:"Command"] ]...)
 	pushfirst!(gs[:group][:clickables], gs[:zone]["Library"][end].faces[begin])
 
-	splay_actors!([ c.faces[begin] for c in gs[:zone]["Library"] ],  # stack library cards into deck
+	AN.splay_actors!([ c.faces[begin] for c in gs[:zone]["Library"] ],  # stack library cards into deck
 		SCREEN_BORDER,
 		ceil(Int32, SCREEN_HEIGHT - SCREEN_BORDER - 1.6CARD_HEIGHT),
 		SCREEN_HEIGHT,
@@ -151,7 +149,7 @@ function reset_deck!(gs::Dict)
 		pitch=[0.001, -0.005],
 	)
 
-	splay_actors!([ c.faces[end] for c in gs[:zone]["Hand"] ], 	# splay cards into hand zone
+	AN.splay_actors!([ c.faces[begin] for c in gs[:zone]["Hand"] ], 	# splay cards into hand zone
         SCREEN_BORDER,
         SCREEN_BORDER,
         SCREEN_HEIGHT,
@@ -161,9 +159,7 @@ function reset_deck!(gs::Dict)
 
     for (i,c) in enumerate([ c.faces[begin] for c in gs[:zone]["Command"] ])
 		c.y = SCREEN_BORDER + (i-1) * 30
-        c.x = gs[:stage][:command].x + (i-1) * 15
-		c.w = ceil(Int32, c.w * 1.1)
-		c.h = ceil(Int32, c.h * 1.1)
+        c.x = gs[:stage]["Command"].x + (i-1) * 15
     end
 
     return gs
@@ -193,6 +189,7 @@ function draw(g::Game)
     draw.([
         # bottom layer
         values(gs[:stage])...,
+		gs[:ALL_CARDS]...,
         [ (values(gs[:overlay])... )... ]...,
         values(gs[:texts])...,
         values(gs[:ui][:glass_counters])...,
@@ -264,24 +261,24 @@ function add_texts!(gs::Dict)
     gs[:texts][:hand_info] = Text("Hand: $(length(gs[:zone]["Hand"]))",
         "$GAME_DIR/fonts/OpenSans-Regular.ttf",
         x=2SCREEN_BORDER,
-        y=gs[:stage][:hand].h - 2SCREEN_BORDER,
+        y=gs[:stage]["Hand"].h - 2SCREEN_BORDER,
         pt_size=22,
         )
     gs[:texts][:battlefield_info] = Text("Battlefield: $(length(gs[:zone]["Battlefield"]))",
         "$GAME_DIR/fonts/OpenSans-Regular.ttf",
-        x=gs[:stage][:hand].w + 10SCREEN_BORDER,
+        x=gs[:stage]["Hand"].w + 10SCREEN_BORDER,
         y=SCREEN_HEIGHT - 4SCREEN_BORDER,
         pt_size=22,
         )
     gs[:texts][:command_info] = Text("Command / Exile: $(length(gs[:zone]["Command"]))",
         "$GAME_DIR/fonts/OpenSans-Regular.ttf",
-        x=gs[:stage][:command].x + SCREEN_BORDER,
-        y=gs[:stage][:command].h - 2SCREEN_BORDER,
+        x=gs[:stage]["Command"].x + SCREEN_BORDER,
+        y=gs[:stage]["Command"].h - 2SCREEN_BORDER,
         pt_size=22,
         )
     gs[:texts][:graveyard_info] = Text("Graveyard: $(length(gs[:zone]["Graveyard"]))",
         "$GAME_DIR/fonts/OpenSans-Regular.ttf",
-        x=gs[:stage][:graveyard].x + SCREEN_BORDER,
+        x=gs[:stage]["Graveyard"].x + SCREEN_BORDER,
         y=SCREEN_HEIGHT - 4SCREEN_BORDER,
         pt_size=22,
         )
@@ -300,7 +297,7 @@ function add_texts!(gs::Dict)
         values(gs[:texts])...,
         )
 
-    splay_actors!([ values(gs[:ui][:horizontal_spinners])... ],
+    AN.splay_actors!([ values(gs[:ui][:horizontal_spinners])... ],
         ceil(Int32, SCREEN_WIDTH * 0.955),
         Int32(2SCREEN_BORDER),
         SCREEN_HEIGHT,
@@ -329,11 +326,13 @@ end
 
 # ╔═╡ 7ef01b58-523d-11eb-0c16-2b1d02dd1836
 function in_bounds(gs::Dict, as=Actor[])
-    for a in gs[:group][:clickables]
+
+	for a in gs[:group][:clickables]
+
 		pos = if a.angle == 90 || a.angle == 270  # corrects for 90 & 270 rot abt center
-            Rect(
-                ceil(a.x - (a.scale[2] * a.h - a.scale[1] * a.w) / 2),
-                ceil(a.y + (a.scale[2] * a.h - a.scale[1] * a.w) / 2),
+            SDL2.Rect(
+                ceil(Int32, a.x - (a.scale[2] * a.h - a.scale[1] * a.w) / 2),
+                ceil(Int32, a.y + (a.scale[2] * a.h - a.scale[1] * a.w) / 2),
                 a.h,
                 a.w,
             )
@@ -353,6 +352,7 @@ end
 function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
     global gs
     ib = in_bounds(gs)
+	@show length(ib)
 	GAME_DIR = projectdir() * "games/MtG/MtG.jl"
 	DEFAULT_CARD_WIDTH = gs[:deck][:CARD_WIDTH]
     DEFAULT_CARD_HEIGHT = gs[:deck][:CARD_HEIGHT]
@@ -372,21 +372,20 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
                 ib[end].scale=[1.025,1.025]
                 push!(gs[:group][:selected], ib[end])
 
-                for c in gs[:group][:selected]
-                    c.data[:mouse_offset] = [ c.x - gs[:MOUSE_POS][1], c.y - gs[:MOUSE_POS][2] ]
+                for a in gs[:group][:selected]
+                    a.data[:mouse_offset] = [ a.x - gs[:MOUSE_POS][1], a.y - gs[:MOUSE_POS][2] ]
                 end
 
-            elseif ib[end] === gs[:zone]["Library"][end] && length(gs[:zone]["Library"]) > 1 # pull card from top of deck into hand & selected if any cards left in library
+            elseif ib[end] === gs[:zone]["Library"][end] && length(gs[:zone]["Library"]) > 0 # pull card from top of deck into hand & selected if any cards left in library
                 c = pop!(gs[:zone]["Library"])
-				a = c.faces[begin]
+				c.faces = circshift!(c.faces, 1)
 				a.scale = [1.02, 1.02]
                 a.x = ceil(Int32, (length(gs[:zone]["Hand"]) > 0 ?
-                    gs[:zone]["Hand"][end].faces[begin].x : gs[:stage][:hand].x) + a.w * 0.05)
+                    gs[:zone]["Hand"][end].faces[begin].x : gs[:stage]["Hand"].x) + a.w * 0.05)
                 a.y = ceil(Int32, (length(gs[:zone]["Hand"]) > 0 ?
-                    gs[:zone]["Hand"][end].faces[begin].y : gs[:stage][:hand].y) + c.h * 0.1)
+                    gs[:zone]["Hand"][end].faces[begin].y : gs[:stage]["Hand"].y) + a.h * 0.1)
 
                 push!(gs[:group][:selected], a)
-                push!(gs[:zone]["Hand"], c)
 				push!(gs[:group][:clickables], gs[:zone]["Library"][end].faces[begin])
 
             elseif ib[end] === gs[:ui][:vertical_spinners][:plus_minus_counter]
@@ -397,8 +396,7 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
                     val_str = val < 0 ? "$val / $val" : "+$val / +$val"
                     fp = "$GAME_DIR/fonts/OpenSans-Semibold.ttf"
                     pt_size = 24
-
-                    copy = AC.Text(val_str, fp)
+                    copy = Text(val_str, fp)
                     push!(gs[:group][:selected], copy)
                     push!(gs[:overlay][:counters], copy)
                 end
@@ -407,7 +405,7 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
                 if g.keyboard.LCTRL || g.keyboard.RCTRL
                     push!(gs[:group][:selected], ib[end])
                 else
-                    copy = AC.Image(ib[end].label, x=gs[:MOUSE_POS][1], y=gs[:MOUSE_POS][2])
+                    copy = Image(ib[end].label, x=gs[:MOUSE_POS][1], y=gs[:MOUSE_POS][2])
                     push!(gs[:group][:selected], copy)
                     push!(gs[:overlay][:counters], copy)
                 end
@@ -421,16 +419,17 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
                 ib[end].scale=[1.02, 1.02]
                 zs = zone_check(ib[end], gs)
 
-                ctrs = [ ctr for ctr in values(gs[:overlay][:counters])  # "sticky" counters
+                counters = [ ctr for ctr in values(gs[:overlay][:counters])  # "sticky" counters
                     if SDL2.HasIntersection(
                         Ref(ib[end].position),
                         Ref(ctr.position)) && !(ib[end] in gs[:overlay][:counters])
                     ]
-                for ctr in ctrs
-                    ctr.data[:mouse_offset] = [ ctr.x - gs[:MOUSE_POS][1], ctr.y - gs[:MOUSE_POS][2] ]
+                for ctr in counters
+                    ctr.data[:mouse_offset] = [
+						ctr.x - gs[:MOUSE_POS][1], ctr.y - gs[:MOUSE_POS][2] ]
                 end
 
-                push!(gs[:group][:selected], [ ctrs..., ib[end] ]...)
+                push!(gs[:group][:selected], [ counters..., ib[end] ]...)
 
                 if zs !== nothing
                     filter!(x->x!==ib[end], gs[:zone][zs])
@@ -451,15 +450,14 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
             if ib[end] === gs[:zone]["Library"][end]
                 filter!(x->!(x in [gs[:zone]["Hand"]..., gs[:zone]["Battlefield"]...]), gs[:group][:clickables])
                 sort!(gs[:zone]["Library"], by=x->x.name)
-                #gs[:zone]["Library"] = [ values(sorted)... ]
                 push!(gs[:group][:clickables], gs[:zone]["Library"][begin:end-1]...)
 
                 if SDL2.HasIntersection(
-                    Ref(gs[:zone]["Library"][end].position), Ref(gs[:stage][:library].position))
+                    Ref(gs[:zone]["Library"][end].position), Ref(gs[:stage]["Library"].position))
 
                     splay_elements!(
                         gs[:zone]["Library"],
-                        ceil(Int32, gs[:stage][:hand].w + 2SCREEN_BORDER),
+                        ceil(Int32, gs[:stage]["Hand"].w + 2SCREEN_BORDER),
                         SCREEN_BORDER,
                         SCREEN_HEIGHT,
                         SCREEN_BORDER,
@@ -467,9 +465,10 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
                     )
                 else
 					for c in reverse(gs[:zone]["Library"])
-                        if SDL2.HasIntersection(Ref(c.position), Ref(gs[:stage][:hand].position))
-                            c_inds = findfirst(x->x.label==c.label, gs[:zone]["Library"])
-                            c = deepcopy(gs[:zone]["Library"][c_inds])
+						a = c.faces[begin]
+                        if SDL2.HasIntersection(Ref(a.position), Ref(gs[:stage]["Hand"].position))
+                            c_inds = findfirst(x->x.label==a.label, gs[:zone]["Library"])
+                            a = deepcopy(gs[:zone]["Library"][c_inds])
                             deleteat!(gs[:zone]["Library"], c_inds)
                         end
                     end
@@ -480,7 +479,7 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
 						filter!(x->x==c, gs[:group][:clickables])
 					end
 
-                    splay_elements!(gs[:zone]["Library"],
+                    splay_elements!([ c.faces[begin] for c in gs[:zone]["Library"] ],
                         SCREEN_BORDER,
                         SCREEN_HEIGHT - SCREEN_BORDER - DEFAULT_CARD_HEIGHT,
                         SCREEN_HEIGHT,
@@ -489,7 +488,7 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
                     )
 
                     gs[:group][:clickables] = [
-                        (values(gs[:zone])... )...,
+                        [ c.faces[begin] for c in values(gs[:zone]) ]...,
                         values(gs[:ui][:horizontal_spinners])...,
                         values(gs[:ui][:vertical_spinners])...,
                         values(gs[:ui][:glass_counters])...,
@@ -515,12 +514,9 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
                     """    +
                      $(v>-1 ? "+" : "")$(ib[end].data[:value])/$(v>-1 ? "+" : "")$(ib[end].data[:value])
                           -""")
-            else
-				if ib[end] isa Card
-					ib[end].tapped = ib[end].tapped ? false : true
-					a = ib[end].faces[end]
-				end
-                	a.angle = a.angle == 0 ? 90 : 0
+
+			else
+            	ib[end].angle = ib[end].angle == 0 ? 90 : 0
             end
         end
     end
@@ -533,7 +529,8 @@ function on_mouse_up(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
 	GAME_DIR = projectdir() * "games/MtG/MtG.jl"
 
     if button == GZ2.MouseButtons.LEFT
-        if gs[:ui][:sel_box] in gs[:group][:selected]
+
+		if gs[:ui][:sel_box] in gs[:group][:selected]
             sb = gs[:ui][:sel_box]
 
             for a in gs[:group][:clickables]
@@ -561,63 +558,59 @@ function on_mouse_up(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
                         !(a in values(gs[:ui][:vertical_spinners])) &&
                         !(a in values(gs[:ui][:glass_counters]))
 
-					e.position = pos
-
-					push!(gs[:group][:selected], e)
+					push!(gs[:group][:selected], a)
                     filter!(x->x!==a, [ (values(gs[:zone])...)... ] )
                 end
             end
 
             filter!(x->x!=sb, gs[:group][:selected])
-            filter!(x->x!==gs[:zone]["Library"][end], gs[:group][:selected])
+            filter!(x->x!==gs[:zone]["Library"][end].faces[begin], gs[:group][:selected])
 
             if length(gs[:group][:selected]) > 0
-                for a in gs[:group][:selected]
-                    z = zone_check(a, gs)
-                    if z !== nothing
-                        filter!(x->x!==a, gs[:zone][z])
-                    end
-                    a.scale = [1.02, 1.02]
-                    a.data[:mouse_offset] = [ c.x - gs[:MOUSE_POS][1], c.y - gs[:MOUSE_POS][2] ]
+
+				for a in gs[:group][:selected]
+					a.scale = [1.025, 1.025]
+                    a.data[:mouse_offset] = [ a.x - gs[:MOUSE_POS][1], a.y - gs[:MOUSE_POS][2] ]
                 end
-                play_sound("$GAME_DIR/sounds/select.wav")
+
+				play_sound("$GAME_DIR/sounds/select.wav")
             end
 
         elseif !isempty(gs[:group][:selected]) && !(g.keyboard.LSHIFT || g.keyboard.RSHIFT)
 
 			for a in gs[:group][:selected]
-				z = zone_check(a, gs)
+				zone = zone_check(a, gs)
 
-                if z !== nothing
-					for c in gs[:all_cards]
-						if a.id in c.data[:actor_ids]
-							c.zone = z
+                if zone !== nothing
+					for c in gs[:ALL_CARDS]
+						if a.data[:parent_id] == c.id
+							filter!(x->x!==c, [ (gs[:zone]...)... ])
+							push!(gs[:zone][zone], c)
 						end
 					end
-                end
+
+					AN.update_text_actor!(gs[:texts][:deck_info],
+		                "Library: $(length(gs[:zone]["Library"]))")
+		            AN.update_text_actor!(gs[:texts][:hand_info],
+		                "Hand: $(length(gs[:zone]["Hand"]))")
+		            AN.update_text_actor!(gs[:texts][:graveyard_info],
+		                "Graveyard: $(length(gs[:zone]["Graveyard"]))")
+		            AN.update_text_actor!(gs[:texts][:command_info],
+		                "Command / Exile: $(length(gs[:zone]["Command"]))")
+		            AN.update_text_actor!(gs[:texts][:battlefield_info],
+		                "Battlefield: $(length(gs[:zone]["Battlefield"]))")
+
+					filter!(x->x!==a, gs[:group][:clickables])
+
+				else
+					a.scale = [1, 1]
+				end
 			end
 
-			AN.update_text_actor!(gs[:texts][:deck_info],
-                "Library: $(length(gs[:zone]["Library"]))")
-            AN.update_text_actor!(gs[:texts][:hand_info],
-                "Hand: $(length(gs[:zone]["Hand"]))")
-            AN.update_text_actor!(gs[:texts][:graveyard_info],
-                "Graveyard: $(length(gs[:zone]["Graveyard"]))")
-            AN.update_text_actor!(gs[:texts][:command_info],
-                "Command / Exile: $(length(gs[:zone]["Command"]))")
-            AN.update_text_actor!(gs[:texts][:battlefield_info],
-                "Battlefield: $(length(gs[:zone]["Battlefield"]))")
-
-			filter!(x->x !== e, gs[:group][:clickables])
-
-		else
-			a.scale = [1, 1]
+			push!(gs[:group][:clickables], gs[:group][:selected]...)
+		    gs[:group][:selected] = []
 		end
-
 	end
-
-	push!(gs[:group][:clickables], gs[:group][:selected]...)
-    gs[:group][:selected] = []
 end
 
 # ╔═╡ 6159d724-468e-11eb-05fb-db68237e3fa0
@@ -653,16 +646,30 @@ function on_key_down(g::Game, key, keymod)
 
         if !isempty(gs[:group][:selected])
 
-			for c in gs[:group][:selected]
-				if c isa Card
-                	c.faces = circshift(c.faces, 1)
-					continue
+			for a in gs[:group][:selected]
+
+				for c in gs[:ALL_CARDS]
+
+					if a.data[:parent_id] == c.id
+						@show "Changing faces for $(c.name)!"
+						c.faces = circshift(c.faces, 1)
+						c.faces[begin].position = a.position
+					end
 				end
             end
 
 		elseif !isempty(ib)
-			if ib[end] isa Card
-				ib[end].faces = circshift(ib[end].faces, 1)
+
+			for c in gs[:ALL_CARDS]
+
+				if ib[end].data[:parent_id] == c.id
+					@show "Changing faces for $(c.name)!"
+					c.faces = circshift(c.faces, 1)
+					c.faces[begin].position = ib[end].position
+					filter!(x->x==ib[end], gs[:group][:clickables])
+					push!(gs[:group][:clickables], c.faces[begin])
+					break
+				end
 			end
         end
 
@@ -714,28 +721,28 @@ function on_key_down(g::Game, key, keymod)
             if g.keyboard.RCTRL || g.keyboard.LCTRL
                 reset_deck!(gs)
             else
-                reset_card!.(gs[:group][:all_cards], gs[:deck][:CARD_WIDTH], gs[:deck][:CARD_HEIGHT])
+                AN.reset_actor!.(gs[:group][:all_cards], gs[:deck][:CARD_WIDTH], gs[:deck][:CARD_HEIGHT])
             end
 
         elseif !isempty(gs[:group][:selected])
-            reset_card!.(gs[:group][:selected], gs[:deck][:CARD_WIDTH], gs[:deck][:CARD_HEIGHT])
+            AN.reset_actor!.(gs[:group][:selected], gs[:deck][:CARD_WIDTH], gs[:deck][:CARD_HEIGHT])
 
         elseif !isempty(ib)
-            reset_card!(ib[end], gs[:deck][:CARD_WIDTH], gs[:deck][:CARD_HEIGHT])
+            AN.reset_actor!(ib[end], gs[:deck][:CARD_WIDTH], gs[:deck][:CARD_HEIGHT])
         end
 
     elseif key == Keys.EQUALS
         if !isempty(gs[:group][:selected])
-            AN.grow_card.(gs[:group][:selected], gs[:deck][:CARD_WIDTH], gs[:deck][:CARD_HEIGHT])
+            AN.grow_actor!.(gs[:group][:selected], gs[:deck][:CARD_WIDTH], gs[:deck][:CARD_HEIGHT])
         elseif !isempty(ib)
             AN.grow_card(ib[end], gs[:deck][:CARD_WIDTH], gs[:deck][:CARD_HEIGHT])
         end
 
     elseif key == Keys.MINUS
         if !isempty(gs[:group][:selected])
-            AN.shrink_card!.(gs[:group][:selected], gs[:deck][:CARD_WIDTH], gs[:deck][:CARD_HEIGHT])
+            AN.shrink_actor!.(gs[:group][:selected], gs[:deck][:CARD_WIDTH], gs[:deck][:CARD_HEIGHT])
         elseif !isempty(ib)
-            AN.shrink_card!(ib[end], gs[:deck][:CARD_WIDTH], gs[:deck][:CARD_HEIGHT])
+            AN.shrink_actor!(ib[end], gs[:deck][:CARD_WIDTH], gs[:deck][:CARD_HEIGHT])
         end
 
     elseif key == Keys.SPACE && ib[end] !== gs[:zone]["Library"][end]
@@ -743,8 +750,8 @@ function on_key_down(g::Game, key, keymod)
 
         if zone_sym !== nothing
             if zone_sym == :graveyard
-                splay_elements(
-                    gs[:zone][zone_sym],
+                AN.splay_actors!(
+                    [ c.faces[begin] for c in gs[:zone][zone_sym] ],
                     gs[:stage][zone_sym].x,
                     gs[:stage][zone_sym].y,
                     SCREEN_HEIGHT,
@@ -752,8 +759,8 @@ function on_key_down(g::Game, key, keymod)
                     pitch=[0.02, 0.04],
                     )
             elseif zone_sym !== :library
-                splay_elements(
-                    gs[:zone][zone_sym],
+                AN.splay_actors!(
+                    [ c.faces[begin] for c in gs[:zone][zone_sym] ],
                     gs[:stage][zone_sym].x,
                     gs[:stage][zone_sym].y,
                     SCREEN_HEIGHT,
@@ -804,7 +811,6 @@ end
 # ╔═╡ 70d25e54-468e-11eb-160f-9bdafa1ee16c
 begin
 	draw(c::Card) = draw(c.faces[begin])
-
 	#play_music(gs[:music][end], 1)  # play_music(name, loops=-1)
 
 	#SDL2.SetWindowFullscreen(game[].screen.window, SDL2.WINDOW_FULLSCREEN_DESKTOP)
@@ -814,14 +820,14 @@ end
 # ╟─ad8ff974-4b71-11eb-3eb6-790d687615c0
 # ╠═b35cdada-4689-11eb-2629-c1cedd8052bd
 # ╟─409648d8-468e-11eb-2856-5bda6584cf79
-# ╟─438d93b6-468e-11eb-2cdd-650d3873e81d
+# ╠═438d93b6-468e-11eb-2cdd-650d3873e81d
 # ╟─799c2578-4cb3-11eb-1af7-b1ab01270e6d
 # ╟─47f50362-468e-11eb-211d-f561273a906c
 # ╟─4cbb84f2-468e-11eb-09af-718f893c0449
 # ╟─54761f68-468e-11eb-3ab9-db06b7174615
 # ╟─6159d724-468e-11eb-05fb-db68237e3fa0
 # ╟─64b89860-468e-11eb-2b22-fff8ae5ea566
-# ╟─69917186-468e-11eb-1175-dd4bbfe2f109
+# ╠═69917186-468e-11eb-1175-dd4bbfe2f109
 # ╟─cdd4c524-4cba-11eb-07a2-c7651ae7f211
 # ╟─7ef01b58-523d-11eb-0c16-2b1d02dd1836
 # ╠═70d25e54-468e-11eb-160f-9bdafa1ee16c

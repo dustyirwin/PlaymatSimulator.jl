@@ -32,6 +32,7 @@ begin
     using DataStructures
     using Serialization
 	using PlaymatSimulator
+	import PlaymatSimulator.Actors.Image
 
 	mtg_dir = projectdir() * "/games/MtG"
 
@@ -40,15 +41,6 @@ begin
 	Provide an initial game state function for the game engine to load upon launch by defining a `gs` Dict{Symbol,Any}(...) object below with all of the game assets.
 	"""
 end
-
-# ╔═╡ dc7d18dc-4c04-11eb-17b2-f76e6de70440
-PS = PlaymatSimulator
-
-# ╔═╡ e0c99ac6-4da3-11eb-2660-4dadb1ca26c9
-AN = PS.PlaymatSimulator.Animations
-
-# ╔═╡ e503cc1e-4da3-11eb-2b44-075bf7defae9
-AC = PS.PlaymatSimulator.Actors
 
 # ╔═╡ ebd61216-4da3-11eb-2e77-5900d3980b8e
 STAGE = game_include("$mtg_dir/MtG.jl/notebooks/game_stage.jl")
@@ -73,24 +65,24 @@ gs = Dict{Symbol,Any}(
     :MOUSE_OFFSETS => [ Int32[0,0] ],
 	:music => readdir("$mtg_dir/MtG.jl/music"),
 	:ui => OrderedDict(
-		:cursor_icon => AC.Image("mouse_cursor_icon",
+		:cursor_icon => Image("mouse_cursor_icon",
 			load("$mtg_dir/MtG.jl/ui/icons/RavenmoreIconPack/64/swordWood.png")),
-        :cursor => AC.Image("mouse_cursor",
+        :cursor => Image("mouse_cursor",
 			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png"), alpha=0, w=1, h=1),
-        :sel_box => AC.Image("selection_box",
+        :sel_box => Image("selection_box",
 			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png"), alpha=50, w=0, h=0),
 		:glass_counters => Dict{Symbol, Any}(
-            :red_counter => AC.Image("red_counter",
+            :red_counter => Image("red_counter",
 				load("$mtg_dir/MtG.jl/ui/counters/red_glass_counter_sm.png"),
                 x=ceil(Int32, SCREEN_WIDTH * 0.7),
 				y=SCREEN_HEIGHT - 5SCREEN_BORDER
 				),
-            :blue_counter => AC.Image("blue_counter",
+            :blue_counter => Image("blue_counter",
 				load("$mtg_dir/MtG.jl/ui/counters/blue_glass_counter_sm.png"),
                 x=ceil(Int32, SCREEN_WIDTH * 0.7275),
 				y=SCREEN_HEIGHT - 5SCREEN_BORDER
 				),
-            :green_counter => AC.Image("green_counter",
+            :green_counter => Image("green_counter",
 				load("$mtg_dir/MtG.jl/ui/counters/green_glass_counter_sm.png"),
                 x=ceil(Int32, SCREEN_WIDTH * 0.7550),
 				y=SCREEN_HEIGHT - 5SCREEN_BORDER
@@ -111,15 +103,14 @@ gs = Dict{Symbol,Any}(
         :life=>40,  # EDH life adjustment
         ),
     :sfx => OrderedDict(
-        :shade_wht=>AC.Image("shade_wht",
+        :shade_wht=>Image("shade_wht",
 			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png")),
-        :shade_blk=>AC.Image("shade_blk",
+        :shade_blk=>Image("shade_blk",
 			load("$mtg_dir/MtG.jl/ui/zones/area_blk.png")),
         ),
     :overlay => OrderedDict(
         :shades => Actor[],
         :texts => Actor[],
-		:cards => Actor[],
         :effects => Actor[],
 		:counters => Actor[],
         ),
@@ -129,11 +120,10 @@ gs = Dict{Symbol,Any}(
         "Battlefield" => Card[],
         "Library" => Card[],
         "Hand" => Card[],
-		"Exile" => Card[],
+		#"Exile" => Card[],  # replaced with Command
 		"Stack" => Union{Card,Spell}
         ),
     :group => OrderedDict(
-		:all_cards => Card[],
         :clickables => Actor[],
         :selected => Actor[],
         ),
@@ -149,9 +139,6 @@ end
 # ╔═╡ Cell order:
 # ╟─b99805ba-3931-11eb-0e18-6ffb5497630d
 # ╠═d840fcce-3931-11eb-0d08-59ed4b60b2f9
-# ╠═dc7d18dc-4c04-11eb-17b2-f76e6de70440
-# ╠═e0c99ac6-4da3-11eb-2660-4dadb1ca26c9
-# ╠═e503cc1e-4da3-11eb-2b44-075bf7defae9
 # ╠═ebd61216-4da3-11eb-2e77-5900d3980b8e
 # ╠═f1e8642e-4da3-11eb-26bc-234df79ed8a6
 # ╠═2e97f2d2-4c1d-11eb-23d5-3fc9bcd4bc47
