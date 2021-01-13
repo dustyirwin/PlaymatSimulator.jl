@@ -115,13 +115,13 @@ gs = Dict{Symbol,Any}(
 		:counters => Actor[],
         ),
     :zone => OrderedDict(
-        "Command" => Card[],  # EDH zone
+        "Command" => Card[],  # EDH-specific zone
         "Graveyard" => Card[],
         "Battlefield" => Card[],
         "Library" => Card[],
         "Hand" => Card[],
 		#"Exile" => Card[],  # replaced with Command
-		"Stack" => Union{Card,Spell}
+		#"Stack" => Union{Card,Spell}  # not implemented
         ),
     :group => OrderedDict(
         :clickables => Actor[],

@@ -11,6 +11,7 @@ project_symbols = [
     :Colors,
     :DataStructures,
     :DrWatson,
+    :Flux,
     :GZ2,
     :HTTP,
     :ImageMagick,

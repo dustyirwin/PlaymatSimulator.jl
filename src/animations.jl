@@ -12,28 +12,22 @@ using SimpleDirectMediaLayer
 SDL2 = SimpleDirectMediaLayer
 AN_list = [:spin, :shake, :fade, :grow, :shrink, :squish]
 
-function bomb_card(c::Actor)
+function bomb_card(a::Actor)
     then = now()
-    push!(gs[:ui][:effects][:bomb1], gs[:battlefield])
-
 end
 
-function break_card(c::Actor)
-    push!(gs[:ui][:effects][:break1], gs[:battlefield])
-end
-
-function shake_card(c::Actor, f=2)
-    if c.angle > 0
-        c.angle -= ceil(Int32, c.angle / f)
-    elseif c.angle < 0
-        c.angle += ceil(Int32, abs(c.angle) / f)
+function shake_actor!(a::Actor, f=2)
+    if a.angle > 0
+        a.angle -= ceil(Int32, a.angle / f)
+    elseif a.angle < 0
+        a.angle += ceil(Int32, abs(a.angle) / f)
     else
-        c.angle = rand(-20:20)
+        a.angle = rand(-15:15)
     end
 end
 
-function spin_card(c::Actor; dθ=1)
-    c.angle += c.data[:spin_cw] ? dθ : -dθ
+function spin_actor!(a::Actor; dθ=2)
+    a.angle += a.data[:spin_cw] ? dθ : -dθ
 end
 
 function squish_actor(a::Actor, dir=:horizontal, limit=10, f=10)
@@ -48,7 +42,7 @@ function squish_actor(a::Actor, dir=:horizontal, limit=10, f=10)
 	end
 end
 
-function shrink_actror!(a::Actor, h::Number, w::Number, f=25)
+function shrink_actor!(a::Actor, h::Number, w::Number, f=25)
 	if a.h > h / 2.5 || a.w > w / 2.5
         a.w -= ceil(Int32, w / f)
         a.h -= ceil(Int32, h / f)
@@ -101,13 +95,12 @@ function splay_actors!(actors::Vector{Actor}, x::Int32, y::Int32,
 
         if pitch[2] < 0 && y < SCREEN_BORDER
             y = SCREEN_HEIGHT - SCREEN_BORDER - a.h * a.scale[2]
-            x += ceil(Int32, a.w * pitch[1] > 0 ? 0.75 : -0.75)
+            x += ceil(Int32, a.w * pitch[1] > 0 ? 1.25 : -1.25)
         end
 
         if pitch[2] > 0 && y + a.h * a.scale[2] > SCREEN_HEIGHT - SCREEN_BORDER
-			@show x, y, pitch
             y = SCREEN_BORDER
-            x -= ceil(Int32, a.w * pitch[1] > 0 ? 1 : -1)
+            @show x += ceil(Int32, pitch[1] > 0 ? 0.55a.w : -0.55a.w)
         end
 
         a.x = x

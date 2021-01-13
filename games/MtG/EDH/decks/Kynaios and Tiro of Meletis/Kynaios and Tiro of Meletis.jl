@@ -14,167 +14,163 @@ macro bind(def, element)
 end
 
 # ╔═╡ c7952ee6-45b5-11eb-1158-5bb2ff274ce9
-begin
-	using DrWatson
-	
-	function ingredients(path::String)
-		# this is from the Julia source code (evalfile in base/loading.jl)
-		# but with the modification that it returns the module instead of the last object
-		name = Symbol(basename(path))
-		m = Module(name)
-		Core.eval(m,
-			Expr(:toplevel,
-				 :(eval(x) = $(Expr(:core, :eval))($name, x)),
-				 :(include(x) = $(Expr(:top, :include))($name, x)),
-				 :(include(mapexpr::Function, x) = $(Expr(:top, :include))(mapexpr, $name, x)),
-				 :(include($path))))
-		m
-	end
-end;
+using DrWatson
 
 # ╔═╡ 0c145632-3927-11eb-19b9-877e05c1bcdc
 begin
 	@quickactivate
-	
+
+	using GZ2
 	using JSON
 	using HTTP
 	using Plots
-	using Images
+	using Images: load, ARGB
 	using PlutoUI
 	using Serialization
+	using PlaymatSimulator
 	using ImageTransformations: imresize
-	
+
+	AC = PlaymatSimulator.Actors
+
 	plotly()
-	
-	GS = ingredients("$(projectdir())/games/MtG/MtG.jl/notebooks/game_settings.jl")
-	
-	md"""*game settings loaded!*
-	
-	## MtG EDH Kynaios and Tiro of Meletis ???
+
+	md"""
+	*game settings loaded!*
+
+	## MtG EDH Deck: Vannifar's Circus (UG Creature Ramp Combo) by Dustin Irwin
+	For simple games, a "deck" in PlaymatSimulator is simply a collection of images, one for each card in the deck. Let's build an example EDH deck `Vannifar's Circus`.
+
+	To get started, define a `deck` Dict object below of type Dict{String,Int} where the key is the official card name and the value is the quantity of that card in the deck.
 	"""
 end
 
 # ╔═╡ 621b08a4-384e-11eb-0109-61e9b9ecf125
 deck = Dict{Symbol,Any}(
 	:name => split(@__DIR__, "/")[end],
-    :commanders => [
-        "Kynaios and Tiro of Meletis",
-    	],
-    :cards => [
-		"Altar of the Pantheon",
-		"Angel of Sanctions",
-		"Armillary Sphere",
-		"Ash Barrens",
-		"Azorius Chancery",
-		"Back from the Brink",
-		"Boros Guildgate",
-		"Brudiclad, Telchor Engineer",
-		"Caller of the Pack",
-		"Commander's Sphere",
-		"Command Tower",
-		"Cultivate",
-		"Desolation Twin",
-		"Doomed Artisan",
-		"Draconic Disciple",
-		"Dragonmaster Outcast",
-		"Druid's Deliverance",
-		"Emmara Tandris",
-		"Ephara, God of the Polis",
-		"Evolving Wilds",
-		"Exotic Orchard",
-		"Feldon of the Third Path",
-		"Forbidden Orchard",
-		"Forest",
-		"Forest",
-		"Forest",
-		"Forest",
-		"Forest",
-		"Forest",
-		"Full Flowering",
-		"Gargoyle Castle",
-		"Garruk, Primal Hunter",
-		"Ghired, Conclave Exile",
-		"Ghired's Belligerence",
-		"Giant Adephage",
-		"God-Pharaoh's Gift",
-		"Golden Guardian // Gold-Forge Garrison",
-		"Growing Ranks",
-		"Gruul Turf",
-		"Heart-Piercer Manticore",
-		"Hellion Crucible",
-		"Helm of the Host",
-		"Hour of Reckoning",
-		"Idol of Oblivion",
-		"Intangible Virtue",
-		"Island",
-		"Island",
-		"Island",
-		"Island",
-		"Island",
-		"Island",
-		"Island",
-		"Island",
-		"Island",
-		"Island",
-		"Island",
-		"Izzet Boilerworks",
-		"Kazandu Tuskcaller",
-		"Kiora, the Crashing Wave",
-		"Metallurgic Summonings",
-		"Mimic Vat",
-		"Mirror Match",
-		"Mist-Syndicate Naga",
-		"Moonsilver Spear",
-		"Mountain",
-		"Mountain",
-		"Mountain",
-		"Mountain",
-		"Mountain",
-		"Mountain",
-		"Myriad Landscape",
-		"Overwhelming Stampede",
-		"Parhelion II",
-		"Phyrexian Rebirth",
-		"Rogue's Passage",
-		"Rampaging Baloths",
-		"Rootborn Defenses",
-		"Saheeli Rai",
-		"Saheeli's Artistry",
-		"Second Harvest",
-		"Selesnya Eulogist",
-		"Selesnya Sanctuary",
-		"Simic Growth Chamber",
-		"Song of the Worldsoul",
-		"Soul Foundry",
-		"Soul of Eternity",
-		"Spawning Grounds",
-		"Spectral Searchlight",
-		"Spitting Image",
-		"Stolen Identity",
-		"Sundering Growth",
-		"Tempt with Discovery",
-		"Terramorphic Expanse",
-		"Titan Forge",
-		"Trostani, Selesnya's Voice",
-		"Trostani's Judgment",
-		"Vitu-Ghazi Guildmage",
-		"Wayfaring Temple",
-		"Wingmate Roc",
-		]
-	)
+	:commander_names => [
+	    "Kynaios and Tiro of Meletis",
+	    ],
+	:card_names => [
+	    "Altar of the Pantheon",
+	    "Angel of Sanctions",
+	    "Armillary Sphere",
+	    "Ash Barrens",
+	    "Azorius Chancery",
+	    "Back from the Brink",
+	    "Boros Guildgate",
+	    "Brudiclad, Telchor Engineer",
+	    "Caller of the Pack",
+	    "Commander's Sphere",
+	    "Command Tower",
+	    "Cultivate",
+	    "Desolation Twin",
+	    "Doomed Artisan",
+	    "Draconic Disciple",
+	    "Dragonmaster Outcast",
+	    "Druid's Deliverance",
+	    "Emmara Tandris",
+	    "Ephara, God of the Polis",
+	    "Evolving Wilds",
+	    "Exotic Orchard",
+	    "Feldon of the Third Path",
+	    "Forbidden Orchard",
+	    "Forest",
+	    "Forest",
+	    "Forest",
+	    "Forest",
+	    "Forest",
+	    "Forest",
+	    "Full Flowering",
+	    "Gargoyle Castle",
+	    "Garruk, Primal Hunter",
+	    "Ghired, Conclave Exile",
+	    "Ghired's Belligerence",
+	    "Giant Adephage",
+	    "God-Pharaoh's Gift",
+	    "Golden Guardian // Gold-Forge Garrison",
+	    "Growing Ranks",
+	    "Gruul Turf",
+	    "Heart-Piercer Manticore",
+	    "Hellion Crucible",
+	    "Helm of the Host",
+	    "Hour of Reckoning",
+	    "Idol of Oblivion",
+	    "Intangible Virtue",
+	    "Island",
+	    "Island",
+	    "Island",
+	    "Island",
+	    "Island",
+	    "Island",
+	    "Island",
+	    "Island",
+	    "Island",
+	    "Island",
+	    "Island",
+	    "Izzet Boilerworks",
+	    "Kazandu Tuskcaller",
+	    "Kiora, the Crashing Wave",
+	    "Metallurgic Summonings",
+	    "Mimic Vat",
+	    "Mirror Match",
+	    "Mist-Syndicate Naga",
+	    "Moonsilver Spear",
+	    "Mountain",
+	    "Mountain",
+	    "Mountain",
+	    "Mountain",
+	    "Mountain",
+	    "Mountain",
+	    "Myriad Landscape",
+	    "Overwhelming Stampede",
+	    "Parhelion II",
+	    "Phyrexian Rebirth",
+	    "Rogue's Passage",
+	    "Rampaging Baloths",
+	    "Rootborn Defenses",
+	    "Saheeli Rai",
+	    "Saheeli's Artistry",
+	    "Second Harvest",
+	    "Selesnya Eulogist",
+	    "Selesnya Sanctuary",
+	    "Simic Growth Chamber",
+	    "Song of the Worldsoul",
+	    "Soul Foundry",
+	    "Soul of Eternity",
+	    "Spawning Grounds",
+	    "Spectral Searchlight",
+	    "Spitting Image",
+	    "Stolen Identity",
+	    "Sundering Growth",
+	    "Tempt with Discovery",
+	    "Terramorphic Expanse",
+	    "Titan Forge",
+	    "Trostani, Selesnya's Voice",
+	    "Trostani's Judgment",
+	    "Vitu-Ghazi Guildmage",
+	    "Wayfaring Temple",
+	    "Wingmate Roc",
+    ]
+)
 
 # ╔═╡ fb61d01c-458d-11eb-2c2a-f711dc7ab7f4
-md"""
-Found $(length(deck[:cards]) + length(deck[:commanders])) cards in deck!
-"""
+(length(deck[:card_names]) + length(deck[:commander_names]))
 
 # ╔═╡ c61fa79e-4583-11eb-3b71-2d334aca843d
 begin
 	mtg_cards = JSON.parsefile("$(projectdir())/games/MtG/MtG.jl/json/oracle-cards-20201224220555.json")
-	
-	md"""
-	###### MtG database loaded. Found $(length(mtg_cards)) unique cards (by name).
-	Most recent data available here: https://scryfall.com/docs/api/bulk-data
+
+	md"""Look OK? Keep in mind that images that do not require in-game scaling will suffer less distortion.
+
+	Alright, lets load up a JSON file with the URIs we need to grab the card images. For MtG, we can use the .json file available here: TODO
+
+	Save the json file to the /json directory in the MtG project directory and modify the following cell to point at the json file.
+
+	##### MtG database loaded! Found $(length(mtg_cards)) unique cards (by name).
+
+	mtg_cards is of type Array{Any}. The dicts contained within are of type Dict{String,Any}.
+
+	Alrighty, let's collect the data we need to download the card images!
 	"""
 end
 
@@ -182,103 +178,151 @@ end
 begin  # note: this func only downloads the first card with a matching name and then moves to the next.
 	deck_cards = []
 	commander_cards = []
-	
-	for c in mtg_cards
-		
-		for n in deck[:cards]
-		 	if n == c["name"]
+
+	for n in sort(deck[:card_names])
+
+		for c in mtg_cards
+
+			if n == c["name"]
 				push!(deck_cards, c)
 			end
 		end
-		
-		for n in deck[:commanders]
+	end
+
+	for n in deck[:commander_names]
+
+		for c in mtg_cards
+
 			if n == c["name"]
 				push!(commander_cards, c)
 			end
 		end
 	end
-	
+
+	all_cards = vcat(commander_cards, deck_cards)
+
 	md"""
 	Found $(length(deck_cards) + length(commander_cards)) matching cards in mtg_cards!
 	"""
 end
 
-# ╔═╡ 908b651c-4f3a-11eb-12c8-f95c2adb3e13
-sort([c["name"] for c in deck_cards ])
+# ╔═╡ c31dd202-50c6-11eb-0631-13c70535635e
+missing_cards = filter!(x->!(x in [ c["name"] for c in all_cards ]), vcat(deck[:card_names], deck[:commander_names]))
 
-# ╔═╡ 489f3da8-4681-11eb-26af-f75d8ecc552e
-@bind i Slider(1:length(deck_cards), show_value=true)
+# ╔═╡ 2775088a-4648-11eb-2218-af69e0e95f1f
+@bind i Slider(1:length(all_cards), show_value=true)
 
-# ╔═╡ 52dc1a52-4ef3-11eb-2e73-371bef933add
+# ╔═╡ c5374766-4ef1-11eb-2555-c159dba953f0
 md"""
 ##### *Adjust this slider to shrink / grow the cards while preserving the aspect ratio*
 
-$(@bind ratio Slider(0.1:0.05:1.5, default=0.75, show_value=true))
+$(@bind card_ratio Slider(0.1:0.05:1.25, default=0.5, show_value=true))
 """
 
 # ╔═╡ 5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
 begin
 	CARD_BACK_PATH = "$(projectdir())/games/MtG/MtG.jl/ui/cards/card_back.png"
-	CARD_BACK_IMG = imresize(load(CARD_BACK_PATH), ratio=ratio)
+	CARD_BACK_IMG = imresize(load(CARD_BACK_PATH), ratio=card_ratio)
 end
 
-# ╔═╡ 4666005c-4d62-11eb-1215-e7e010c3125c
+# ╔═╡ 614764b8-4648-11eb-0493-732a00df7bca
 md"""
-#### Look good? These images will be displayed in-game.
+#### Look good? These images will be displayed in-game!
 TODO: write support for previews of double-sided cards
 """
 
-# ╔═╡ 457f0ee2-4d6f-11eb-310f-cf4784a06469
-html"""<br><br><br><br><br><br>"""
+# ╔═╡ dfc9b56e-50ce-11eb-0e7f-83ec6e831901
+begin
+	#=
+	CARD_FRONT_IMGS = []
+	COMMANDER_FRONT_IMGS = []
 
-# ╔═╡ 9ded258e-468d-11eb-3428-d915bfe9e13e
+	for c in deck_cards
+		push!(CARD_FRONT_IMGS, imresize(get_mtg_card_front_img(c), ratio=card_ratio))
+		sleep(0.1)
+	end
+
+	for c in commander_cards
+		push!(COMMANDER_FRONT_IMGS, imresize(get_mtg_card_front_img(c), ratio=card_ratio+0.05))
+		sleep(0.1)
+	end
+
+	COMMANDER_FRONT_IMGS, CARD_FRONT_IMGS
+	=#
+end
+
+# ╔═╡ ce216c54-468a-11eb-13b8-7f3dac7af44a
 function get_card_img(img_uri::String)
 	img_resp = HTTP.get(img_uri)
 	card_img = img_resp.body |> IOBuffer |> load
 end
 
-# ╔═╡ 73d1cd18-4647-11eb-3994-7d4eb92eddca
-try
-	deck_card_img = imresize(get_card_img(deck_cards[i]["image_uris"]["border_crop"]), ratio=ratio)
-catch
-	"Sorry, no preview for double-sided or split cards..."
+# ╔═╡ 2ab53d00-50cd-11eb-1cd4-5bf94ce53692
+function get_mtg_card_img(c)
+	if haskey(all_cards[i], "card_faces") && haskey(all_cards[i]["card_faces"][1], "image_uris")
+		hcat([
+			get_card_img(f["image_uris"]["border_crop"]) for f in all_cards[i]["card_faces"]
+			]...)
+	else
+		get_card_img(all_cards[i]["image_uris"]["border_crop"])
+	end
 end
 
-# ╔═╡ a26b32f4-468d-11eb-1ddd-7958d61b4ac6
-function search_cards_by_keyword(q::String, mtg_cards::Array)
+# ╔═╡ 73d1cd18-4647-11eb-3994-7d4eb92eddca
+if (@isdefined all_cards) && length(all_cards) > 0
+	deck_card_preview = imresize(get_mtg_card_img(all_cards[i]), ratio=card_ratio)
+else
+	nothing
+end
+
+# ╔═╡ 97bc3768-50ce-11eb-3f74-95d4fefe3792
+function get_mtg_card_front_img(c)
+	if haskey(c, "card_faces") && haskey(c["card_faces"][1], "image_uris")
+		get_card_img(c["card_faces"][1]["image_uris"]["border_crop"])
+	else
+		get_card_img(c["image_uris"]["border_crop"])
+	end
+end
+
+# ╔═╡ d654ad1e-468a-11eb-2348-695621b7b9b0
+function search_mtg_cards_by_keyword(q::String, mtg_cards::Array)
 	[ n for n in [ c["name"] for c in mtg_cards ] if occursin(q, n) ]
 end
 
-# ╔═╡ cb8e3b6c-4661-11eb-152e-3f2ce56cdd9d
-search_cards_by_keyword("Fool", mtg_cards)
+# ╔═╡ cec924ac-50c7-11eb-3795-85b3c183a8eb
+search_mtg_cards_by_keyword("Meletis", mtg_cards)
 
-# ╔═╡ 5629c102-4da5-11eb-24c3-b9aefeaf4149
+# ╔═╡ 5e6f7046-4da5-11eb-0122-bd82397aab4f
 begin
-	#deck[:CARD_BACK_PATH] = CARD_BACK_PATH
-	#deck[:CARD_IMG_RATIO] = ratio
-	#deck[:CARD_BACK_IMG] = ARGB.(CARD_BACK_IMG)
-	#deck[:CARD_IMGS] = [ ARGB.(imresize(get_card_img(c["image_uris"]["border_crop"]), ratio=ratio)) for c in deck_cards if haskey(c, "image_uris") ]
-	#deck[:COMMANDER_IMGS] = [ ARGB.(imresize(get_card_img(c["image_uris"]["border_crop"]), ratio=ratio)) for c in commander_cards if haskey(c, "image_uris") ]
-	#serialize("$(deck[:name]).jls", deck)
-	deserialize(
-		"$(projectdir())/games/MtG/EDH/decks/$(deck[:name])/$(deck[:name]).jls")
+	#=
+	deck[:CARD_WIDTH] = Int32(size(CARD_BACK_IMG)[1])
+	deck[:CARD_HEIGHT] = Int32(size(CARD_BACK_IMG)[2])
+	deck[:CARD_FRONT_IMGS] = CARD_FRONT_IMGS
+	deck[:CARD_BACK_IMG] = CARD_BACK_IMG
+	deck[:COMMANDER_FRONT_IMGS] = COMMANDER_FRONT_IMGS
+
+	fn = "$(projectdir())/games/MtG/EDH/decks/$(deck[:name])/$(deck[:name]).jls"
+	serialize(fn, deck)
+	=#
 end
 
 # ╔═╡ Cell order:
 # ╟─c7952ee6-45b5-11eb-1158-5bb2ff274ce9
 # ╟─0c145632-3927-11eb-19b9-877e05c1bcdc
 # ╟─621b08a4-384e-11eb-0109-61e9b9ecf125
-# ╟─fb61d01c-458d-11eb-2c2a-f711dc7ab7f4
-# ╠═5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
+# ╠═fb61d01c-458d-11eb-2c2a-f711dc7ab7f4
+# ╟─5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
 # ╟─c61fa79e-4583-11eb-3b71-2d334aca843d
 # ╟─7420cf10-45cc-11eb-2780-4f320bd8a2cf
-# ╟─908b651c-4f3a-11eb-12c8-f95c2adb3e13
+# ╟─c31dd202-50c6-11eb-0631-13c70535635e
+# ╠═cec924ac-50c7-11eb-3795-85b3c183a8eb
 # ╟─73d1cd18-4647-11eb-3994-7d4eb92eddca
-# ╟─489f3da8-4681-11eb-26af-f75d8ecc552e
-# ╠═52dc1a52-4ef3-11eb-2e73-371bef933add
-# ╟─4666005c-4d62-11eb-1215-e7e010c3125c
-# ╟─457f0ee2-4d6f-11eb-310f-cf4784a06469
-# ╠═cb8e3b6c-4661-11eb-152e-3f2ce56cdd9d
-# ╟─9ded258e-468d-11eb-3428-d915bfe9e13e
-# ╟─a26b32f4-468d-11eb-1ddd-7958d61b4ac6
-# ╠═5629c102-4da5-11eb-24c3-b9aefeaf4149
+# ╟─2775088a-4648-11eb-2218-af69e0e95f1f
+# ╠═c5374766-4ef1-11eb-2555-c159dba953f0
+# ╟─614764b8-4648-11eb-0493-732a00df7bca
+# ╠═dfc9b56e-50ce-11eb-0e7f-83ec6e831901
+# ╟─ce216c54-468a-11eb-13b8-7f3dac7af44a
+# ╟─2ab53d00-50cd-11eb-1cd4-5bf94ce53692
+# ╟─97bc3768-50ce-11eb-3f74-95d4fefe3792
+# ╟─d654ad1e-468a-11eb-2348-695621b7b9b0
+# ╠═5e6f7046-4da5-11eb-0122-bd82397aab4f

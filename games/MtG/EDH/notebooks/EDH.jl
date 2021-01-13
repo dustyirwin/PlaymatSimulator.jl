@@ -71,7 +71,7 @@ begin
 end
 
 # ╔═╡ 0146b240-4c0a-11eb-371c-19ef327394c7
-reset_deck!(gs)
+reset_stage!(gs)
 
 # ╔═╡ 32229134-4cc0-11eb-2c68-d11134987c56
 begin  # required GZ2 variables
