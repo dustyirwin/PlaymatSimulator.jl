@@ -5,29 +5,14 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 1663336c-3902-11eb-0158-f54434ea3080
-begin
-    using DrWatson
-
-	function ingredients(path::String)
-	# this is from the Julia source code (evalfile in base/loading.jl)
-	# but with the modification that it returns the module instead of the last object
-	name = Symbol(basename(path))
-	m = Module(name)
-	Core.eval(m,
-        Expr(:toplevel,
-             :(eval(x) = $(Expr(:core, :eval))($name, x)),
-             :(include(x) = $(Expr(:top, :include))($name, x)),
-             :(include(mapexpr::Function, x) = $(Expr(:top, :include))(mapexpr, $name, x)),
-             :(include($path))))
-	m
-	end
-end;
+using DrWatson
 
 # ╔═╡ ac5c6510-3901-11eb-0c47-bb3143471434
 begin
     @quickactivate
 
     using Colors
+	using ImageIO
     using DataStructures
 
 	import PlaymatSimulator.Actors.Image
@@ -54,52 +39,95 @@ SHADE_PATH = "$mtg_dir/MtG.jl/ui/zones/area_blk.png"
 zone_shade = load(SHADE_PATH)
 
 # ╔═╡ 235edb4c-38fe-11eb-3112-bde291f6f5b5
-STAGE = OrderedDict(
-	:background => Image("$(GS.BKG_NAME)",
-		load(GS.BKG_PATH),
-		w=SCREEN_WIDTH, h=SCREEN_HEIGHT
-		),
-	"Library" => Image("Library",
-		load(SHADE_PATH),
-		x=SCREEN_BORDER,
-		y=ceil(Int32, SCREEN_HEIGHT * 0.6) + SCREEN_BORDER,
-		w=ceil(Int32, SCREEN_WIDTH * 0.15) - SCREEN_BORDER,
-		h=ceil(Int32, SCREEN_HEIGHT * 0.4 - 2SCREEN_BORDER),
-		alpha=50,
-		),
-	"Battlefield" => Image("Battlefield",
-		load(SHADE_PATH),
-		x=ceil(Int32, SCREEN_WIDTH * 0.15) + SCREEN_BORDER,
-		y=SCREEN_BORDER,
-		w=ceil(Int32, SCREEN_WIDTH * 0.7) - SCREEN_BORDER,
-		h=ceil(Int32, SCREEN_HEIGHT - 2SCREEN_BORDER),
-		alpha=50,
-		),
-	"Command" => Image("Command",
-		load(SHADE_PATH),
-		x=ceil(Int32, SCREEN_WIDTH * 0.85 + SCREEN_BORDER),
-		y=SCREEN_BORDER,
-		w=ceil(Int32, SCREEN_WIDTH * 0.15 - 2SCREEN_BORDER),
-		h=ceil(Int32, SCREEN_HEIGHT * 0.4 - SCREEN_BORDER),
-		alpha=50,
-		),
-	"Graveyard" => Image("Graveyard",
-		load(SHADE_PATH),
-		x=ceil(Int32, SCREEN_WIDTH * 0.85 + SCREEN_BORDER),
-		y=ceil(Int32, SCREEN_HEIGHT * 0.4 + SCREEN_BORDER),
-		w=ceil(Int32, SCREEN_WIDTH * 0.15 - 2SCREEN_BORDER),
-		h=ceil(Int32, SCREEN_HEIGHT * 0.6 - 2SCREEN_BORDER),
-		alpha=50,
-		),
-	"Hand" => Image("Hand",
-		load(SHADE_PATH),
-		x=SCREEN_BORDER,
-		y=SCREEN_BORDER,
-		w=ceil(Int32, SCREEN_WIDTH * 0.15 - SCREEN_BORDER),
-		h=ceil(Int32, SCREEN_HEIGHT * 0.6 - SCREEN_BORDER),
-		alpha=50,
-		),
-	)
+begin
+	dice_faces = [ load("$mtg_dir/MtG.jl/ui/dice/$fn") for fn in
+		readdir("$mtg_dir/MtG.jl/ui/dice") if occursin("gif", fn) ]
+
+	serialize("$mtg_dir/MtG.jl/ui/dice/dice_faces.jls", dice_faces)
+
+	dfs = deserialize("$mtg_dir/MtG.jl/ui/dice/dice_faces.jls")
+
+	function create_die(dfs; id="die_$(randstring(5))", x=0, y=0)
+		d = Dice(id,
+			[ GIF("dieface_$(randstring(5))", f) for f in dfs ],
+			length(dfs),
+			)
+
+		for f in d.faces
+			f.data[:parent_id] = id
+			f.x = x
+			f.y = y
+		end
+
+		return d
+	end
+
+	function create_glass_counter(id="ctr_$(randstring(5))"; x=0, y=0)
+		c = Counter("ctr_$(randstring(5))",
+			[ GIF("ctrface_$(randstring(5))", load("$mtg_dir/MtG.jl/ui/counters/glass.gif")) ],
+			nothing,
+			)
+		c.faces[begin].data[:parent_id] = id
+		c.faces[begin].x = x
+		c.faces[begin].y = y
+		return c
+	end
+
+	STAGE = OrderedDict(
+		:background => Image("$(GS.BKG_NAME)",
+			load(GS.BKG_PATH),
+			w=SCREEN_WIDTH, h=SCREEN_HEIGHT
+			),
+		:six_sided_die => create_die(dfs,
+			x=ceil(Int32, 0.85SCREEN_WIDTH),
+			y=ceil(Int32, 0.9SCREEN_HEIGHT)
+			),
+		:glass_counter => create_glass_counter(
+			x=ceil(Int32, 0.8SCREEN_WIDTH),
+			y=ceil(Int32, 0.9SCREEN_HEIGHT)
+			),
+		"Library" => Image("Library",
+			load(SHADE_PATH),
+			x=SCREEN_BORDER,
+			y=ceil(Int32, SCREEN_HEIGHT * 0.6) + SCREEN_BORDER,
+			w=ceil(Int32, SCREEN_WIDTH * 0.15) - SCREEN_BORDER,
+			h=ceil(Int32, SCREEN_HEIGHT * 0.4 - 2SCREEN_BORDER),
+			alpha=50,
+			),
+		"Battlefield" => Image("Battlefield",
+			load(SHADE_PATH),
+			x=ceil(Int32, SCREEN_WIDTH * 0.15) + SCREEN_BORDER,
+			y=SCREEN_BORDER,
+			w=ceil(Int32, SCREEN_WIDTH * 0.7) - SCREEN_BORDER,
+			h=ceil(Int32, SCREEN_HEIGHT - 2SCREEN_BORDER),
+			alpha=50,
+			),
+		"Command" => Image("Command",
+			load(SHADE_PATH),
+			x=ceil(Int32, SCREEN_WIDTH * 0.85 + SCREEN_BORDER),
+			y=SCREEN_BORDER,
+			w=ceil(Int32, SCREEN_WIDTH * 0.15 - 2SCREEN_BORDER),
+			h=ceil(Int32, SCREEN_HEIGHT * 0.4 - SCREEN_BORDER),
+			alpha=50,
+			),
+		"Graveyard" => Image("Graveyard",
+			load(SHADE_PATH),
+			x=ceil(Int32, SCREEN_WIDTH * 0.85 + SCREEN_BORDER),
+			y=ceil(Int32, SCREEN_HEIGHT * 0.4 + SCREEN_BORDER),
+			w=ceil(Int32, SCREEN_WIDTH * 0.15 - 2SCREEN_BORDER),
+			h=ceil(Int32, SCREEN_HEIGHT * 0.6 - 2SCREEN_BORDER),
+			alpha=50,
+			),
+		"Hand" => Image("Hand",
+			load(SHADE_PATH),
+			x=SCREEN_BORDER,
+			y=SCREEN_BORDER,
+			w=ceil(Int32, SCREEN_WIDTH * 0.15 - SCREEN_BORDER),
+			h=ceil(Int32, SCREEN_HEIGHT * 0.6 - SCREEN_BORDER),
+			alpha=50,
+			),
+		)
+end
 
 # ╔═╡ Cell order:
 # ╟─1663336c-3902-11eb-0158-f54434ea3080

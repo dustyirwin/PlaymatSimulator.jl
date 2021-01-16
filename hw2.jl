@@ -159,7 +159,8 @@ function remove_in_each_row_no_vcat(img, column_numbers)
 	for (i, j) in enumerate(column_numbers)
 		# EDIT THE FOLLOWING LINE and split it into two lines
 		# to avoid using `vcat`.
-		img′[i, :] .= vcat(img[i, 1:j-1], img[i, j+1:end])
+		img′[i, 1:j-1] .= img[i, 1:j-1]
+		img′[i, j:end] .= img[i, j+1:end]
 	end
 	img′
 end
@@ -181,7 +182,7 @@ md"""
 
 # ╔═╡ e49235a4-f367-11ea-3913-f54a4a6b2d6b
 no_vcat_observation = md"""
-<Your answer here>
+vcat() is an expensive operation that involves creating a new array for every i. This should be avoiding, if possible.
 """
 
 # ╔═╡ 837c43a4-f368-11ea-00a3-990a45cb0cbd
@@ -203,7 +204,8 @@ function remove_in_each_row_views(img, column_numbers)
 	for (i, j) in enumerate(column_numbers)
 		# EDIT THE FOLLOWING LINE and split it into two lines
 		# to avoid using `vcat`.
-		img′[i, :] .= vcat(img[i, 1:j-1], img[i, j+1:end])
+		img′[i, 1:j-1] .= @view img[i, 1:j-1]
+		img′[i, j:end] .= @view img[i, j+1:end]
 	end
 	img′
 end
@@ -330,8 +332,15 @@ random_seam(m, n, i) = reduce((a, b) -> [a..., clamp(last(a) + rand(-1:1), 1, n)
 
 # ╔═╡ abf20aa0-f31b-11ea-2548-9bea4fab4c37
 function greedy_seam(energies, starting_pixel::Int)
-	# you can delete the body of this function - it's just a placeholder.
-	random_seam(size(energies)..., starting_pixel)
+	is = [ starting_pixel ]
+	m, n = size(energies)
+	
+	for k in 2:m
+		es = energies[k, clamp(is[end]-1,1,n):clamp(is[end]+1,1,n)]
+		push!(is, clamp(last(is) + argmin(es) - clamp(last(is),0,2), 1, n))
+	end
+	
+	return is
 end
 
 # ╔═╡ 5430d772-f397-11ea-2ed8-03ee06d02a22
@@ -378,6 +387,9 @@ function fib(n)
 	return fib(n-1) + fib(n-2)
 end
 
+# ╔═╡ e7b223a4-56b9-11eb-1345-31a9ab80896c
+fib(10)
+
 # ╔═╡ 32e9a944-f3b6-11ea-0e82-1dff6c2eef8d
 md"""
 Notice that you can call a function from within itself which may call itself and so on until a base case is reached. Then the program will combine the result from the base case up to the final result.
@@ -405,9 +417,10 @@ Return these two values in a tuple.
 ## returns lowest possible sum energy at pixel (i, j), and the column to jump to in row i+1.
 function least_energy(energies, i, j)
 	# base case
-	# if i == something
-	#    return energies[...] # no need for recursive computation in the base case!
-	# end
+	if i == something
+		
+	   return energies[...] # no need for recursive computation in the base case!
+	end
 	#
 	# induction
 	# combine results from recursive calls to `least_energy`.
@@ -804,11 +817,10 @@ function hbox(x, y, gap=16; sy=size(y), sx=size(x))
 end
 
 # ╔═╡ f010933c-f318-11ea-22c5-4d2e64cd9629
-begin
-	hbox(
-		float_to_color.(convolve(brightness.(img), Kernel.sobel()[1])),
-		float_to_color.(convolve(brightness.(img), Kernel.sobel()[2])))
-end
+hbox(
+	float_to_color.(convolve(brightness.(img), Kernel.sobel()[1])),
+	float_to_color.(convolve(brightness.(img), Kernel.sobel()[2]))
+)
 
 # ╔═╡ 256edf66-f3e1-11ea-206e-4f9b4f6d3a3d
 vbox(x,y, gap=16) = hbox(x', y')'
@@ -885,7 +897,7 @@ bigbreak
 # ╟─8ba9f5fc-f31b-11ea-00fe-79ecece09c25
 # ╟─f5a74dfc-f388-11ea-2577-b543d31576c6
 # ╟─c3543ea4-f393-11ea-39c8-37747f113b96
-# ╟─2f9cbea8-f3a1-11ea-20c6-01fd1464a592
+# ╠═2f9cbea8-f3a1-11ea-20c6-01fd1464a592
 # ╠═abf20aa0-f31b-11ea-2548-9bea4fab4c37
 # ╟─5430d772-f397-11ea-2ed8-03ee06d02a22
 # ╟─f580527e-f397-11ea-055f-bb9ea8f12015
@@ -895,10 +907,11 @@ bigbreak
 # ╟─980b1104-f394-11ea-0948-21002f26ee25
 # ╟─9945ae78-f395-11ea-1d78-cf6ad19606c8
 # ╟─87efe4c2-f38d-11ea-39cc-bdfa11298317
-# ╟─f6571d86-f388-11ea-0390-05592acb9195
-# ╟─f626b222-f388-11ea-0d94-1736759b5f52
+# ╠═f6571d86-f388-11ea-0390-05592acb9195
+# ╠═f626b222-f388-11ea-0d94-1736759b5f52
 # ╟─52452d26-f36c-11ea-01a6-313114b4445d
 # ╠═2a98f268-f3b6-11ea-1eea-81c28256a19e
+# ╠═e7b223a4-56b9-11eb-1345-31a9ab80896c
 # ╟─32e9a944-f3b6-11ea-0e82-1dff6c2eef8d
 # ╟─9101d5a0-f371-11ea-1c04-f3f43b96ca4a
 # ╠═ddba07dc-f3b7-11ea-353e-0f67713727fc
@@ -942,7 +955,7 @@ bigbreak
 # ╟─0fbe2af6-f381-11ea-2f41-23cd1cf930d9
 # ╟─48089a00-f321-11ea-1479-e74ba71df067
 # ╟─6b4d6584-f3be-11ea-131d-e5bdefcc791b
-# ╟─437ba6ce-f37d-11ea-1010-5f6a6e282f9b
+# ╠═437ba6ce-f37d-11ea-1010-5f6a6e282f9b
 # ╟─ef88c388-f388-11ea-3828-ff4db4d1874e
 # ╟─ef26374a-f388-11ea-0b4e-67314a9a9094
 # ╟─6bdbcf4c-f321-11ea-0288-fb16ff1ec526
@@ -950,7 +963,7 @@ bigbreak
 # ╟─ffc40ab2-f380-11ea-2136-63542ff0f386
 # ╟─ffceaed6-f380-11ea-3c63-8132d270b83f
 # ╟─ffde44ae-f380-11ea-29fb-2dfcc9cda8b4
-# ╟─ffe326e0-f380-11ea-3619-61dd0592d409
+# ╠═ffe326e0-f380-11ea-3619-61dd0592d409
 # ╟─fff5aedc-f380-11ea-2a08-99c230f8fa32
 # ╟─00026442-f381-11ea-2b41-bde1fff66011
 # ╟─fbf6b0fa-f3e0-11ea-2009-573a218e2460

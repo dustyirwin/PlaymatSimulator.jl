@@ -33,6 +33,7 @@ begin
     using Serialization
 	using PlaymatSimulator
 	import PlaymatSimulator.Actors.Image
+	import PlaymatSimulator.Actors.GIF
 
 	mtg_dir = projectdir() * "/games/MtG"
 
@@ -70,25 +71,8 @@ gs = Dict{Symbol,Any}(
         :cursor => Image("mouse_cursor",
 			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png"), alpha=0, w=1, h=1),
         :sel_box => Image("selection_box",
-			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png"), alpha=50, w=0, h=0),
-		:glass_counters => Dict{Symbol, Any}(
-            :red_counter => Image("red_counter",
-				load("$mtg_dir/MtG.jl/ui/counters/red_glass_counter_sm.png"),
-                x=ceil(Int32, SCREEN_WIDTH * 0.7),
-				y=SCREEN_HEIGHT - 5SCREEN_BORDER
-				),
-            :blue_counter => Image("blue_counter",
-				load("$mtg_dir/MtG.jl/ui/counters/blue_glass_counter_sm.png"),
-                x=ceil(Int32, SCREEN_WIDTH * 0.7275),
-				y=SCREEN_HEIGHT - 5SCREEN_BORDER
-				),
-            :green_counter => Image("green_counter",
-				load("$mtg_dir/MtG.jl/ui/counters/green_glass_counter_sm.png"),
-                x=ceil(Int32, SCREEN_WIDTH * 0.7550),
-				y=SCREEN_HEIGHT - 5SCREEN_BORDER
-				),
-            ),
-        ),
+			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png"), alpha=150, w=0, h=0),
+		),
     :stage => STAGE,
 	:resources => Dict{Symbol,Any}(
         :mana => Dict{Symbol,Int32}(
@@ -102,6 +86,35 @@ gs = Dict{Symbol,Any}(
         :energy=>0,
         :life=>40,  # EDH life adjustment
         ),
+	:resource_spinners => OrderedDict{Symbol,Actor}(
+        :life => Text("40:L ",
+            "$mtg_dir/MtG.jl/fonts/OpenSans-Semibold.ttf",
+            ),
+        :white_mana => Text(" 0:W ",
+            "$mtg_dir/MtG.jl/fonts/OpenSans-Semibold.ttf", font_color = [255,255,255,255]
+            ),
+        :blue_mana => Text(" 0:U ",
+            "$mtg_dir/MtG.jl/fonts/OpenSans-Semibold.ttf", font_color = [0,0,255,255]
+            ),
+        :black_mana => Text(" 0:B ",
+            "$mtg_dir/MtG.jl/fonts/OpenSans-Semibold.ttf", font_color = [0,0,0,255]
+            ),
+        :red_mana => Text(" 0:R ",
+            "$mtg_dir/MtG.jl/fonts/OpenSans-Semibold.ttf", font_color = [255,0,0,255]
+            ),
+        :green_mana => Text(" 0:G ",
+            "$mtg_dir/MtG.jl/fonts/OpenSans-Semibold.ttf", font_color = [0,255,0,255]
+            ),
+        :colorless_mana => Text(" 0:C ",
+            "$mtg_dir/MtG.jl/fonts/OpenSans-Semibold.ttf", font_color = [125,125,125,255]
+            ),
+        :energy => Text(" 0:E ",
+            "$mtg_dir/MtG.jl/fonts/OpenSans-Semibold.ttf",
+            ),
+        :poison => Text(" 0:P ",
+            "$mtg_dir/MtG.jl/fonts/OpenSans-Semibold.ttf", font_color = [255,0,255,255]
+            ),
+        ),
     :sfx => OrderedDict(
         :shade_wht=>Image("shade_wht",
 			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png")),
@@ -109,10 +122,11 @@ gs = Dict{Symbol,Any}(
 			load("$mtg_dir/MtG.jl/ui/zones/area_blk.png")),
         ),
     :overlay => OrderedDict(
-        :shades => Actor[],
         :texts => Actor[],
         :effects => Actor[],
-		:counters => Actor[],
+		:dice => Dice[],
+		:counters => Counter[],
+		:shades => Actor[],
         ),
     :zone => OrderedDict(
         "Command" => Card[],  # EDH-specific zone

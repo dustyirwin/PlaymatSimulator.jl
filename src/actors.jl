@@ -92,10 +92,10 @@ function Text(text::String, font_path::String; x=0, y=0, pt_size=24,
     return a
 end
 
-function GIF(gif_name::String, gif; x=0, y=0, kv...)
+function GIF(gif_name::String, gif; x=0, y=0, frame_delay=Millisecond(120), kv...)
     @show gif_name
-    @show typeof(gif)
     @show h, w, n = Int32.(size(gif))
+    frame_delays = [ frame_delay for i in 1:n ]
     surfaces = []
     for i in 1:n
         gimg = ARGB.(transpose(gif[:,:,i]))
@@ -129,7 +129,7 @@ function GIF(gif_name::String, gif; x=0, y=0, kv...)
             :shake=>false,
             :then=>now(),
             :next_frame=>false,
-            :frame_delays=>[ Millisecond(80) for i in 1:n ],
+            :frame_delays=>frame_delays,
             :mouse_offset=>Int32[0,0],
         )
     )

@@ -142,7 +142,6 @@ function reset_stage!(gs::Dict)
 		SCREEN_BORDER,
 		pitch=[0.001, -0.005],
 	)
-
 	AN.splay_actors!([ c.faces[begin] for c in gs[:zone]["Hand"] ], 	# splay cards into hand zone
         SCREEN_BORDER,
         SCREEN_BORDER,
@@ -156,20 +155,11 @@ function reset_stage!(gs::Dict)
         c.x = gs[:stage]["Command"].x + (i-1) * 15
     end
 
-	gs[:overlay][:counters] = [ Image(fn, load("$GAME_DIR/ui/counters/$fn"))
-		for fn in readdir("$GAME_DIR/ui/counters") ]
-
-	pushfirst!(gs[:group][:clickables], values(gs[:ui][:horizontal_spinners])...)
-	pushfirst!(gs[:group][:clickables], values(gs[:ui][:vertical_spinners])...)
-	pushfirst!(gs[:group][:clickables], values(gs[:ui][:glass_counters])...)
-
-	AN.splay_actors!(gs[:overlay][:counters],
-		ceil(Int32, 2.1SCREEN_WIDTH / 3),
-		Int32(SCREEN_HEIGHT - 5SCREEN_BORDER),
-		SCREEN_HEIGHT,
-        SCREEN_BORDER,
-		pitch=[1.35, 0],
-	)
+	push!(gs[:overlay][:dice], gs[:stage][:six_sided_die])
+	push!(gs[:overlay][:counters], gs[:stage][:glass_counter])
+	push!(gs[:group][:clickables], values(gs[:resource_spinners])...)
+	push!(gs[:group][:clickables], [ d.faces[begin] for d in gs[:overlay][:dice] ]...)
+	push!(gs[:group][:clickables], [ c.faces[begin] for c in gs[:overlay][:counters] ]...)
 
 	return gs
 end
@@ -198,12 +188,11 @@ function draw(g::Game)
     draw.([
         # bottom layer
         values(gs[:stage])...,
-		[ (values(gs[:zone])... )... ]...,
-        [ (values(gs[:overlay])... )... ]...,
+		values(gs[:resource_spinners])...,
+		(values(gs[:zone])... )...,
         values(gs[:texts])...,
-        values(gs[:ui][:glass_counters])...,
-        values(gs[:ui][:horizontal_spinners])...,
-        values(gs[:ui][:vertical_spinners])...,
+        values(gs[:ui])...,
+		(values(gs[:overlay])... )...,
         gs[:group][:selected]...,
         gs[:ui][:cursor_icon],
         # top layer
@@ -216,49 +205,6 @@ function add_texts!(gs::Dict)
     SCREEN_HEIGHT = gs[:SCREEN_HEIGHT]
     SCREEN_BORDER = gs[:SCREEN_BORDER]
     GAME_DIR = gs[:GAME_DIR]
-
-    gs[:ui][:vertical_spinners] = OrderedDict{Symbol,Actor}(
-        :plus_minus_counter => Text(
-            """    +
-            +1/+1
-                 -""",
-            "$GAME_DIR/fonts/OpenSans-Semibold.ttf",
-            x=ceil(Int32, SCREEN_WIDTH * 0.79),
-            y=SCREEN_HEIGHT - 11SCREEN_BORDER,
-            pt_size=25,
-            wrap_length=100,
-            ),
-        )
-
-    gs[:ui][:horizontal_spinners] = OrderedDict{Symbol,Actor}(
-        :life => Text("40:L ",
-            "$GAME_DIR/fonts/OpenSans-Semibold.ttf",
-            ),
-        :white_mana => Text(" 0:W ",
-            "$GAME_DIR/fonts/OpenSans-Semibold.ttf", font_color = [255,255,255,255]
-            ),
-        :blue_mana => Text(" 0:U ",
-            "$GAME_DIR/fonts/OpenSans-Semibold.ttf", font_color = [0,0,255,255]
-            ),
-        :black_mana => Text(" 0:B ",
-            "$GAME_DIR/fonts/OpenSans-Semibold.ttf", font_color = [0,0,0,255]
-            ),
-        :red_mana => Text(" 0:R ",
-            "$GAME_DIR/fonts/OpenSans-Semibold.ttf", font_color = [255,0,0,255]
-            ),
-        :green_mana => Text(" 0:G ",
-            "$GAME_DIR/fonts/OpenSans-Semibold.ttf", font_color = [0,255,0,255]
-            ),
-        :colorless_mana => Text(" 0:C ",
-            "$GAME_DIR/fonts/OpenSans-Semibold.ttf", font_color = [125,125,125,255]
-            ),
-        :energy => Text(" 0:E ",
-            "$GAME_DIR/fonts/OpenSans-Semibold.ttf",
-            ),
-        :poison => Text(" 0:P ",
-            "$GAME_DIR/fonts/OpenSans-Semibold.ttf", font_color = [255,0,255,255]
-            ),
-        )
 
 	gs[:texts] = Dict{Symbol,Actor}()
     gs[:texts][:deck_info] = Text("Library: $(length(gs[:zone]["Library"]))",
@@ -301,12 +247,11 @@ function add_texts!(gs::Dict)
         )
 
     push!(gs[:overlay][:texts],
-        values(gs[:ui][:horizontal_spinners])...,
-        values(gs[:ui][:vertical_spinners])...,
+        values(gs[:resource_spinners])...,
         values(gs[:texts])...,
         )
 
-    AN.splay_actors!([ values(gs[:ui][:horizontal_spinners])... ],
+    AN.splay_actors!([ values(gs[:resource_spinners])... ],
         ceil(Int32, SCREEN_WIDTH * 0.955),
         Int32(2SCREEN_BORDER),
         SCREEN_HEIGHT,
@@ -317,18 +262,16 @@ function add_texts!(gs::Dict)
     gs[:group][:clickables] = [
         gs[:zone]["Command"]...,
         gs[:zone]["Hand"]...,
-        values(gs[:ui][:vertical_spinners])...,
-        values(gs[:ui][:horizontal_spinners])...,
-        values(gs[:ui][:glass_counters])...,
+        values(gs[:resource_spinners])...,
+        gs[:overlay][:dice]...,
+		gs[:overlay][:counters]...,
         ]
 
-    for s in values(gs[:ui][:horizontal_spinners])
+    for s in values(gs[:resource_spinners])
         s.data[:value] = 0
     end
 
-    gs[:ui][:horizontal_spinners][:life].data[:value] = 40
-    gs[:ui][:vertical_spinners][:plus_minus_counter].data[:value] = 1
-
+    gs[:resource_spinners][:life].data[:value] = 40
     reverse(gs[:group][:clickables])
     return gs
 end
@@ -365,15 +308,17 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
 	CARD_HEIGHT = gs[:deck][:CARD_HEIGHT]
 
     if button == GZ2.MouseButtons.LEFT
-        if isempty(ib) && isempty(gs[:group][:selected])
+        if isempty(ib) && isempty(gs[:overlay][:shades])
             gs[:ui][:sel_box].x = gs[:MOUSE_POS][1]
             gs[:ui][:sel_box].y = gs[:MOUSE_POS][2]
             gs[:ui][:sel_box].w = 1
             gs[:ui][:sel_box].h = 1
-            gs[:ui][:sel_box].alpha = 50
-            push!(gs[:group][:selected], gs[:ui][:sel_box])
+            gs[:ui][:sel_box].alpha = 100
+            push!(gs[:overlay][:shades], gs[:ui][:sel_box])
+			@show length(gs[:overlay][:shades])
 
         elseif !isempty(ib)
+
             if g.keyboard.LSHIFT || g.keyboard.RSHIFT
                 play_sound("$GAME_DIR/sounds/select.wav")
                 ib[end].scale=[1.02,1.02]
@@ -398,47 +343,41 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
 				push!(gs[:group][:clickables], a)
 				push!(gs[:group][:clickables], gs[:zone]["Library"][end].faces[begin])
 
-            elseif ib[end] === gs[:ui][:vertical_spinners][:plus_minus_counter]
+            elseif ib[end] in values(gs[:overlay][:dice])
                 if g.keyboard.LCTRL || g.keyboard.RCTRL
                     push!(gs[:group][:selected], ib[end])
-                else
-                    val = ib[end].data[:value]
-                    val_str = val < 0 ? "$val / $val" : "+$val / +$val"
-                    fp = "$GAME_DIR/fonts/OpenSans-Semibold.ttf"
-					ctr = Text(val_str, fp, pt_size=24)
-                    push!(gs[:group][:selected], ctr)
-                    push!(gs[:overlay][:counters], ctr)
-                end
 
-            elseif ib[end] in values(gs[:ui][:glass_counters])
-                if g.keyboard.LCTRL || g.keyboard.RCTRL
-                    push!(gs[:group][:selected], ib[end])
                 else
-                    copy = Image(ib[end].label, x=gs[:MOUSE_POS][1], y=gs[:MOUSE_POS][2])
+                    copy = GIF("die_$(randstring(5))", ib[end].data[:gif], x=gs[:MOUSE_POS][1], y=gs[:MOUSE_POS][2])
+					push!(gs[:overlay][:dice], copy)
                     push!(gs[:group][:selected], copy)
-                    push!(gs[:overlay][:counters], copy)
                 end
 
             elseif isempty(gs[:group][:selected]) &&
-                !(ib[end] in values(gs[:ui][:horizontal_spinners])) &&
-                !(ib[end] in values(gs[:ui][:vertical_spinners]))
+                !(ib[end] in values(gs[:resource_spinners]))
 
                 play_sound("$GAME_DIR/sounds/select.wav")
 
                 ib[end].scale=[1.02, 1.02]
                 zs = zone_check(ib[end], gs)
 
-                counters = [ ctr for ctr in values(gs[:overlay][:counters])  # "sticky" counters
-                    if SDL2.HasIntersection(
+                dice_and_counters = [ dc.faces[begin] for dc in [   # "sticky" counters
+					values(gs[:overlay][:dice])...,
+					values(gs[:overlay][:dice])...
+					] if SDL2.HasIntersection(
                         Ref(ib[end].position),
-                        Ref(ctr.position)) && !(ib[end] in gs[:overlay][:counters])
+                        Ref(dc.faces[begin].position)) && !(ib[end] in [
+						values(gs[:overlay][:dice])...,
+						values(gs[:overlay][:dice])... ]
+						)
                     ]
-                for ctr in counters
-                    ctr.data[:mouse_offset] = [
-						ctr.x - gs[:MOUSE_POS][1], ctr.y - gs[:MOUSE_POS][2] ]
+
+                for dc in dice_and_counters
+                    dc.data[:mouse_offset] = [
+						dc.x - gs[:MOUSE_POS][1], dc.y - gs[:MOUSE_POS][2] ]
                 end
 
-                push!(gs[:group][:selected], [ counters..., ib[end] ]...)
+                push!(gs[:group][:selected], [ dice_and_counters..., ib[end] ]...)
 
                 if zs !== nothing
                     filter!(x->x!==ib[end], gs[:zone][zs])
@@ -503,15 +442,15 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
 
 	                gs[:group][:clickables] = [
 	                    [ c.faces[begin] for c in [ (values(gs[:zone])... )... ] ]...,
-	                    values(gs[:ui][:horizontal_spinners])...,
-	                    values(gs[:ui][:vertical_spinners])...,
-	                    values(gs[:ui][:glass_counters])...,
-	                	]
+	                    values(gs[:resource_spinners])...,
+	                    [ d.faces[begin] for d in values(gs[:overlay][:dice]) ]...,
+						[ c.faces[begin] for c in values(gs[:overlay][:counters]) ]...,
+                	]
 
 					push!(gs[:group][:clickables], gs[:zone]["Library"][end].faces[begin])
             	end
 
-            elseif ib[end] in values(gs[:ui][:horizontal_spinners])
+            elseif ib[end] in values(gs[:resource_spinners])
                 delta = g.keyboard.LSHIFT || g.keyboard.RSHIFT ? 5 : 1
                 f = gs[:MOUSE_POS][1] > ib[end].x + ib[end].w / 2 ? 1 : -1
                 ib[end].data[:value] += f * delta
@@ -519,15 +458,6 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
                 AN.update_text_actor!(ib[end],
                     " $(ib[end].data[:value])" * ib[end].label[end-2:end]
                 )
-
-            elseif ib[end] === gs[:ui][:vertical_spinners][:plus_minus_counter]
-                delta = g.keyboard.LSHIFT || g.keyboard.RSHIFT ? 5 : 1
-                f = gs[:MOUSE_POS][2] > ib[end].y + ib[end].h / 2 ? -1 : 1
-                v = ib[end].data[:value] = ib[end].data[:value] + delta * f
-                AN.update_text_actor!(gs[:ui][:vertical_spinners][:plus_minus_counter],
-                    """    +
-                     $(v>-1 ? "+" : "")$(ib[end].data[:value])/$(v>-1 ? "+" : "")$(ib[end].data[:value])
-                          -""")
 
 			else
             	ib[end].angle = ib[end].angle == 0 ? 90 : 0
@@ -544,7 +474,7 @@ function on_mouse_up(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
 
     if button == GZ2.MouseButtons.LEFT
 
-		if gs[:ui][:sel_box] in gs[:group][:selected]
+		if gs[:ui][:sel_box] in gs[:overlay][:shades]
             sb = gs[:ui][:sel_box]
 
             for a in gs[:group][:clickables]
@@ -568,17 +498,18 @@ function on_mouse_up(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
                         sb.h < 0 ? -sb.h : sb.h)
                         ),
                     Ref(pos)) &&
-                        !(a in values(gs[:ui][:horizontal_spinners])) &&
-                        !(a in values(gs[:ui][:vertical_spinners])) &&
-                        !(a in values(gs[:ui][:glass_counters]))
+                        !(a in values(gs[:resource_spinners])) &&
+                        !(a in [ c.faces[begin] for c in values(gs[:overlay][:counters]) ]) &&
+						!(a in [ d.faces[begin] for d in values(gs[:overlay][:dice]) ])
 
 					push!(gs[:group][:selected], a)
                     filter!(x->x!==a, [ (values(gs[:zone])...)... ] )
                 end
             end
 
-            filter!(x->x!=sb, gs[:group][:selected])
-            filter!(x->x!==gs[:zone]["Library"][end].faces[begin], gs[:group][:selected])
+			gs[:overlay][:shades] = []
+			filter!(x->x!==gs[:zone]["Library"][end].faces[begin], gs[:group][:selected])
+			@show length(gs[:group][:selected])
 
             if length(gs[:group][:selected]) > 0
 
@@ -599,10 +530,10 @@ function on_mouse_up(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
 
 					for (i,c) in enumerate(gs[:ALL_CARDS])
 
-						if a.data[:parent_id] == c.id
+						if haskey(a.data, :parent_id) && a.data[:parent_id] == c.id
 							c = popat!(gs[:ALL_CARDS], i)
 							filter!.(x->x!=c, [ values(gs[:zone])... ])
-							push!(gs[:zone][zone], c)
+							g.keyboard.LCTRL || g.keyboard.RCTRL ? pushfirst!(gs[:zone][zone], c) : push!(gs[:zone][zone], c)
 							push!(gs[:ALL_CARDS], c)
 						end
 					end
@@ -625,10 +556,9 @@ function on_mouse_up(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
 					a.scale = [1, 1]
 				end
 			end
-
 			push!(gs[:group][:clickables], gs[:group][:selected]...)
-		    gs[:group][:selected] = []
 		end
+		gs[:group][:selected] = []
 	end
 end
 
@@ -664,14 +594,13 @@ function on_key_down(g::Game, key, keymod)
     elseif key == Keys.F
 
         if !isempty(gs[:group][:selected])
+
 			for a in gs[:group][:selected]
+
 				for c in gs[:ALL_CARDS]
+
 					if a.data[:parent_id] == c.id
-						@show "Changing face of $(c.name)!"
 						AN.reset_actor!(c.faces[begin], a.h, a.w)
-						c.faces[begin].angle = c.faces[end].angle
-						c.faces = circshift(c.faces, 1)
-						c.faces[begin].position = a.position
 						filter!(x->x!==a, gs[:group][:clickables])
 						push!(gs[:group][:clickables], c.faces[begin])
 					end
@@ -679,7 +608,10 @@ function on_key_down(g::Game, key, keymod)
             end
 
 		elseif !isempty(ib)
+			@show typeof(ib[end])
+
 			for c in gs[:ALL_CARDS]
+
 				if ib[end].data[:parent_id] == c.id
 					@show "Changing face of $(c.name)!"
 					c.faces[begin+1].angle = c.faces[begin].angle
@@ -687,6 +619,20 @@ function on_key_down(g::Game, key, keymod)
 					c.faces = circshift(c.faces, 1)
 					filter!(x->x!==ib[end], gs[:group][:clickables])
 					push!(gs[:group][:clickables], c.faces[begin])
+				end
+			end
+
+			for dc in [ gs[:stage][:six_sided_die], gs[:stage][:glass_counter] ]
+
+				if ib[end].data[:parent_id] == dc.id
+
+					for f in dc.faces
+						f.position = ib[end].position
+					end
+
+					dc.faces = circshift(dc.faces, 1)
+					filter!(x->x!==ib[end], gs[:group][:clickables])
+					push!(gs[:group][:clickables], dc.faces[begin])
 				end
 			end
         end
@@ -818,12 +764,14 @@ end
 
 # ╔═╡ 64b89860-468e-11eb-2b22-fff8ae5ea566
 function update(g::Game)
-    global gs, then
+    global gs
 
     ib = in_bounds(gs)
 
     for a in gs[:group][:clickables]
-		if a isa Card; a = a.faces[begin] end
+		if a isa Card || a isa Dice || a isa Counter
+			a = a.faces[begin]
+		end
         if a.data[:spin]; AN.spin_actor!(a) end
         if a.data[:shake]; AN.shake_actor!(a) end
         if a.data[:fade]; AN.fade_actor!(a) end
@@ -837,7 +785,10 @@ end
 
 # ╔═╡ 70d25e54-468e-11eb-160f-9bdafa1ee16c
 begin
-	draw(c::Card) = draw(c.faces[begin])
+	draw(x::Card) = draw(x.faces[begin])
+	draw(x::Dice) = draw(x.faces[begin])
+	draw(x::Counter) = draw(x.faces[begin])
+
 	#play_music(gs[:music][end], 1)  # play_music(name, loops=-1)
 
 	#SDL2.SetWindowFullscreen(game[].screen.window, SDL2.WINDOW_FULLSCREEN_DESKTOP)

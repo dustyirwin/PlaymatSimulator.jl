@@ -14,7 +14,10 @@ macro bind(def, element)
 end
 
 # ╔═╡ e90001ca-4b3f-11eb-0ccd-7785902a32e3
-using DrWatson
+begin
+	using DrWatson
+	html"<button onclick='present()'>present</button>"
+end
 
 # ╔═╡ 6e33e012-4b3d-11eb-30ea-2b5f82c16b8e
 begin

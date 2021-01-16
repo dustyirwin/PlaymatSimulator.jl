@@ -88,6 +88,13 @@ function reset_actor!(a::Actor, h::Int32, w::Int32)
 	return a
 end
 
+function change_face!(o::T) where T
+	@show "Changing face of $(o.name)!"
+	o.faces = circshift(o.faces, -1)
+	o.faces[begin].angle = o.faces[end].angle
+	return o
+end
+
 function splay_actors!(actors::Vector{Actor}, x::Int32, y::Int32,
     SCREEN_HEIGHT::Int32, SCREEN_BORDER::Int32; pitch=Float64[1, 1])
 
@@ -123,8 +130,8 @@ function update_text_actor!(a::Actor, new_text::String)
     return a
 end
 
-function next_frame!!(a::Actor)
-    circshift!(a.textures, -1)
+function next_frame!(a::Actor)
+    a.textures = circshift(a.textures, -1)
     a.data[:then] = now()
 	return a
 end

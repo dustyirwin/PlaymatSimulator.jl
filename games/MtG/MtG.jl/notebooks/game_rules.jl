@@ -40,26 +40,27 @@ end
 
 # ╔═╡ 2e3ae5ee-5019-11eb-0e4f-fd8ceaa8a8f7
 begin
+	abstract type AbstractDice end
+
+	abstract type AbstractCounter end
+
+	abstract type AbstractToken end
+
 	abstract type AbstractCard end
 
 	abstract type AbstractAbility end
 
+	abstract type AbstractLand <: AbstractCard end
+
 	abstract type AbstractSpell <: AbstractCard end
-end
 
-# ╔═╡ 387cd682-5019-11eb-16b6-7dff158de31b
-abstract type AbstractLand <: AbstractCard end
-
-# ╔═╡ 62ea38ec-5019-11eb-0060-c5e3ae62838c
-begin
 	abstract type TriggeredAbility <: AbstractAbility end
 
 	abstract type ActivatedAbility <: AbstractAbility end
-
-	stack = Union{AbstractSpell,AbstractAbility}[]
 end
 
-
+# ╔═╡ 62ea38ec-5019-11eb-0060-c5e3ae62838c
+stack = Union{AbstractSpell,AbstractAbility}[]
 
 # ╔═╡ 09703f54-4fcf-11eb-3a14-45a4cfafbe5d
 mutable struct Card <: AbstractCard
@@ -74,22 +75,41 @@ mutable struct Card <: AbstractCard
 	data::Dict{Symbol,Any}
 end
 
-# ╔═╡ 49b31c24-5012-11eb-2d79-9bfc1514c3aa
-begin
-	mutable struct Ability <: AbstractAbility
-		source::Card
-		effect::Function
-	end
-
-	mutable struct Spell <: AbstractSpell
-		card::Card
-		ability::Ability
-	end
+# ╔═╡ 32ee705e-558c-11eb-2e89-77f8060cf4f6
+mutable struct Ability <: AbstractAbility
+	source::Card
+	effect::Function
 end
 
+# ╔═╡ 357a5b80-558c-11eb-20bf-2188af834a12
+mutable struct Spell <: AbstractSpell
+	card::Card
+	ability::Ability
+end
+
+# ╔═╡ 94d2e13c-55ec-11eb-0c93-91aa4e14ceff
+mutable struct Dice <: AbstractDice
+	id::String
+	faces::Vector{Actor}
+	sides::Int
+end
+
+# ╔═╡ 49b31c24-5012-11eb-2d79-9bfc1514c3aa
+mutable struct Token <: AbstractToken
+	id::String
+	name::String
+	owner::String
+	controller::String
+	faces::Vector{Actor}
+	tapped::Bool
+	flipped::Bool
+	scale::Vector{Float32}
+	data::Dict{Symbol,Any}
+end
 
 # ╔═╡ 7b5b091c-500d-11eb-35c5-45af2e6c4e29
 mutable struct Zone
+	owner::String
 	name::String
 	cards::Vector{Card}
 end
@@ -112,6 +132,13 @@ mutable struct Player
     zones::Vector{Zone}
 end
 
+# ╔═╡ 3819f224-558c-11eb-2498-95b826027aa2
+mutable struct Counter <: AbstractCounter
+	id::String
+	faces::Vector{Actor}
+	on::Union{Card,Player,Nothing}
+end
+
 # ╔═╡ 88d425c0-5011-11eb-11f9-271c42ea3c50
 mutable struct PlaymatSimulatorGame
 	player_names::Vector{Player}
@@ -127,9 +154,6 @@ gr = OrderedDict(
 	:win_conditions => [ :all_opponents_lost, :no_opponents_left ],
 	:loss_conditions => [ :zero_health, :cant_draw, :poisoned, :commander_dmg ],
 	)
-
-# ╔═╡ 16ac23e8-393b-11eb-2c98-b9460bc51ec1
-stack = []
 
 # ╔═╡ 26a74f36-393b-11eb-296b-5dce05b5e22c
 game_step = [
@@ -240,19 +264,21 @@ end
 
 # ╔═╡ Cell order:
 # ╟─0ce5327a-393b-11eb-1c38-4d48c8b2cdb6
-# ╠═18e233a2-393b-11eb-2a6e-e77e896a6ce3
+# ╟─18e233a2-393b-11eb-2a6e-e77e896a6ce3
 # ╠═2e3ae5ee-5019-11eb-0e4f-fd8ceaa8a8f7
-# ╠═387cd682-5019-11eb-16b6-7dff158de31b
 # ╠═62ea38ec-5019-11eb-0060-c5e3ae62838c
 # ╠═09703f54-4fcf-11eb-3a14-45a4cfafbe5d
+# ╠═32ee705e-558c-11eb-2e89-77f8060cf4f6
+# ╠═357a5b80-558c-11eb-20bf-2188af834a12
+# ╠═3819f224-558c-11eb-2498-95b826027aa2
+# ╠═94d2e13c-55ec-11eb-0c93-91aa4e14ceff
 # ╠═49b31c24-5012-11eb-2d79-9bfc1514c3aa
 # ╠═7b5b091c-500d-11eb-35c5-45af2e6c4e29
 # ╠═d61fed94-5016-11eb-1b20-edc6a8b86bb5
 # ╠═fbce7bf4-4fce-11eb-3205-b31b312ef4e5
 # ╠═88d425c0-5011-11eb-11f9-271c42ea3c50
 # ╠═a938ca5c-393a-11eb-0557-d1580caa7d9d
-# ╟─16ac23e8-393b-11eb-2c98-b9460bc51ec1
-# ╟─26a74f36-393b-11eb-296b-5dce05b5e22c
+# ╠═26a74f36-393b-11eb-296b-5dce05b5e22c
 # ╟─96f9024e-3aa7-11eb-2916-c3f03b94b5e6
 # ╟─084fbf90-393c-11eb-0e3f-e1cf9b126e31
 # ╟─712f3b76-393c-11eb-0ae4-f1c8a5eac20a
