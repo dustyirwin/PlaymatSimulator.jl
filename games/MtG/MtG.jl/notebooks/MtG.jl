@@ -309,14 +309,19 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
 	CARD_HEIGHT = gs[:deck][:CARD_HEIGHT]
 
     if button == GZ2.MouseButtons.LEFT
-        if isempty(ib) && isempty(gs[:overlay][:shades])
-            gs[:sfx][:sel_box].x = gs[:MOUSE_POS][1]
-            gs[:sfx][:sel_box].y = gs[:MOUSE_POS][2]
-            gs[:sfx][:sel_box].w = 1
-            gs[:sfx][:sel_box].h = 1
-            gs[:sfx][:sel_box].alpha = 50
-            push!(gs[:overlay][:shades], gs[:sfx][:sel_box])
-			@show length(gs[:overlay][:shades])
+
+		if isempty(ib)
+
+			if isempty(gs[:overlay][:shades])
+	            gs[:sfx][:sel_box].x = gs[:MOUSE_POS][1]
+	            gs[:sfx][:sel_box].y = gs[:MOUSE_POS][2]
+	            gs[:sfx][:sel_box].w = 1
+	            gs[:sfx][:sel_box].h = 1
+	            gs[:sfx][:sel_box].alpha = 50
+	            push!(gs[:overlay][:shades], gs[:sfx][:sel_box])
+			else
+				gs[:group][:selected] = Actor[]
+			end
 
         elseif !isempty(ib)
 
@@ -416,7 +421,7 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
                         SCREEN_HEIGHT,
                         SCREEN_BORDER,
                         pitch=[0.032, 0.1]
-                    	)
+                	)
 	            else
 					for (i,c) in enumerate(gs[:zone]["Library"])
 						a = c.faces[begin]
@@ -464,7 +469,9 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
 			else
             	ib[end].angle = ib[end].angle == 0 ? 90 : 0
             end
-        end
+		elseif isempty(ib)
+			gs[:group][:selected] = []
+		end
     end
 end
 
@@ -616,8 +623,8 @@ function on_key_down(g::Game, key, keymod)
 
 				if ib[end].data[:parent_id] == c.id
 					@show "Changing face of $(c.name)!"
-					c.faces[begin+1].angle = c.faces[begin].angle
-					c.faces[begin+1].position = ib[end].position
+					for f in c.faces; f.angle = c.faces[begin].angle end
+					for f in c.faces; f.position = ib[end].position end
 					c.faces = circshift(c.faces, 1)
 					filter!(x->x!==ib[end], gs[:group][:clickables])
 					push!(gs[:group][:clickables], c.faces[begin])

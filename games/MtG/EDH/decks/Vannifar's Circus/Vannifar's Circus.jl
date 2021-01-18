@@ -229,7 +229,16 @@ end
 # ╔═╡ 614764b8-4648-11eb-0493-732a00df7bca
 md"""
 #### Look good? These images will be displayed in-game!
-TODO: write support for previews of double-sided cards
+"""
+
+# ╔═╡ 0899b1d0-5972-11eb-0470-4d480cf95d53
+md"""
+##### Download card imgs? $(@bind download_imgs CheckBox()) 
+"""
+
+# ╔═╡ be2af776-5971-11eb-13ec-3d7982a01ea3
+md"""
+##### Save data to disk? $(@bind save_data CheckBox()) 
 """
 
 # ╔═╡ ce216c54-468a-11eb-13b8-7f3dac7af44a
@@ -270,7 +279,7 @@ function get_card_faces(c, faces=[])
 end
 
 # ╔═╡ dfc9b56e-50ce-11eb-0e7f-83ec6e831901
-begin
+if download_imgs
 	#
 	CARD_FACE_IMGS = []
 	COMMANDER_FACE_IMGS = []
@@ -298,8 +307,7 @@ end
 search_mtg_cards_by_keyword("Jwari", mtg_cards)
 
 # ╔═╡ 5e6f7046-4da5-11eb-0122-bd82397aab4f
-begin
-	#=
+if save_data
 	deck[:CARD_WIDTH] = Int32(size(CARD_BACK_IMG)[1])
 	deck[:CARD_HEIGHT] = Int32(size(CARD_BACK_IMG)[2])
 	deck[:CARD_BACK_IMG] = CARD_BACK_IMG
@@ -308,7 +316,6 @@ begin
 
 	fn = "$(projectdir())/games/MtG/EDH/decks/$(deck[:name])/$(deck[:name]).jls"
 	serialize(fn, deck)
-	=#
 end
 
 # ╔═╡ Cell order:
@@ -316,18 +323,20 @@ end
 # ╟─0c145632-3927-11eb-19b9-877e05c1bcdc
 # ╟─621b08a4-384e-11eb-0109-61e9b9ecf125
 # ╟─fb61d01c-458d-11eb-2c2a-f711dc7ab7f4
-# ╠═5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
+# ╟─5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
 # ╟─c61fa79e-4583-11eb-3b71-2d334aca843d
-# ╠═7420cf10-45cc-11eb-2780-4f320bd8a2cf
+# ╟─7420cf10-45cc-11eb-2780-4f320bd8a2cf
 # ╠═c31dd202-50c6-11eb-0631-13c70535635e
 # ╠═cec924ac-50c7-11eb-3795-85b3c183a8eb
-# ╠═73d1cd18-4647-11eb-3994-7d4eb92eddca
+# ╟─73d1cd18-4647-11eb-3994-7d4eb92eddca
 # ╟─2775088a-4648-11eb-2218-af69e0e95f1f
 # ╟─c5374766-4ef1-11eb-2555-c159dba953f0
 # ╟─614764b8-4648-11eb-0493-732a00df7bca
-# ╠═dfc9b56e-50ce-11eb-0e7f-83ec6e831901
+# ╟─0899b1d0-5972-11eb-0470-4d480cf95d53
+# ╟─dfc9b56e-50ce-11eb-0e7f-83ec6e831901
+# ╟─be2af776-5971-11eb-13ec-3d7982a01ea3
 # ╟─ce216c54-468a-11eb-13b8-7f3dac7af44a
 # ╟─2ab53d00-50cd-11eb-1cd4-5bf94ce53692
-# ╠═97bc3768-50ce-11eb-3f74-95d4fefe3792
+# ╟─97bc3768-50ce-11eb-3f74-95d4fefe3792
 # ╟─d654ad1e-468a-11eb-2348-695621b7b9b0
-# ╠═5e6f7046-4da5-11eb-0122-bd82397aab4f
+# ╟─5e6f7046-4da5-11eb-0122-bd82397aab4f

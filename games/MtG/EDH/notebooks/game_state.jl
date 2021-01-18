@@ -59,7 +59,7 @@ SCREEN_BORDER = Int32(10)
 SCREEN_HEIGHT = Int32(1920)
 
 # ╔═╡ 22163bfc-3932-11eb-37cc-0701ba61483e
-gs = Dict{Symbol,Any}(
+const gs = Dict{Symbol,Any}(
 	:GAME_NAME => "EDH",
     :GAME_DIR => "$mtg_dir/MtG.jl",
 	:MOUSE_POS => Int32[0,0],
@@ -118,8 +118,8 @@ gs = Dict{Symbol,Any}(
 			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png")),
         :shade_blk=>Image("shade_blk",
 			load("$mtg_dir/MtG.jl/ui/zones/area_blk.png")),
-		:sel_box => Image("selection_box",
-			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png"), alpha=20, w=0, h=0),
+		:sel_box => Image("sel_box",
+			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png"), alpha=35, w=0, h=0),
         ),
     :overlay => OrderedDict(
         :texts => Actor[],

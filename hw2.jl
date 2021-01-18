@@ -59,7 +59,7 @@ Feel free to ask questions!
 # ╔═╡ 33e43c7c-f381-11ea-3abc-c942327456b1
 # edit the code below to set your name and kerberos ID (i.e. email without @mit.edu)
 
-student = (name = "Jazzy Doe", kerberos_id = "jazz")
+student = (name = "Dusty Doe", kerberos_id = "jazz")
 
 # you might need to wait until all other cells in this notebook have completed running. 
 # scroll around the page to see what's up
@@ -163,7 +163,7 @@ function remove_in_each_row_no_vcat(img, column_numbers)
 		img′[i, j:end] .= img[i, j+1:end]
 	end
 	img′
-end
+end 
 
 # ╔═╡ 67717d02-f327-11ea-0988-bfe661f57f77
 performance_experiment_without_vcat = @benchmark remove_in_each_row_no_vcat(img, 1:size(img, 1))
@@ -872,7 +872,7 @@ bigbreak
 # ╟─145c0f58-f384-11ea-2b71-09ae83f66da2
 # ╟─837c43a4-f368-11ea-00a3-990a45cb0cbd
 # ╠═90a22cc6-f327-11ea-1484-7fda90283797
-# ╠═3335e07c-f328-11ea-0e6c-8d38c8c0ad5b
+# ╟─3335e07c-f328-11ea-0e6c-8d38c8c0ad5b
 # ╟─d4ea4222-f388-11ea-3c8d-db0d651f5282
 # ╟─40d6f562-f329-11ea-2ee4-d7806a16ede3
 # ╟─4f0975d8-f329-11ea-3d10-59a503f8d6b2
@@ -902,11 +902,11 @@ bigbreak
 # ╟─5430d772-f397-11ea-2ed8-03ee06d02a22
 # ╟─f580527e-f397-11ea-055f-bb9ea8f12015
 # ╟─6f52c1a2-f395-11ea-0c8a-138a77f03803
-# ╟─2a7e49b8-f395-11ea-0058-013e51baa554
+# ╠═2a7e49b8-f395-11ea-0058-013e51baa554
 # ╟─7ddee6fc-f394-11ea-31fc-5bd665a65bef
 # ╟─980b1104-f394-11ea-0948-21002f26ee25
 # ╟─9945ae78-f395-11ea-1d78-cf6ad19606c8
-# ╟─87efe4c2-f38d-11ea-39cc-bdfa11298317
+# ╠═87efe4c2-f38d-11ea-39cc-bdfa11298317
 # ╠═f6571d86-f388-11ea-0390-05592acb9195
 # ╠═f626b222-f388-11ea-0d94-1736759b5f52
 # ╟─52452d26-f36c-11ea-01a6-313114b4445d
@@ -963,7 +963,7 @@ bigbreak
 # ╟─ffc40ab2-f380-11ea-2136-63542ff0f386
 # ╟─ffceaed6-f380-11ea-3c63-8132d270b83f
 # ╟─ffde44ae-f380-11ea-29fb-2dfcc9cda8b4
-# ╠═ffe326e0-f380-11ea-3619-61dd0592d409
+# ╟─ffe326e0-f380-11ea-3619-61dd0592d409
 # ╟─fff5aedc-f380-11ea-2a08-99c230f8fa32
 # ╟─00026442-f381-11ea-2b41-bde1fff66011
 # ╟─fbf6b0fa-f3e0-11ea-2009-573a218e2460
