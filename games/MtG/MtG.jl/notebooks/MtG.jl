@@ -45,6 +45,7 @@ function zone_check(a::Actor, gs::Dict)
             return zone
         end
     end
+
     @warn "$(a.label) not found in any :stage area!"
 end
 
@@ -79,14 +80,14 @@ function reset_stage!(gs::Dict)
     deck = deserialize("$DECK_DIR/$DECK_NAME.jls")
 	gs[:CARDS] = []
 
-	for (name, img) in zip(gs[:deck][:card_names], gs[:deck][:CARD_FRONT_IMGS])
+	for (name, imgs) in gs[:deck][:CARD_FACE_IMGS]
 		id = randstring(10)
 		c = Card(
 			id,
 			name,
 			"Player1",
 			"Player1",
-			[ Image("Backside", deck[:CARD_BACK_IMG]), Image(name, img) ],
+			[ Image("Backside", deck[:CARD_BACK_IMG]), [ Image(name, img) for img in imgs ]... ],
 			false,
 			false,
 			[1,1],
@@ -101,14 +102,14 @@ function reset_stage!(gs::Dict)
 
 	gs[:COMMANDERS] = []
 
-	for (name, img) in zip(gs[:deck][:commander_names], gs[:deck][:COMMANDER_FRONT_IMGS])
+	for (name, imgs) in gs[:deck][:COMMANDER_FACE_IMGS]
 		id = randstring(10)
 		c = Card(
 			id,
 			name,
 			"Player1",
 			"Player1",
-			[ Image("Backside", deck[:CARD_BACK_IMG]), Image(name, img) ],
+			[ Image("Backside", deck[:CARD_BACK_IMG]), [ Image(name, img) for img in imgs ]... ],
 			false,
 			false,
 			[1,1],
@@ -171,15 +172,15 @@ function on_mouse_move(g::Game, pos::Tuple)
     gs[:ui][:cursor_icon].x = gs[:ui][:cursor].x = gs[:MOUSE_POS][1] = pos[1]
     gs[:ui][:cursor_icon].y = gs[:ui][:cursor].y = gs[:MOUSE_POS][2] = pos[2]
 
-    for c in gs[:group][:selected]
-        if c == gs[:ui][:sel_box]
-            c.w = gs[:ui][:cursor].x - c.x
-            c.h = gs[:ui][:cursor].y - c.y
+	if gs[:sfx][:sel_box] in gs[:overlay][:shades]
+		c = gs[:sfx][:sel_box]
+        c.w = gs[:ui][:cursor].x - c.x
+        c.h = gs[:ui][:cursor].y - c.y
+	end
 
-		elseif !(g.keyboard.RSHIFT || g.keyboard.LSHIFT)
-			c.x = gs[:MOUSE_POS][1] + c.data[:mouse_offset][1]
-            c.y = gs[:MOUSE_POS][2] + c.data[:mouse_offset][2]
-        end
+	for c in gs[:group][:selected]
+		c.x = gs[:MOUSE_POS][1] + c.data[:mouse_offset][1]
+        c.y = gs[:MOUSE_POS][2] + c.data[:mouse_offset][2]
     end
 end
 
@@ -309,12 +310,12 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
 
     if button == GZ2.MouseButtons.LEFT
         if isempty(ib) && isempty(gs[:overlay][:shades])
-            gs[:ui][:sel_box].x = gs[:MOUSE_POS][1]
-            gs[:ui][:sel_box].y = gs[:MOUSE_POS][2]
-            gs[:ui][:sel_box].w = 1
-            gs[:ui][:sel_box].h = 1
-            gs[:ui][:sel_box].alpha = 100
-            push!(gs[:overlay][:shades], gs[:ui][:sel_box])
+            gs[:sfx][:sel_box].x = gs[:MOUSE_POS][1]
+            gs[:sfx][:sel_box].y = gs[:MOUSE_POS][2]
+            gs[:sfx][:sel_box].w = 1
+            gs[:sfx][:sel_box].h = 1
+            gs[:sfx][:sel_box].alpha = 50
+            push!(gs[:overlay][:shades], gs[:sfx][:sel_box])
 			@show length(gs[:overlay][:shades])
 
         elseif !isempty(ib)
@@ -353,8 +354,7 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
                     push!(gs[:group][:selected], copy)
                 end
 
-            elseif isempty(gs[:group][:selected]) &&
-                !(ib[end] in values(gs[:resource_spinners]))
+            elseif isempty(gs[:group][:selected]) && !(ib[end] in values(gs[:resource_spinners]))
 
                 play_sound("$GAME_DIR/sounds/select.wav")
 
@@ -377,7 +377,7 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
 						dc.x - gs[:MOUSE_POS][1], dc.y - gs[:MOUSE_POS][2] ]
                 end
 
-                push!(gs[:group][:selected], [ dice_and_counters..., ib[end] ]...)
+                push!(gs[:group][:selected], [ ib[end] ]..., dice_and_counters... )
 
                 if zs !== nothing
                     filter!(x->x!==ib[end], gs[:zone][zs])
@@ -385,7 +385,7 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
 
                 ib[end].data[:mouse_offset] = [ ib[end].x -
 					gs[:MOUSE_POS][1], ib[end].y - gs[:MOUSE_POS][2] ]
-            end
+			end
         end
 
     elseif button == GZ2.MouseButtons.RIGHT
@@ -427,7 +427,9 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
 	                end
 
 					for c in gs[:zone]["Library"]
-						c.faces = circshift(c.faces, 1)
+						while c.faces[begin].label != "Backside"
+							c.faces = circshift(c.faces, 1)
+						end
 					end
 
                 	gs[:zone]["Library"] = shuffle(gs[:zone]["Library"])
@@ -474,8 +476,8 @@ function on_mouse_up(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
 
     if button == GZ2.MouseButtons.LEFT
 
-		if gs[:ui][:sel_box] in gs[:overlay][:shades]
-            sb = gs[:ui][:sel_box]
+		if gs[:sfx][:sel_box] in gs[:overlay][:shades]
+            sb = gs[:sfx][:sel_box]
 
             for a in gs[:group][:clickables]
 
@@ -507,9 +509,8 @@ function on_mouse_up(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
                 end
             end
 
-			gs[:overlay][:shades] = []
+			filter!(x->x!==sb, gs[:overlay][:shades])
 			filter!(x->x!==gs[:zone]["Library"][end].faces[begin], gs[:group][:selected])
-			@show length(gs[:group][:selected])
 
             if length(gs[:group][:selected]) > 0
 
@@ -556,9 +557,10 @@ function on_mouse_up(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
 					a.scale = [1, 1]
 				end
 			end
+
 			push!(gs[:group][:clickables], gs[:group][:selected]...)
+			gs[:group][:selected] = []
 		end
-		gs[:group][:selected] = []
 	end
 end
 

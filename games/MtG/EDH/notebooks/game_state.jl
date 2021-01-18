@@ -70,8 +70,6 @@ gs = Dict{Symbol,Any}(
 			load("$mtg_dir/MtG.jl/ui/icons/RavenmoreIconPack/64/swordWood.png")),
         :cursor => Image("mouse_cursor",
 			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png"), alpha=0, w=1, h=1),
-        :sel_box => Image("selection_box",
-			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png"), alpha=150, w=0, h=0),
 		),
     :stage => STAGE,
 	:resources => Dict{Symbol,Any}(
@@ -120,6 +118,8 @@ gs = Dict{Symbol,Any}(
 			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png")),
         :shade_blk=>Image("shade_blk",
 			load("$mtg_dir/MtG.jl/ui/zones/area_blk.png")),
+		:sel_box => Image("selection_box",
+			load("$mtg_dir/MtG.jl/ui/zones/area_wht.png"), alpha=20, w=0, h=0),
         ),
     :overlay => OrderedDict(
         :texts => Actor[],

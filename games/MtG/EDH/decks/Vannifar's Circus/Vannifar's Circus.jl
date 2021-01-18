@@ -28,6 +28,7 @@ begin
 	using PlutoUI
 	using Serialization
 	using PlaymatSimulator
+	using DataStructures
 	using ImageTransformations: imresize
 
 	AC = PlaymatSimulator.Actors
@@ -231,57 +232,61 @@ md"""
 TODO: write support for previews of double-sided cards
 """
 
-# ╔═╡ dfc9b56e-50ce-11eb-0e7f-83ec6e831901
-begin
-	#=
-	CARD_FRONT_IMGS = []
-	COMMANDER_FRONT_IMGS = []
-
-	for c in deck_cards
-		push!(CARD_FRONT_IMGS, imresize(get_mtg_card_front_img(c), ratio=card_ratio))
-		sleep(0.1)
-	end
-
-	for c in commander_cards
-		push!(COMMANDER_FRONT_IMGS, imresize(get_mtg_card_front_img(c), ratio=card_ratio+0.05))
-		sleep(0.1)
-	end
-
-	COMMANDER_FRONT_IMGS, CARD_FRONT_IMGS
-	=#
-end
-
 # ╔═╡ ce216c54-468a-11eb-13b8-7f3dac7af44a
-function get_card_img(img_uri::String)
+function get_face_img(img_uri::String)
 	img_resp = HTTP.get(img_uri)
 	card_img = img_resp.body |> IOBuffer |> load
 end
 
 # ╔═╡ 2ab53d00-50cd-11eb-1cd4-5bf94ce53692
-function get_mtg_card_img(c)
+function get_card_preview_img(c)
 	if haskey(all_cards[i], "card_faces") && haskey(all_cards[i]["card_faces"][1], "image_uris")
-		hcat([
-			get_card_img(f["image_uris"]["border_crop"]) for f in all_cards[i]["card_faces"]
-			]...)
+		hcat([get_face_img(f["image_uris"]["border_crop"]) 
+			for f in all_cards[i]["card_faces"] ]...)
 	else
-		get_card_img(all_cards[i]["image_uris"]["border_crop"])
+		get_face_img(all_cards[i]["image_uris"]["border_crop"])
 	end
 end
 
 # ╔═╡ 73d1cd18-4647-11eb-3994-7d4eb92eddca
 if (@isdefined all_cards) && length(all_cards) > 0
-	deck_card_preview = imresize(get_mtg_card_img(all_cards[i]), ratio=card_ratio)
+	deck_card_preview = imresize(get_card_preview_img(all_cards[i]), ratio=card_ratio)
 else
 	nothing
 end
 
 # ╔═╡ 97bc3768-50ce-11eb-3f74-95d4fefe3792
-function get_mtg_card_front_img(c)
-	if haskey(c, "card_faces") && haskey(c["card_faces"][1], "image_uris")
-		get_card_img(c["card_faces"][1]["image_uris"]["border_crop"])
-	else
-		get_card_img(c["image_uris"]["border_crop"])
+function get_card_faces(c, faces=[])
+	if haskey(c, "image_uris")
+		push!(faces, get_face_img(c["image_uris"]["border_crop"]))
+	
+	elseif haskey(c, "card_faces")
+		for f in c["card_faces"]
+			push!(faces, get_face_img(f["image_uris"]["border_crop"]))
+		end
 	end
+			
+	return faces
+end
+
+# ╔═╡ dfc9b56e-50ce-11eb-0e7f-83ec6e831901
+begin
+	#
+	CARD_FACE_IMGS = []
+	COMMANDER_FACE_IMGS = []
+
+	for c in deck_cards
+		push!(CARD_FACE_IMGS, c["name"] => imresize.(get_card_faces(c), ratio=card_ratio))
+		sleep(0.1)
+	end
+
+	for c in commander_cards
+		push!(COMMANDER_FACE_IMGS, c["name"] => imresize.(get_card_faces(c), ratio=card_ratio))
+		sleep(0.1)
+	end
+
+	CARD_FACE_IMGS, COMMANDER_FACE_IMGS
+	#
 end
 
 # ╔═╡ d654ad1e-468a-11eb-2348-695621b7b9b0
@@ -297,9 +302,9 @@ begin
 	#=
 	deck[:CARD_WIDTH] = Int32(size(CARD_BACK_IMG)[1])
 	deck[:CARD_HEIGHT] = Int32(size(CARD_BACK_IMG)[2])
-	deck[:CARD_FRONT_IMGS] = CARD_FRONT_IMGS
 	deck[:CARD_BACK_IMG] = CARD_BACK_IMG
-	deck[:COMMANDER_FRONT_IMGS] = COMMANDER_FRONT_IMGS
+	deck[:CARD_FACE_IMGS] = CARD_FACE_IMGS
+	deck[:COMMANDER_FACE_IMGS] = COMMANDER_FACE_IMGS
 
 	fn = "$(projectdir())/games/MtG/EDH/decks/$(deck[:name])/$(deck[:name]).jls"
 	serialize(fn, deck)
@@ -311,18 +316,18 @@ end
 # ╟─0c145632-3927-11eb-19b9-877e05c1bcdc
 # ╟─621b08a4-384e-11eb-0109-61e9b9ecf125
 # ╟─fb61d01c-458d-11eb-2c2a-f711dc7ab7f4
-# ╟─5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
+# ╠═5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
 # ╟─c61fa79e-4583-11eb-3b71-2d334aca843d
-# ╟─7420cf10-45cc-11eb-2780-4f320bd8a2cf
-# ╟─c31dd202-50c6-11eb-0631-13c70535635e
+# ╠═7420cf10-45cc-11eb-2780-4f320bd8a2cf
+# ╠═c31dd202-50c6-11eb-0631-13c70535635e
 # ╠═cec924ac-50c7-11eb-3795-85b3c183a8eb
-# ╟─73d1cd18-4647-11eb-3994-7d4eb92eddca
+# ╠═73d1cd18-4647-11eb-3994-7d4eb92eddca
 # ╟─2775088a-4648-11eb-2218-af69e0e95f1f
-# ╠═c5374766-4ef1-11eb-2555-c159dba953f0
+# ╟─c5374766-4ef1-11eb-2555-c159dba953f0
 # ╟─614764b8-4648-11eb-0493-732a00df7bca
 # ╠═dfc9b56e-50ce-11eb-0e7f-83ec6e831901
 # ╟─ce216c54-468a-11eb-13b8-7f3dac7af44a
 # ╟─2ab53d00-50cd-11eb-1cd4-5bf94ce53692
-# ╟─97bc3768-50ce-11eb-3f74-95d4fefe3792
+# ╠═97bc3768-50ce-11eb-3f74-95d4fefe3792
 # ╟─d654ad1e-468a-11eb-2348-695621b7b9b0
 # ╠═5e6f7046-4da5-11eb-0122-bd82397aab4f
