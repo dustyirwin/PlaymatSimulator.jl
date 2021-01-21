@@ -54,7 +54,7 @@ function kill_card!(c::Card)
     global gs
 
 	kill_actor!.(c.faces)
-    filter!.(x->x !== c, [ values(gs[:zone])..., values(gs[:group])... ])
+    filter!.(x->x!==c, [ values(gs[:zone])..., values(gs[:group])... ])
 end
 
 # ╔═╡ 799c2578-4cb3-11eb-1af7-b1ab01270e6d

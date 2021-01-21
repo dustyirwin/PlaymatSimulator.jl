@@ -98,7 +98,7 @@ function GIF(gif_name::String, gif; x=0, y=0, frame_delay=Millisecond(120), kv..
     frame_delays = [ frame_delay for i in 1:n ]
     surfaces = []
     for i in 1:n
-        gimg = ARGB.(transpose(gif[:,:,i]))
+        gimg = ARGB.(gif[:,:,i])
         sf = SDL2.CreateRGBSurfaceWithFormatFrom(
             gimg,
             w,

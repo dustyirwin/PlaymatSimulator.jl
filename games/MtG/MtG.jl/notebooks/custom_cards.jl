@@ -35,31 +35,55 @@ end
 # ╔═╡ 8a3f6140-56c4-11eb-1cea-ff327a21d57b
 deck = deserialize("$DECK_DIR/Vannifar's Circus.jls")
 
-# ╔═╡ 77ce8398-5989-11eb-2d3c-d3d0957ae270
-md"""
-"Replace face with custom png?" $(@bind swap_face CheckBox())
-"""
-
 # ╔═╡ 2f5a332c-56c4-11eb-259b-8b7d51af1b04
-custom_pngs = [ fn=>load("$DECK_DIR/custom_images/$fn") for fn in readdir("$DECK_DIR/custom_images") if occursin("png", fn) ]
+cards = [ fn => load("$DECK_DIR/custom_images/$fn") for fn in readdir("$DECK_DIR/custom_images") if !occursin(split(fn,".")[begin], join(deck[:commander_names])) && (occursin("png", fn) || occursin("jpg", fn))  ]
+
+# ╔═╡ a32c9308-5985-11eb-1f52-553017217312
+card_names = [ k for (k,v) in cards if occursin(split(k ,".")[begin], join(deck[:card_names])) ]
+
+# ╔═╡ 35174776-598c-11eb-3894-37809424115b
+card_imgs = [ v for (k,v) in cards if occursin(split(k,".")[begin], join(deck[:card_names])) ]
 
 # ╔═╡ 70971440-5985-11eb-3d51-cdedac799904
 md"""
-custom png index: $(@bind custom_png_index Slider(1:length(custom_pngs), show_value=true))
+card img index: $(@bind card_index Slider(1:length(card_imgs), show_value=true))
 """
 
-# ╔═╡ a32c9308-5985-11eb-1f52-553017217312
-custom_png_names = [ k for (k,v) in custom_pngs ]
+# ╔═╡ 77ce8398-5989-11eb-2d3c-d3d0957ae270
+md"""
+"Replace card face with custom png?" $(@bind swap_card_face CheckBox())
+"""
+
+# ╔═╡ f3755164-5b7f-11eb-1208-cd143efeca0e
+commanders = [ fn => load("$DECK_DIR/custom_images/$fn") for fn in readdir("$DECK_DIR/custom_images") if occursin(split(fn,".")[begin], join(deck[:commander_names])) && (occursin("png", fn) || occursin("jpg", fn))  ]
 
 # ╔═╡ 08063488-5973-11eb-0fcd-97b6d199dd11
-deck_card_info = [ [v,k,i,size(v[begin])] for (i,(k,v)) in enumerate(deck[:CARD_FACE_IMGS]) if occursin(k, custom_png_names[ custom_png_index ]) ][begin]
-
-# ╔═╡ 35174776-598c-11eb-3894-37809424115b
-custom_png_imgs = [ imresize(v, size(deck_card_info[1][1])) for (k,v) in custom_pngs ]
+card_face_info = [ [v,k,i,size(v[begin])] for (i,(k,v)) in enumerate(deck[:CARD_FACE_IMGS]) if k==card_names[card_index] ][begin]
 
 # ╔═╡ e010eb3a-597a-11eb-19da-01375b1d8367
-if swap_face
-	deck[:CARD_FACE_IMGS][ deck_card_info[3] ] = custom_png_names[custom_png_index] => [ custom_png_imgs[custom_png_index] ]
+if swap_card_face
+	deck[:CARD_FACE_IMGS][ card_face_info[3] ] = card_names[card_index] => [ imresize(card_imgs[card_index], size(card_face_info[1][1])) ]
+end
+
+# ╔═╡ 5a42f3ac-5b81-11eb-14e1-e18f037da064
+commander_face_info = [ [v,k,i,size(v[begin])] for (i,(k,v)) in enumerate(deck[:COMMANDER_FACE_IMGS]) if occursin(k,join(deck[:commander_names])) ][begin]
+
+# ╔═╡ 2da10088-5a11-11eb-36bc-11a1097b5553
+commander_imgs = [ v for (k,v) in commanders if occursin(split(k,".")[begin], join(deck[:commander_names])) ]
+
+# ╔═╡ 0fd7c2f8-5a13-11eb-11b7-8fa222ab3ccd
+md"""
+commander img index: $(@bind commander_index Slider(1:length(commander_imgs), show_value=true))
+"""
+
+# ╔═╡ 402739bc-5ac9-11eb-004a-47068d7520da
+md"""
+"Replace commander face with custom png?" $(@bind swap_commander_face CheckBox())
+"""
+
+# ╔═╡ 17a17ed0-5a15-11eb-199b-45bcc809d56c
+if swap_commander_face
+	deck[:COMMANDER_FACE_IMGS][ commander_face_info[3] ] = deck[:commander_names][commander_index] => [ imresize(commander_imgs[commander_index], size(commander_face_info[1][1])) ]
 end
 
 # ╔═╡ 437c0424-56c5-11eb-29ce-7f0090186512
@@ -75,6 +99,12 @@ custom_gif_names = [ k for (k,v) in custom_gifs ]
 
 # ╔═╡ 74abf0a2-5802-11eb-3bcf-79a66eabe3e5
 custom_gifs[1]
+
+# ╔═╡ 7c8e7f02-5a0b-11eb-08e9-1f7caeb464d9
+deck[:CARD_FACE_IMGS]
+
+# ╔═╡ 97060cfe-5a0b-11eb-0a40-bf967f50c41c
+deck[:CARD_FACE_IMGS][2]
 
 # ╔═╡ 72de84ba-598d-11eb-139d-975970c19cc0
 serialize("$DECK_DIR/Vannifar's Circus.jls", deck)
@@ -138,18 +168,26 @@ end
 # ╔═╡ Cell order:
 # ╟─f313719e-56c1-11eb-0151-7fdc92bc5635
 # ╟─5d891788-56c2-11eb-1723-8361ac5bd415
-# ╠═8a3f6140-56c4-11eb-1cea-ff327a21d57b
-# ╠═08063488-5973-11eb-0fcd-97b6d199dd11
-# ╠═e010eb3a-597a-11eb-19da-01375b1d8367
+# ╟─8a3f6140-56c4-11eb-1cea-ff327a21d57b
+# ╠═2f5a332c-56c4-11eb-259b-8b7d51af1b04
+# ╠═a32c9308-5985-11eb-1f52-553017217312
+# ╠═35174776-598c-11eb-3894-37809424115b
 # ╟─70971440-5985-11eb-3d51-cdedac799904
 # ╟─77ce8398-5989-11eb-2d3c-d3d0957ae270
-# ╟─a32c9308-5985-11eb-1f52-553017217312
-# ╠═35174776-598c-11eb-3894-37809424115b
-# ╟─2f5a332c-56c4-11eb-259b-8b7d51af1b04
+# ╠═e010eb3a-597a-11eb-19da-01375b1d8367
+# ╟─f3755164-5b7f-11eb-1208-cd143efeca0e
+# ╟─08063488-5973-11eb-0fcd-97b6d199dd11
+# ╟─17a17ed0-5a15-11eb-199b-45bcc809d56c
+# ╠═5a42f3ac-5b81-11eb-14e1-e18f037da064
+# ╟─2da10088-5a11-11eb-36bc-11a1097b5553
+# ╟─0fd7c2f8-5a13-11eb-11b7-8fa222ab3ccd
+# ╟─402739bc-5ac9-11eb-004a-47068d7520da
 # ╟─2d187afa-598b-11eb-1dec-7b3c22ea634d
 # ╟─437c0424-56c5-11eb-29ce-7f0090186512
 # ╟─dfa2d2e8-598a-11eb-2e3a-5f9c457e5cae
 # ╠═74abf0a2-5802-11eb-3bcf-79a66eabe3e5
+# ╠═7c8e7f02-5a0b-11eb-08e9-1f7caeb464d9
+# ╠═97060cfe-5a0b-11eb-0a40-bf967f50c41c
 # ╠═72de84ba-598d-11eb-139d-975970c19cc0
 # ╟─b7601e20-588f-11eb-3bc0-17e1d1b00984
 # ╟─ffd7435e-588f-11eb-31fd-392884e81292

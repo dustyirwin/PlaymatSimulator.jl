@@ -52,6 +52,7 @@ deck = Dict{Symbol,Any}(
         "Prime Speaker Vannifar",
     	],
     :card_names => [
+		"Arixmethes, Slumbering Isle",
 		"Alchemist's Refuge",
 		"Birds of Paradise",
         "Botanical Sanctum",
@@ -109,11 +110,10 @@ deck = Dict{Symbol,Any}(
         "Mystic Sanctuary",
         "Nykthos, Shrine to Nyx",
         "Paradise Mantle",
-        "Parcelbeast",
-        "Pemmin's Aura",
-        "Phyrexian Metamorph",
-        "Pili-Pala",
-        "Quirion Ranger",
+		"Parcelbeast",
+		"Pemmin's Aura",
+		"Phyrexian Metamorph",
+		"Pili-Pala",
         "Ramunap Excavator",
         "Reclamation Sage",
         "Reflecting Pool",
@@ -226,6 +226,11 @@ begin
 	CARD_BACK_IMG = imresize(load(CARD_BACK_PATH), ratio=card_ratio)
 end
 
+# ╔═╡ 312411ce-5a06-11eb-35e6-efa6cc924b90
+md"""
+or specify the default card width: $(@bind card_width NumberField(1:10; default=240)) and height: $(@bind card_height NumberField(1:600; default=320)) in pixels
+"""
+
 # ╔═╡ 614764b8-4648-11eb-0493-732a00df7bca
 md"""
 #### Look good? These images will be displayed in-game!
@@ -290,21 +295,13 @@ if download_imgs
 	end
 
 	for c in commander_cards
-		push!(COMMANDER_FACE_IMGS, c["name"] => imresize.(get_card_faces(c), ratio=card_ratio))
+		push!(COMMANDER_FACE_IMGS, c["name"] => imresize.(get_card_faces(c), ratio=1.1card_ratio))
 		sleep(0.1)
 	end
 
 	CARD_FACE_IMGS, COMMANDER_FACE_IMGS
 	#
 end
-
-# ╔═╡ d654ad1e-468a-11eb-2348-695621b7b9b0
-function search_mtg_cards_by_keyword(q::String, mtg_cards::Array)
-	[ n for n in [ c["name"] for c in mtg_cards ] if occursin(q, n) ]
-end
-
-# ╔═╡ cec924ac-50c7-11eb-3795-85b3c183a8eb
-search_mtg_cards_by_keyword("Jwari", mtg_cards)
 
 # ╔═╡ 5e6f7046-4da5-11eb-0122-bd82397aab4f
 if save_data
@@ -318,6 +315,14 @@ if save_data
 	serialize(fn, deck)
 end
 
+# ╔═╡ d654ad1e-468a-11eb-2348-695621b7b9b0
+function search_mtg_cards_by_keyword(q::String, mtg_cards::Array)
+	[ n for n in [ c["name"] for c in mtg_cards ] if occursin(q, n) ]
+end
+
+# ╔═╡ cec924ac-50c7-11eb-3795-85b3c183a8eb
+search_mtg_cards_by_keyword("Jwari", mtg_cards)
+
 # ╔═╡ Cell order:
 # ╟─c7952ee6-45b5-11eb-1158-5bb2ff274ce9
 # ╟─0c145632-3927-11eb-19b9-877e05c1bcdc
@@ -328,15 +333,16 @@ end
 # ╟─7420cf10-45cc-11eb-2780-4f320bd8a2cf
 # ╠═c31dd202-50c6-11eb-0631-13c70535635e
 # ╠═cec924ac-50c7-11eb-3795-85b3c183a8eb
-# ╟─73d1cd18-4647-11eb-3994-7d4eb92eddca
+# ╠═73d1cd18-4647-11eb-3994-7d4eb92eddca
 # ╟─2775088a-4648-11eb-2218-af69e0e95f1f
 # ╟─c5374766-4ef1-11eb-2555-c159dba953f0
+# ╠═312411ce-5a06-11eb-35e6-efa6cc924b90
 # ╟─614764b8-4648-11eb-0493-732a00df7bca
 # ╟─0899b1d0-5972-11eb-0470-4d480cf95d53
-# ╟─dfc9b56e-50ce-11eb-0e7f-83ec6e831901
-# ╟─be2af776-5971-11eb-13ec-3d7982a01ea3
+# ╠═dfc9b56e-50ce-11eb-0e7f-83ec6e831901
+# ╠═be2af776-5971-11eb-13ec-3d7982a01ea3
+# ╠═5e6f7046-4da5-11eb-0122-bd82397aab4f
 # ╟─ce216c54-468a-11eb-13b8-7f3dac7af44a
 # ╟─2ab53d00-50cd-11eb-1cd4-5bf94ce53692
 # ╟─97bc3768-50ce-11eb-3f74-95d4fefe3792
 # ╟─d654ad1e-468a-11eb-2348-695621b7b9b0
-# ╟─5e6f7046-4da5-11eb-0122-bd82397aab4f
