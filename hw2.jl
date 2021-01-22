@@ -33,11 +33,11 @@ begin
 			])
 
 	using Images
-	using TestImages
-	using ImageFiltering
-	using Statistics
 	using PlutoUI
+	using Statistics
+	using TestImages
 	using BenchmarkTools
+	using ImageFiltering
 end
 
 # ╔═╡ e6b6760a-f37f-11ea-3ae1-65443ef5a81a
@@ -900,11 +900,11 @@ bigbreak
 # ╠═2f9cbea8-f3a1-11ea-20c6-01fd1464a592
 # ╠═abf20aa0-f31b-11ea-2548-9bea4fab4c37
 # ╟─5430d772-f397-11ea-2ed8-03ee06d02a22
-# ╟─f580527e-f397-11ea-055f-bb9ea8f12015
-# ╟─6f52c1a2-f395-11ea-0c8a-138a77f03803
+# ╠═f580527e-f397-11ea-055f-bb9ea8f12015
+# ╠═6f52c1a2-f395-11ea-0c8a-138a77f03803
 # ╠═2a7e49b8-f395-11ea-0058-013e51baa554
-# ╟─7ddee6fc-f394-11ea-31fc-5bd665a65bef
-# ╟─980b1104-f394-11ea-0948-21002f26ee25
+# ╠═7ddee6fc-f394-11ea-31fc-5bd665a65bef
+# ╠═980b1104-f394-11ea-0948-21002f26ee25
 # ╟─9945ae78-f395-11ea-1d78-cf6ad19606c8
 # ╠═87efe4c2-f38d-11ea-39cc-bdfa11298317
 # ╠═f6571d86-f388-11ea-0390-05592acb9195
@@ -956,7 +956,7 @@ bigbreak
 # ╟─48089a00-f321-11ea-1479-e74ba71df067
 # ╟─6b4d6584-f3be-11ea-131d-e5bdefcc791b
 # ╠═437ba6ce-f37d-11ea-1010-5f6a6e282f9b
-# ╟─ef88c388-f388-11ea-3828-ff4db4d1874e
+# ╠═ef88c388-f388-11ea-3828-ff4db4d1874e
 # ╟─ef26374a-f388-11ea-0b4e-67314a9a9094
 # ╟─6bdbcf4c-f321-11ea-0288-fb16ff1ec526
 # ╟─ffc17f40-f380-11ea-30ee-0fe8563c0eb1

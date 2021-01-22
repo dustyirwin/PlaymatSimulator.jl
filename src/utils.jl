@@ -4,7 +4,9 @@
 
 
 # DO NOT compile GZ2! Julia will not compile local dev pkg changes??
+using Pkg
 
+Pkg.activate(".")
 using PackageCompiler
 
 project_symbols = [

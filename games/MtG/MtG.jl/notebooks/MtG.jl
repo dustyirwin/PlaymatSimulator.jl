@@ -87,7 +87,8 @@ function reset_stage!(gs::Dict)
 			name,
 			"Player1",
 			"Player1",
-			[ Image("Backside", deck[:CARD_BACK_IMG]), [ Image(name, img) for img in imgs ]... ],
+			[ Image("Backside", deck[:CARD_BACK_IMG]), [
+				length(strides(img)) > 2 ? GIF(name, img) : Image(name, img) for img in imgs ]... ],
 			false,
 			false,
 			[1,1],
@@ -104,7 +105,7 @@ function reset_stage!(gs::Dict)
 
 	for (name, imgs) in gs[:deck][:COMMANDER_FACE_IMGS]
 		id = randstring(10)
-		c = Card(
+		c = try Card(
 			id,
 			name,
 			"Player1",
@@ -115,6 +116,20 @@ function reset_stage!(gs::Dict)
 			[1,1],
 			Dict(),
 		)
+		catch
+			Card(
+				id,
+				name,
+				"Player1",
+				"Player1",
+				[ Image("Backside", deck[:CARD_BACK_IMG]), [ GIF(name, img) for img in imgs ]... ],
+				false,
+				false,
+				[1,1],
+				Dict(),
+			)
+		end
+
 		for a in c.faces
 			a.data[:parent_id] = c.id
 		end

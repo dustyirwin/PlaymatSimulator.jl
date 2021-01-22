@@ -35,41 +35,46 @@ end
 # ╔═╡ 8a3f6140-56c4-11eb-1cea-ff327a21d57b
 deck = deserialize("$DECK_DIR/Vannifar's Circus.jls")
 
+# ╔═╡ 0152ba30-5ba1-11eb-013e-8dc5191b3c17
+md"""
+## Custom PNGs, JPGs, etc.!
+"""
+
 # ╔═╡ 2f5a332c-56c4-11eb-259b-8b7d51af1b04
-cards = [ fn => load("$DECK_DIR/custom_images/$fn") for fn in readdir("$DECK_DIR/custom_images") if !occursin(split(fn,".")[begin], join(deck[:commander_names])) && (occursin("png", fn) || occursin("jpg", fn))  ]
+custom_card_faces = [ fn => load("$DECK_DIR/custom_images/$fn") for fn in readdir("$DECK_DIR/custom_images") if !occursin(split(fn,".")[begin], join(deck[:commander_names])) && (occursin("png", fn) || occursin("gif", fn))  ];
 
 # ╔═╡ a32c9308-5985-11eb-1f52-553017217312
-card_names = [ k for (k,v) in cards if occursin(split(k ,".")[begin], join(deck[:card_names])) ]
+card_names = [ k for (k,v) in custom_card_faces if occursin(split(k ,".")[begin], join(deck[:card_names])) ];
 
 # ╔═╡ 35174776-598c-11eb-3894-37809424115b
-card_imgs = [ v for (k,v) in cards if occursin(split(k,".")[begin], join(deck[:card_names])) ]
+card_imgs = [ v for (k,v) in custom_card_faces if occursin(split(k,".")[begin], join(deck[:card_names])) ];
 
 # ╔═╡ 70971440-5985-11eb-3d51-cdedac799904
 md"""
 card img index: $(@bind card_index Slider(1:length(card_imgs), show_value=true))
 """
 
+# ╔═╡ 08063488-5973-11eb-0fcd-97b6d199dd11
+card_face_info = [ [v,k,i,size(v[begin])] for (i,(k,v)) in enumerate(deck[:CARD_FACE_IMGS]) if occursin(k, card_names[card_index]) ][begin]
+
 # ╔═╡ 77ce8398-5989-11eb-2d3c-d3d0957ae270
 md"""
-"Replace card face with custom png?" $(@bind swap_card_face CheckBox())
+"Replace card face with custom png / gif?" $(@bind swap_card_face CheckBox())
 """
-
-# ╔═╡ f3755164-5b7f-11eb-1208-cd143efeca0e
-commanders = [ fn => load("$DECK_DIR/custom_images/$fn") for fn in readdir("$DECK_DIR/custom_images") if occursin(split(fn,".")[begin], join(deck[:commander_names])) && (occursin("png", fn) || occursin("jpg", fn))  ]
-
-# ╔═╡ 08063488-5973-11eb-0fcd-97b6d199dd11
-card_face_info = [ [v,k,i,size(v[begin])] for (i,(k,v)) in enumerate(deck[:CARD_FACE_IMGS]) if k==card_names[card_index] ][begin]
 
 # ╔═╡ e010eb3a-597a-11eb-19da-01375b1d8367
 if swap_card_face
 	deck[:CARD_FACE_IMGS][ card_face_info[3] ] = card_names[card_index] => [ imresize(card_imgs[card_index], size(card_face_info[1][1])) ]
 end
 
-# ╔═╡ 5a42f3ac-5b81-11eb-14e1-e18f037da064
-commander_face_info = [ [v,k,i,size(v[begin])] for (i,(k,v)) in enumerate(deck[:COMMANDER_FACE_IMGS]) if occursin(k,join(deck[:commander_names])) ][begin]
+# ╔═╡ 7d1f5e08-5ba0-11eb-008c-87a8474352cd
+commanders = [ fn => load("$DECK_DIR/custom_images/$fn") for fn in readdir("$DECK_DIR/custom_images") if occursin(split(fn,".")[begin], join(deck[:commander_names])) && (occursin("png", fn) || occursin("jpg", fn))  ]
 
-# ╔═╡ 2da10088-5a11-11eb-36bc-11a1097b5553
+# ╔═╡ bfbacc0c-5ba0-11eb-01d9-71825cfc5c59
 commander_imgs = [ v for (k,v) in commanders if occursin(split(k,".")[begin], join(deck[:commander_names])) ]
+
+# ╔═╡ 5a42f3ac-5b81-11eb-14e1-e18f037da064
+commander_face_info = [ [v,k,i,size(v[begin])] for (i,(k,v)) in enumerate(deck[:COMMANDER_FACE_IMGS]) if occursin(k, join(deck[:commander_names])) ][begin]
 
 # ╔═╡ 0fd7c2f8-5a13-11eb-11b7-8fa222ab3ccd
 md"""
@@ -86,112 +91,57 @@ if swap_commander_face
 	deck[:COMMANDER_FACE_IMGS][ commander_face_info[3] ] = deck[:commander_names][commander_index] => [ imresize(commander_imgs[commander_index], size(commander_face_info[1][1])) ]
 end
 
+# ╔═╡ cd27bfd0-5ba0-11eb-0bd4-559470d3907a
+md"""
+### Custom GIFs!
+"""
+
 # ╔═╡ 437c0424-56c5-11eb-29ce-7f0090186512
-custom_gifs = [ fn=>LocalResource("$DECK_DIR/custom_images/$fn") for fn in readdir("$DECK_DIR/custom_images") if occursin("gif", fn) ]
+custom_gifs = [ fn=>LocalResource("$DECK_DIR/custom_images/$fn") for fn in readdir("$DECK_DIR/custom_images") if occursin("gif", fn) ];
 
 # ╔═╡ 2d187afa-598b-11eb-1dec-7b3c22ea634d
 md"""
-custom gif index: $(@bind custom_gif_index Slider(1:length(custom_gifs), show_value=true))
+custom gif index: $(@bind gif_index Slider(1:length(custom_gifs), show_value=true))
 """
 
 # ╔═╡ dfa2d2e8-598a-11eb-2e3a-5f9c457e5cae
-custom_gif_names = [ k for (k,v) in custom_gifs ]
+custom_gif_names = [ k for (k,v) in custom_gifs ];
 
 # ╔═╡ 74abf0a2-5802-11eb-3bcf-79a66eabe3e5
-custom_gifs[1]
+custom_gifs[gif_index]
 
-# ╔═╡ 7c8e7f02-5a0b-11eb-08e9-1f7caeb464d9
-deck[:CARD_FACE_IMGS]
-
-# ╔═╡ 97060cfe-5a0b-11eb-0a40-bf967f50c41c
-deck[:CARD_FACE_IMGS][2]
+# ╔═╡ 3c25d5f2-5ba1-11eb-0229-0fbfc8dbbf44
+md"""
+save custom card face data? $(@bind save_data CheckBox())
+"""
 
 # ╔═╡ 72de84ba-598d-11eb-139d-975970c19cc0
-serialize("$DECK_DIR/Vannifar's Circus.jls", deck)
-
-# ╔═╡ b7601e20-588f-11eb-3bc0-17e1d1b00984
-dice_gifs = [ LocalResource("$(projectdir())/games/MtG/MtG.jl/ui/dice/$fn") for fn in readdir("$(projectdir())/games/MtG/MtG.jl/ui/dice") if occursin("gif", fn) ]
-
-# ╔═╡ ffd7435e-588f-11eb-31fd-392884e81292
-counter_gifs = [ LocalResource("$(projectdir())/games/MtG/MtG.jl/ui/counters/$fn") for fn in readdir("$(projectdir())/games/MtG/MtG.jl/ui/counters") if occursin("gif", fn) ]
-
-# ╔═╡ 4f7bf6da-596d-11eb-1b25-27d4fa0d8566
-function carve_card()
-end
-
-# ╔═╡ d4e484ce-5970-11eb-00ff-c159e6942b1a
-function remove_in_each_row_views(img, column_numbers)
-	@assert size(img, 1) == length(column_numbers)
-	m, n = size(img)
-	local img′ = similar(img, m, n-1)
-
-	for (i, j) in enumerate(column_numbers)
-		img′[i, 1:j-1] .= @view img[i, 1:j-1]
-		img′[i, j:end] .= @view img[i, j+1:end]
-	end
-	
-	img′
-end
-
-# ╔═╡ 70015780-5970-11eb-09c6-b52abe8a5a15
-function shrink_n(img, n, min_seam, imgs=[]; show_lightning=true)
-	n==0 && return push!(imgs, img)
-
-	e = energy(img)
-	
-	seam_energy(seam) = sum(e[i, seam[i]]  for i in 1:size(img, 1))
-	_, min_j = findmin(map(j->seam_energy(min_seam(e, j)), 1:size(e, 2)))
-	min_seam_vec = min_seam(e, min_j)
-	img′ = remove_in_each_row_views(img, min_seam_vec)
-	
-	if show_lightning
-		push!(imgs, mark_path(img, min_seam_vec))
-	else
-		push!(imgs, img′)
-	end
-	shrink_n(img′, n-1, min_seam, imgs)
-end
-
-# ╔═╡ 861ccb6c-5970-11eb-0550-ad5098aa5670
-function greedy_seam(energies, starting_pixel::Int)
-	is = [ starting_pixel ]
-	m, n = size(energies)
-	
-	for k in 2:m
-		es = energies[k, clamp(is[end]-1,1,n):clamp(is[end]+1,1,n)]
-		push!(is, clamp(last(is) + argmin(es) - clamp(last(is),0,2), 1, n))
-	end
-	
-	return is
+if save_data
+	serialize("$DECK_DIR/Vannifar's Circus.jls", deck)
 end
 
 # ╔═╡ Cell order:
 # ╟─f313719e-56c1-11eb-0151-7fdc92bc5635
 # ╟─5d891788-56c2-11eb-1723-8361ac5bd415
 # ╟─8a3f6140-56c4-11eb-1cea-ff327a21d57b
+# ╟─0152ba30-5ba1-11eb-013e-8dc5191b3c17
 # ╠═2f5a332c-56c4-11eb-259b-8b7d51af1b04
 # ╠═a32c9308-5985-11eb-1f52-553017217312
 # ╠═35174776-598c-11eb-3894-37809424115b
-# ╟─70971440-5985-11eb-3d51-cdedac799904
-# ╟─77ce8398-5989-11eb-2d3c-d3d0957ae270
-# ╠═e010eb3a-597a-11eb-19da-01375b1d8367
-# ╟─f3755164-5b7f-11eb-1208-cd143efeca0e
 # ╟─08063488-5973-11eb-0fcd-97b6d199dd11
+# ╟─70971440-5985-11eb-3d51-cdedac799904
+# ╠═77ce8398-5989-11eb-2d3c-d3d0957ae270
+# ╟─e010eb3a-597a-11eb-19da-01375b1d8367
+# ╟─7d1f5e08-5ba0-11eb-008c-87a8474352cd
+# ╟─bfbacc0c-5ba0-11eb-01d9-71825cfc5c59
 # ╟─17a17ed0-5a15-11eb-199b-45bcc809d56c
-# ╠═5a42f3ac-5b81-11eb-14e1-e18f037da064
-# ╟─2da10088-5a11-11eb-36bc-11a1097b5553
+# ╟─5a42f3ac-5b81-11eb-14e1-e18f037da064
 # ╟─0fd7c2f8-5a13-11eb-11b7-8fa222ab3ccd
 # ╟─402739bc-5ac9-11eb-004a-47068d7520da
+# ╟─cd27bfd0-5ba0-11eb-0bd4-559470d3907a
 # ╟─2d187afa-598b-11eb-1dec-7b3c22ea634d
 # ╟─437c0424-56c5-11eb-29ce-7f0090186512
 # ╟─dfa2d2e8-598a-11eb-2e3a-5f9c457e5cae
 # ╠═74abf0a2-5802-11eb-3bcf-79a66eabe3e5
-# ╠═7c8e7f02-5a0b-11eb-08e9-1f7caeb464d9
-# ╠═97060cfe-5a0b-11eb-0a40-bf967f50c41c
+# ╟─3c25d5f2-5ba1-11eb-0229-0fbfc8dbbf44
 # ╠═72de84ba-598d-11eb-139d-975970c19cc0
-# ╟─b7601e20-588f-11eb-3bc0-17e1d1b00984
-# ╟─ffd7435e-588f-11eb-31fd-392884e81292
-# ╟─4f7bf6da-596d-11eb-1b25-27d4fa0d8566
-# ╟─d4e484ce-5970-11eb-00ff-c159e6942b1a
-# ╟─70015780-5970-11eb-09c6-b52abe8a5a15
-# ╟─861ccb6c-5970-11eb-0550-ad5098aa5670

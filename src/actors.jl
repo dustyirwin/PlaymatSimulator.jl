@@ -12,8 +12,10 @@ SDL2 = SimpleDirectMediaLayer
 
 function Image(img_name::String, img; x=0, y=0, kv...)
     @show img_name
+    @show strides(img)
+    @show typeof(img)
     img = ARGB.(transpose(img))
-    w, h = Int32.(size(img))
+    @show w, h = Int32.(size(img))
     sf = SDL2.CreateRGBSurfaceWithFormatFrom(
         img,
         w,
@@ -42,7 +44,6 @@ function Image(img_name::String, img; x=0, y=0, kv...)
             :spin=>false,
             :spin_cw=>true,
             :shake=>false,
-            :next_frame=>false,
             :mouse_offset=>Int32[0,0],
         )
     )
@@ -93,16 +94,19 @@ function Text(text::String, font_path::String; x=0, y=0, pt_size=24,
 end
 
 function GIF(gif_name::String, gif; x=0, y=0, frame_delay=Millisecond(120), kv...)
+    @show strides(gif)
+    @show typeof(gif)
     @show gif_name
     @show h, w, n = Int32.(size(gif))
     frame_delays = [ frame_delay for i in 1:n ]
     surfaces = []
+
     for i in 1:n
-        gimg = ARGB.(gif[:,:,i])
+        gimg = ARGB.(transpose(gif[:,:,i]))
         sf = SDL2.CreateRGBSurfaceWithFormatFrom(
             gimg,
-            w,
             h,
+            w,
             Int32(32),
             Int32(4 * w),
             SDL2.PIXELFORMAT_ARGB32,
