@@ -62,8 +62,6 @@ function reset_stage!(gs::Dict)
     GAME_NAME = gs[:GAME_NAME]
     GAME_DIR = gs[:GAME_DIR]
     DECK_NAME = gs[:DECK_NAME]
-    CARD_WIDTH = gs[:deck][:CARD_WIDTH]
-    CARD_HEIGHT = gs[:deck][:CARD_HEIGHT]
     SCREEN_WIDTH = gs[:SCREEN_WIDTH]
     SCREEN_HEIGHT = gs[:SCREEN_HEIGHT]
     SCREEN_BORDER = gs[:SCREEN_BORDER]
@@ -80,7 +78,7 @@ function reset_stage!(gs::Dict)
     deck = deserialize("$DECK_DIR/$DECK_NAME.jls")
 	gs[:CARDS] = []
 
-	for (name, imgs) in gs[:deck][:CARD_FACE_IMGS]
+	for (name, imgs) in gs[:deck][:CARD_FACES]
 		id = randstring(10)
 		c = Card(
 			id,
@@ -103,7 +101,7 @@ function reset_stage!(gs::Dict)
 
 	gs[:COMMANDERS] = []
 
-	for (name, imgs) in gs[:deck][:COMMANDER_FACE_IMGS]
+	for (name, imgs) in gs[:deck][:COMMANDER_FACES]
 		id = randstring(10)
 		c = try Card(
 			id,
@@ -321,7 +319,6 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
     global gs
     ib = in_bounds(gs)
 	GAME_DIR = projectdir() * "games/MtG/MtG.jl"
-	CARD_HEIGHT = gs[:deck][:CARD_HEIGHT]
 
     if button == GZ2.MouseButtons.LEFT
 
@@ -709,8 +706,11 @@ function on_key_down(g::Game, key, keymod)
             if g.keyboard.RCTRL || g.keyboard.LCTRL
                 reset_stage!(gs)
             else
-                AN.reset_actor!.([ c.faces[begin] for c in gs[:ALL_CARDS] ],
-					gs[:deck][:CARD_WIDTH], gs[:deck][:CARD_HEIGHT])
+				for c in gs[:ALL_CARDS]
+                	AN.reset_actor!(c.faces[begin],
+						c.faces[begin].data[:sz][2],
+						c.faces[begin].data[:sz][1])
+				end
             end
 
         elseif !isempty(gs[:group][:selected])

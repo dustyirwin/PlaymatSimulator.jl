@@ -6,16 +6,12 @@ using GZ2
 using ShiftedArrays
 using SimpleDirectMediaLayer
 
-export Image, Text, GIF
-
 SDL2 = SimpleDirectMediaLayer
 
 function Image(img_name::String, img; x=0, y=0, kv...)
     @show img_name
-    @show strides(img)
-    @show typeof(img)
     img = ARGB.(transpose(img))
-    @show w, h = Int32.(size(img))
+    w, h = Int32.(size(img))
     sf = SDL2.CreateRGBSurfaceWithFormatFrom(
         img,
         w,
@@ -38,7 +34,7 @@ function Image(img_name::String, img; x=0, y=0, kv...)
         Dict(
             :img=>img,
             :label=>img_name,
-            :surfaces=>[sf],
+            :sz=>[w,h],
             :fade=>false,
             :fade_out=>true,
             :spin=>false,
@@ -73,6 +69,7 @@ function Text(text::String, font_path::String; x=0, y=0, pt_size=24,
         0,
         255,
         Dict(
+            :sz=>[w,h],
             :fade=>false,
             :fade_out=>true,
             :spin=>false,
@@ -94,10 +91,8 @@ function Text(text::String, font_path::String; x=0, y=0, pt_size=24,
 end
 
 function GIF(gif_name::String, gif; x=0, y=0, frame_delay=Millisecond(120), kv...)
-    @show strides(gif)
-    @show typeof(gif)
     @show gif_name
-    @show h, w, n = Int32.(size(gif))
+    h, w, n = Int32.(size(gif))
     frame_delays = [ frame_delay for i in 1:n ]
     surfaces = []
 
@@ -105,8 +100,8 @@ function GIF(gif_name::String, gif; x=0, y=0, frame_delay=Millisecond(120), kv..
         gimg = ARGB.(transpose(gif[:,:,i]))
         sf = SDL2.CreateRGBSurfaceWithFormatFrom(
             gimg,
-            h,
             w,
+            h,
             Int32(32),
             Int32(4 * w),
             SDL2.PIXELFORMAT_ARGB32,
@@ -125,7 +120,7 @@ function GIF(gif_name::String, gif; x=0, y=0, frame_delay=Millisecond(120), kv..
         0,
         255,
         Dict(
-            :gif=>gif,
+            :sz=>[w, h],
             :fade=>false,
             :fade_out=>true,
             :spin=>false,

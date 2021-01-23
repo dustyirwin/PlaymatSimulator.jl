@@ -33,7 +33,7 @@ begin
 	
 	md"""
 	# Welcome to PlaymatSimulator
-	#### *Card games galore!* ☮
+	#### *I heard you like card games* ☮
 	"""
 end
 

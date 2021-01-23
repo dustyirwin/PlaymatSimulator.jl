@@ -23,6 +23,7 @@ begin
 	using Images
 	using PlutoUI
 	using Serialization
+	using ImageFiltering
 	using ImageTransformations
 
 	DECK_DIR = "$(projectdir())/games/MtG/EDH/decks/Vannifar's Circus"
@@ -35,27 +36,41 @@ end
 # ╔═╡ 8a3f6140-56c4-11eb-1cea-ff327a21d57b
 deck = deserialize("$DECK_DIR/Vannifar's Circus.jls")
 
+# ╔═╡ f78a72a0-5d48-11eb-198c-d742de310200
+sz = size(deck[:CARD_BACK_IMG])
+
 # ╔═╡ 0152ba30-5ba1-11eb-013e-8dc5191b3c17
 md"""
 ## Custom PNGs, JPGs, etc.!
 """
 
 # ╔═╡ 2f5a332c-56c4-11eb-259b-8b7d51af1b04
-custom_card_faces = [ fn => load("$DECK_DIR/custom_images/$fn") for fn in readdir("$DECK_DIR/custom_images") if !occursin(split(fn,".")[begin], join(deck[:commander_names])) && (occursin("png", fn) || occursin("gif", fn))  ];
+begin
+	custom_card_faces = [ fn => load("$DECK_DIR/custom_images/$fn") for fn in readdir("$DECK_DIR/custom_images") if !occursin(split(fn,".")[begin], join(deck[:commander_names])) && (occursin("png", fn) || occursin("gif",fn))  ]
+	
+	card_names = [ k for (k,v) in custom_card_faces if occursin(split(k,".")[begin], join(deck[:card_names])) ]
+	
+	card_imgs = [ v for (k,v) in custom_card_faces if occursin(split(k,".")[begin], join(deck[:card_names])) ]
+	
+	for i in 1:length(card_imgs)
+		csz = size(card_imgs[i])
+		rat = csz[1] / csz[2]
+		card_imgs[i] = imresize(card_imgs[i], ceil(Int, sz[2]*rat), sz[2])
+	end
+end;
 
-# ╔═╡ a32c9308-5985-11eb-1f52-553017217312
-card_names = [ k for (k,v) in custom_card_faces if occursin(split(k ,".")[begin], join(deck[:card_names])) ];
-
-# ╔═╡ 35174776-598c-11eb-3894-37809424115b
-card_imgs = [ v for (k,v) in custom_card_faces if occursin(split(k,".")[begin], join(deck[:card_names])) ];
+# ╔═╡ 64e4a3a6-5d54-11eb-25f7-9dfff5507992
+md"""
+### Cards
+"""
 
 # ╔═╡ 70971440-5985-11eb-3d51-cdedac799904
 md"""
-card img index: $(@bind card_index Slider(1:length(card_imgs), show_value=true))
+card index: $(@bind card_index Slider(1:length(card_imgs), show_value=true))
 """
 
 # ╔═╡ 08063488-5973-11eb-0fcd-97b6d199dd11
-card_face_info = [ [v,k,i,size(v[begin])] for (i,(k,v)) in enumerate(deck[:CARD_FACE_IMGS]) if occursin(k, card_names[card_index]) ][begin]
+card_info = [ [v,k,i,size(v[begin]),size(v[begin])[1]/size(v[begin])[2] ] for (i,(k,v)) in enumerate(deck[:CARD_FACES]) if occursin(k, card_names[card_index]) ][begin]
 
 # ╔═╡ 77ce8398-5989-11eb-2d3c-d3d0957ae270
 md"""
@@ -63,23 +78,38 @@ md"""
 """
 
 # ╔═╡ e010eb3a-597a-11eb-19da-01375b1d8367
-if swap_card_face
-	deck[:CARD_FACE_IMGS][ card_face_info[3] ] = card_names[card_index] => [ imresize(card_imgs[card_index], size(card_face_info[1][1])) ]
+if swap_card_face		
+	deck[:CARD_FACES][ card_info[3] ] = 
+	card_names[card_index] => [ card_imgs[card_index] ]
 end
 
 # ╔═╡ 7d1f5e08-5ba0-11eb-008c-87a8474352cd
-commanders = [ fn => load("$DECK_DIR/custom_images/$fn") for fn in readdir("$DECK_DIR/custom_images") if occursin(split(fn,".")[begin], join(deck[:commander_names])) && (occursin("png", fn) || occursin("jpg", fn))  ]
+begin
+	commander_faces = [ fn => load("$DECK_DIR/custom_images/$fn") for fn in readdir("$DECK_DIR/custom_images") if occursin(split(fn,".")[begin], join(deck[:commander_names])) && (occursin("png", fn) || occursin("gif", fn))  ]
+	
+	commander_names = [ k for (k,v) in commander_faces ]
+	
+	commander_imgs = [ v for (k,v) in commander_faces ]
+	
+	for i in 1:length(commander_imgs)
+		csz = size(commander_imgs[i])
+		rat = csz[1] / csz[2]
+		commander_imgs[i] = imresize(commander_imgs[i], ceil(Int, sz[2]*rat*1.1), ceil(Int,sz[2]*1.1))
+	end
+end;
 
-# ╔═╡ bfbacc0c-5ba0-11eb-01d9-71825cfc5c59
-commander_imgs = [ v for (k,v) in commanders if occursin(split(k,".")[begin], join(deck[:commander_names])) ]
-
-# ╔═╡ 5a42f3ac-5b81-11eb-14e1-e18f037da064
-commander_face_info = [ [v,k,i,size(v[begin])] for (i,(k,v)) in enumerate(deck[:COMMANDER_FACE_IMGS]) if occursin(k, join(deck[:commander_names])) ][begin]
+# ╔═╡ 58eefff6-5d54-11eb-3f63-59208c7472ed
+md"""
+### Commanders
+"""
 
 # ╔═╡ 0fd7c2f8-5a13-11eb-11b7-8fa222ab3ccd
 md"""
 commander img index: $(@bind commander_index Slider(1:length(commander_imgs), show_value=true))
 """
+
+# ╔═╡ 5a42f3ac-5b81-11eb-14e1-e18f037da064
+commander_info = [ [v,k,i,size(v[begin])] for (i,(k,v)) in enumerate(deck[:COMMANDER_FACES]) if occursin(k, commander_names[commander_index]) ][begin]
 
 # ╔═╡ 402739bc-5ac9-11eb-004a-47068d7520da
 md"""
@@ -88,7 +118,7 @@ md"""
 
 # ╔═╡ 17a17ed0-5a15-11eb-199b-45bcc809d56c
 if swap_commander_face
-	deck[:COMMANDER_FACE_IMGS][ commander_face_info[3] ] = deck[:commander_names][commander_index] => [ imresize(commander_imgs[commander_index], size(commander_face_info[1][1])) ]
+	deck[:COMMANDER_FACES][ commander_info[3] ] = deck[:commander_names][commander_index] => [ commander_imgs[commander_index] ]
 end
 
 # ╔═╡ cd27bfd0-5ba0-11eb-0bd4-559470d3907a
@@ -123,25 +153,25 @@ end
 # ╔═╡ Cell order:
 # ╟─f313719e-56c1-11eb-0151-7fdc92bc5635
 # ╟─5d891788-56c2-11eb-1723-8361ac5bd415
-# ╟─8a3f6140-56c4-11eb-1cea-ff327a21d57b
+# ╠═8a3f6140-56c4-11eb-1cea-ff327a21d57b
+# ╠═f78a72a0-5d48-11eb-198c-d742de310200
 # ╟─0152ba30-5ba1-11eb-013e-8dc5191b3c17
-# ╠═2f5a332c-56c4-11eb-259b-8b7d51af1b04
-# ╠═a32c9308-5985-11eb-1f52-553017217312
-# ╠═35174776-598c-11eb-3894-37809424115b
+# ╟─2f5a332c-56c4-11eb-259b-8b7d51af1b04
+# ╟─64e4a3a6-5d54-11eb-25f7-9dfff5507992
 # ╟─08063488-5973-11eb-0fcd-97b6d199dd11
 # ╟─70971440-5985-11eb-3d51-cdedac799904
-# ╠═77ce8398-5989-11eb-2d3c-d3d0957ae270
-# ╟─e010eb3a-597a-11eb-19da-01375b1d8367
+# ╟─77ce8398-5989-11eb-2d3c-d3d0957ae270
+# ╠═e010eb3a-597a-11eb-19da-01375b1d8367
 # ╟─7d1f5e08-5ba0-11eb-008c-87a8474352cd
-# ╟─bfbacc0c-5ba0-11eb-01d9-71825cfc5c59
-# ╟─17a17ed0-5a15-11eb-199b-45bcc809d56c
+# ╟─58eefff6-5d54-11eb-3f63-59208c7472ed
 # ╟─5a42f3ac-5b81-11eb-14e1-e18f037da064
 # ╟─0fd7c2f8-5a13-11eb-11b7-8fa222ab3ccd
 # ╟─402739bc-5ac9-11eb-004a-47068d7520da
+# ╠═17a17ed0-5a15-11eb-199b-45bcc809d56c
 # ╟─cd27bfd0-5ba0-11eb-0bd4-559470d3907a
 # ╟─2d187afa-598b-11eb-1dec-7b3c22ea634d
-# ╟─437c0424-56c5-11eb-29ce-7f0090186512
+# ╠═437c0424-56c5-11eb-29ce-7f0090186512
 # ╟─dfa2d2e8-598a-11eb-2e3a-5f9c457e5cae
-# ╠═74abf0a2-5802-11eb-3bcf-79a66eabe3e5
+# ╟─74abf0a2-5802-11eb-3bcf-79a66eabe3e5
 # ╟─3c25d5f2-5ba1-11eb-0229-0fbfc8dbbf44
 # ╠═72de84ba-598d-11eb-139d-975970c19cc0

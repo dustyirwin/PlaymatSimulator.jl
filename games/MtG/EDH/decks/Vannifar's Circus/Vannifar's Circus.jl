@@ -228,7 +228,12 @@ end
 
 # ╔═╡ 312411ce-5a06-11eb-35e6-efa6cc924b90
 md"""
-or specify the default card width: $(@bind card_width NumberField(1:10; default=240)) and height: $(@bind card_height NumberField(1:600; default=320)) in pixels
+or:
+$(@bind customhw CheckBox(default=true)) specify the default card width: $(@bind card_width NumberField(1:10; default=237)) and height: $(@bind card_height NumberField(1:500; default=332)) in pixels
+
+h = 1080 / 3.25 = 332.3076923076923
+
+w = h / 1.4 = 237.3626373626374
 """
 
 # ╔═╡ 614764b8-4648-11eb-0493-732a00df7bca
@@ -264,7 +269,11 @@ end
 
 # ╔═╡ 73d1cd18-4647-11eb-3994-7d4eb92eddca
 if (@isdefined all_cards) && length(all_cards) > 0
-	deck_card_preview = imresize(get_card_preview_img(all_cards[i]), ratio=card_ratio)
+	deck_card_preview = if customhw
+		imresize(get_card_preview_img(all_cards[i]), card_height, card_width)
+	else
+		imresize(get_card_preview_img(all_cards[i]), ratio=card_ratio)
+	end
 else
 	nothing
 end
@@ -285,29 +294,43 @@ end
 
 # ╔═╡ dfc9b56e-50ce-11eb-0e7f-83ec6e831901
 if download_imgs
-	CARD_FACE_IMGS = []
-	COMMANDER_FACE_IMGS = []
+	CARD_FACES = []
+	COMMANDER_FACES = []
 
 	for c in deck_cards
-		push!(CARD_FACE_IMGS, c["name"] => imresize.(get_card_faces(c), ratio=card_ratio))
+		faces = get_card_faces(c)
+		
+		face = if customhw
+			imresize.(faces, card_height, card_width)
+		else
+			imresize.(faces, ratio=card_ratio)
+		end
+		
+		push!(CARD_FACES, c["name"] => face)
 		sleep(0.1)
 	end
 
 	for c in commander_cards
-		push!(COMMANDER_FACE_IMGS, c["name"] => imresize.(get_card_faces(c), ratio=1.1card_ratio))
+		faces = get_card_faces(c)
+		
+		face = if customhw
+			imresize.(faces, card_height, card_width)
+		else
+			imresize.(faces, ratio=card_ratio)
+		end
+		
+		push!(COMMANDER_FACES, c["name"] => imresize.(faces, ratio=1.1))
 		sleep(0.1)
 	end
 
-	CARD_FACE_IMGS, COMMANDER_FACE_IMGS
+	CARD_FACES, COMMANDER_FACES
 end
 
 # ╔═╡ 5e6f7046-4da5-11eb-0122-bd82397aab4f
 if save_data
-	deck[:CARD_WIDTH] = Int32(size(CARD_BACK_IMG)[1])
-	deck[:CARD_HEIGHT] = Int32(size(CARD_BACK_IMG)[2])
 	deck[:CARD_BACK_IMG] = CARD_BACK_IMG
-	deck[:CARD_FACE_IMGS] = CARD_FACE_IMGS
-	deck[:COMMANDER_FACE_IMGS] = COMMANDER_FACE_IMGS
+	deck[:CARD_FACES] = CARD_FACES
+	deck[:COMMANDER_FACES] = COMMANDER_FACES
 
 	fn = "$(projectdir())/games/MtG/EDH/decks/$(deck[:name])/$(deck[:name]).jls"
 	serialize(fn, deck)
@@ -334,12 +357,12 @@ search_mtg_cards_by_keyword("Jwari", mtg_cards)
 # ╟─73d1cd18-4647-11eb-3994-7d4eb92eddca
 # ╟─2775088a-4648-11eb-2218-af69e0e95f1f
 # ╟─c5374766-4ef1-11eb-2555-c159dba953f0
-# ╠═312411ce-5a06-11eb-35e6-efa6cc924b90
+# ╟─312411ce-5a06-11eb-35e6-efa6cc924b90
 # ╟─614764b8-4648-11eb-0493-732a00df7bca
 # ╟─0899b1d0-5972-11eb-0470-4d480cf95d53
 # ╟─dfc9b56e-50ce-11eb-0e7f-83ec6e831901
 # ╟─be2af776-5971-11eb-13ec-3d7982a01ea3
-# ╟─5e6f7046-4da5-11eb-0122-bd82397aab4f
+# ╠═5e6f7046-4da5-11eb-0122-bd82397aab4f
 # ╟─ce216c54-468a-11eb-13b8-7f3dac7af44a
 # ╟─2ab53d00-50cd-11eb-1cd4-5bf94ce53692
 # ╟─97bc3768-50ce-11eb-3f74-95d4fefe3792
