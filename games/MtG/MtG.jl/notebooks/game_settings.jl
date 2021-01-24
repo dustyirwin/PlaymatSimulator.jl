@@ -71,7 +71,7 @@ begin
 	
 	md"""
 	`BKG_NAMES:`
-	$(@bind BKG_NAME Select(BKG_NAMES,  default="progenitus.jpg"))
+	$(@bind BKG_NAME Select(BKG_NAMES,  default="land.jpg"))
 	"""
 end
 
@@ -111,7 +111,7 @@ GS = Dict(
 # ╟─731afc68-385b-11eb-1084-1f85f3b05ed0
 # ╟─a913a358-3930-11eb-104b-a1e5b1b9091c
 # ╟─2936eba6-3942-11eb-14ec-05cab84f472d
-# ╠═3fe53d58-4d9c-11eb-11c3-1f1ea0505f98
+# ╟─3fe53d58-4d9c-11eb-11c3-1f1ea0505f98
 # ╟─089d469c-4da1-11eb-2c82-6132328b548c
 # ╠═2b99d0d8-4d9d-11eb-3f90-2fd6c50a9fa8
 # ╠═0c14a126-3852-11eb-2561-9dd3f0f435b0

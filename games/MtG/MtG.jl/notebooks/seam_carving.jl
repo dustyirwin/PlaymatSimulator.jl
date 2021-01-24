@@ -23,39 +23,62 @@ begin
 	using Images
 	using PlutoUI
 	using Statistics
-	using ImageFiltering
-	using ImageTransformations
-	using ShiftedArrays
 	using Rotations
+	using Serialization
+	
+	deck_dir = "$(projectdir())/games/MtG/EDH/decks/Vannifar's Circus"
+	deck = deserialize("$deck_dir/Vannifar's Circus.jls")
+	
+	md"""
+## Carve card faces for $(deck[:name])!
+	"""
 end
 
 # ╔═╡ 4136bc24-5d1a-11eb-1666-71cd66cc87bc
 begin
-	imgs_dir = "$(projectdir())/games/MtG/EDH/decks/Vannifar's Circus/custom_images/"
-	img_names = [ fn for fn in readdir(imgs_dir) if occursin("png", fn) ]
-end
+	custom_imgs_dir = "$(projectdir())/games/MtG/EDH/decks/Vannifar's Circus/custom_images/"
+	custom_img_names = [ fn for fn in readdir(custom_imgs_dir) if occursin("png", fn) ]
+end;
+
+# ╔═╡ 39f36f30-5d75-11eb-137f-53e5fcb95134
+md"""
+### Custom cards
+"""
 
 # ╔═╡ 2efdbb86-5d1a-11eb-3f64-03dddab37413
-@bind img_select Slider(1:length(img_names), show_value=true)
-
-# ╔═╡ 655ffa72-5cf2-11eb-36f7-07fa9ef7ebd3
-begin
-	imgs = [ imresize(load("$imgs_dir/$(img_names[img_select])"), ratio=1) ]
-	imgs[end]
-end
-
-# ╔═╡ 3286c936-5d0f-11eb-1fe9-a57b72c329ca
-limv, limh = size(imgs[end]) .÷ 3
-
-# ╔═╡ 72c7f7b6-5c8e-11eb-26a8-61e826cea075
-md"#### Compute horizontally shrunk image: $(@bind shrink_greedy_h CheckBox())"
-
-# ╔═╡ 254ff99e-5d12-11eb-118b-79d1d04a3b65
-if shrink_greedy_h
-	md"""
-Save changes to img? $(@bind save_h CheckBox())
+md"""
+Carve custom card
+$(@bind custom_img_select Slider(1:length(custom_img_names), show_value=true))
 """
+
+# ╔═╡ 8e802610-5d70-11eb-1b9a-6d8fe90aabe7
+begin
+	custom_imgs = [ imresize(load("$custom_imgs_dir/$(custom_img_names[custom_img_select])"), ratio=1) ]
+	custom_imgs[end]
 end
+
+# ╔═╡ b92971e6-5d70-11eb-1713-7327a0bca668
+md"""
+### Deck cards
+"""
+
+# ╔═╡ cae91d46-5d70-11eb-2659-f93e71faf9b2
+md"""
+Export changes to deck? $(@bind export_to_deck CheckBox()) 
+$(@bind deck_img_select Slider(1:length(deck[:CARD_FACES]), show_value=true)) 
+"""
+
+# ╔═╡ 6ff626d4-5d72-11eb-110e-49b0464e95a7
+begin
+	deck_imgs = deck[:CARD_FACES][deck_img_select][end]
+	deck_imgs[end]
+end
+
+# ╔═╡ 501cb384-5d73-11eb-20cb-d3b96fc930d0
+imgs = export_to_deck ? deck_imgs : custom_imgs;
+
+# ╔═╡ a89decf2-5d76-11eb-2414-6396c3cdb08c
+limv, limh = size(imgs[end]) .÷ 4
 
 # ╔═╡ 4ecd1258-5d11-11eb-1b53-71740a55b68d
 md"#### Compute vertically shrunk image: $(@bind shrink_greedy_v CheckBox())"
@@ -67,14 +90,32 @@ Save changes to img? $(@bind save_v CheckBox())
 """
 end
 
+# ╔═╡ 72c7f7b6-5c8e-11eb-26a8-61e826cea075
+md"#### Compute horizontally shrunk image: $(@bind shrink_greedy_h CheckBox())"
+
+# ╔═╡ 254ff99e-5d12-11eb-118b-79d1d04a3b65
+if shrink_greedy_h
+	md"""
+Save changes to img? $(@bind save_h CheckBox())
+"""
+end
+
 # ╔═╡ 4a156ba2-5d1b-11eb-07a5-730b3f65033f
 md"""
-Export img? $(@bind export_img CheckBox())
+##### Export img? $(@bind export_img CheckBox())
 """
 
 # ╔═╡ 148ab572-5d15-11eb-2a54-89eaf1d95ca4
 if export_img
-	save("mini.png", imgs[end])
+	save("$deck_dir/mini.png", imgs[end])
+	if export_to_deck
+		deck[:CARD_FACES][deck_img_select] = deck[:CARD_FACES][deck_img_select][begin] => [ imgs[end] ]
+	end
+end
+
+# ╔═╡ 2c06e12e-5d7d-11eb-0da4-c71de86166e8
+if export_img
+	serialize("$deck_dir/Vannifar's Circus.jls", deck)
 end
 
 # ╔═╡ deffb654-5c8d-11eb-3138-a5c7634793bc
@@ -169,6 +210,23 @@ function greedy_seam(energies, starting_pixel::Int)
 	return is
 end
 
+# ╔═╡ d1dd1162-5d10-11eb-3d7f-8f10be30efa7
+if shrink_greedy_v
+	greedy_carved_v = shrink_n(rotr90(imgs[end]), limv, greedy_seam, show_lightning=false)
+	md"Shrink by: $(@bind greedy_v Slider(1:limv, show_value=true))"
+end
+
+# ╔═╡ e061aca2-5d12-11eb-3661-59430c9f0ce4
+if shrink_greedy_v && (@isdefined greedy_carved_v)
+	rotl90(greedy_carved_v[greedy_v])
+end
+
+# ╔═╡ 0d2b79d4-5d13-11eb-03c5-f90edc2114e0
+if (@isdefined save_v) && save_v
+	imgs[end] = rotl90(deepcopy(greedy_carved_v[greedy_v]))
+	"Changes saved!"
+end
+
 # ╔═╡ 3fe076c8-5c8e-11eb-3222-ad52ddd23256
 if shrink_greedy_h
 	greedy_carved_h = shrink_n(imgs[end], limh, greedy_seam, show_lightning=false)
@@ -182,24 +240,7 @@ end
 
 # ╔═╡ b4d3252a-5d10-11eb-16c2-1330d81f5f7c
 if (@isdefined save_h) && save_h
-	push!(imgs, deepcopy(greedy_carved_h[greedy_h]))
-	"Changes saved!"
-end
-
-# ╔═╡ d1dd1162-5d10-11eb-3d7f-8f10be30efa7
-if shrink_greedy_v
-	greedy_carved_v = shrink_n(rotr90(imgs[end]), limv, greedy_seam, show_lightning=false)
-	md"Shrink by: $(@bind greedy_v Slider(1:limh; show_value=true))"
-end
-
-# ╔═╡ e061aca2-5d12-11eb-3661-59430c9f0ce4
-if shrink_greedy_v && (@isdefined greedy_carved_v)
-	rotl90(greedy_carved_v[greedy_v])
-end
-
-# ╔═╡ 0d2b79d4-5d13-11eb-03c5-f90edc2114e0
-if (@isdefined save_v) && save_v
-	push!(imgs, rotl90(deepcopy(greedy_carved_v[greedy_v])))
+	imgs[end]=deepcopy(greedy_carved_h[greedy_h])
 	"Changes saved!"
 end
 
@@ -207,21 +248,27 @@ end
 # ╟─bf40c8ca-5c8c-11eb-2e48-7b906e8e6c5e
 # ╟─1ef22dae-5c88-11eb-1276-231730d144f6
 # ╟─4136bc24-5d1a-11eb-1666-71cd66cc87bc
-# ╠═655ffa72-5cf2-11eb-36f7-07fa9ef7ebd3
+# ╟─501cb384-5d73-11eb-20cb-d3b96fc930d0
+# ╟─39f36f30-5d75-11eb-137f-53e5fcb95134
+# ╟─8e802610-5d70-11eb-1b9a-6d8fe90aabe7
+# ╟─a89decf2-5d76-11eb-2414-6396c3cdb08c
 # ╟─2efdbb86-5d1a-11eb-3f64-03dddab37413
-# ╠═3286c936-5d0f-11eb-1fe9-a57b72c329ca
-# ╟─72c7f7b6-5c8e-11eb-26a8-61e826cea075
-# ╟─3fe076c8-5c8e-11eb-3222-ad52ddd23256
-# ╟─a3c7f5f8-5c8e-11eb-3807-290228dc3ea8
-# ╟─254ff99e-5d12-11eb-118b-79d1d04a3b65
-# ╟─b4d3252a-5d10-11eb-16c2-1330d81f5f7c
+# ╟─b92971e6-5d70-11eb-1713-7327a0bca668
+# ╟─6ff626d4-5d72-11eb-110e-49b0464e95a7
+# ╟─cae91d46-5d70-11eb-2659-f93e71faf9b2
 # ╟─4ecd1258-5d11-11eb-1b53-71740a55b68d
 # ╟─d1dd1162-5d10-11eb-3d7f-8f10be30efa7
 # ╟─e061aca2-5d12-11eb-3661-59430c9f0ce4
 # ╟─039e61e0-5d13-11eb-3cd1-e721db97c94e
 # ╟─0d2b79d4-5d13-11eb-03c5-f90edc2114e0
+# ╟─72c7f7b6-5c8e-11eb-26a8-61e826cea075
+# ╟─3fe076c8-5c8e-11eb-3222-ad52ddd23256
+# ╟─a3c7f5f8-5c8e-11eb-3807-290228dc3ea8
+# ╟─254ff99e-5d12-11eb-118b-79d1d04a3b65
+# ╟─b4d3252a-5d10-11eb-16c2-1330d81f5f7c
 # ╟─4a156ba2-5d1b-11eb-07a5-730b3f65033f
-# ╠═148ab572-5d15-11eb-2a54-89eaf1d95ca4
+# ╟─148ab572-5d15-11eb-2a54-89eaf1d95ca4
+# ╟─2c06e12e-5d7d-11eb-0da4-c71de86166e8
 # ╟─deffb654-5c8d-11eb-3138-a5c7634793bc
 # ╟─e5dad786-5c8d-11eb-1da6-e5fd55842485
 # ╟─f334877c-5ce4-11eb-1d51-83452cede3d8
