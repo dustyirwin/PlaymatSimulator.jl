@@ -14,23 +14,20 @@ macro bind(def, element)
 end
 
 # ╔═╡ e90001ca-4b3f-11eb-0ccd-7785902a32e3
-begin
-	using DrWatson
-	html"<button onclick='present()'>present</button>"
-end
+using DrWatson
 
 # ╔═╡ 6e33e012-4b3d-11eb-30ea-2b5f82c16b8e
 begin
 	@quickactivate
-	
+
 	using GZ2
 	using Colors
 	using PlutoUI
 	using Serialization
-	
+
 	GAME_TYPES = [ gt => gt for gt in readdir("$(projectdir())/games") if !(occursin(".", gt)) ]
 	pushfirst!(GAME_TYPES, ""=>"")
-	
+
 	md"""
 	# Welcome to PlaymatSimulator
 	#### *I heard you like card games* ☮
@@ -46,7 +43,7 @@ Select a game type to simulate: $( @bind GAME_TYPE Select(GAME_TYPES) )
 try if GAME_TYPE != ""
 	GAMES = [ gn=>gn for gn in readdir("../games/$GAME_TYPE/") if !(occursin(".", gn)) ]
 	pushfirst!(GAMES,""=>"")
-	
+
 	md"""
 	Select a game to play: $( @bind GAME_NAME Select(GAMES) )
 	"""
@@ -59,7 +56,7 @@ end
 try if GAME_TYPE != "" && GAME_NAME != ""
 	DECKS = [ gn=>gn for gn in readdir("../games/$GAME_TYPE/$GAME_NAME/decks") if !(occursin(".", gn)) ]
 	pushfirst!(DECKS,""=>"")
-		
+
 	md"""
 	Select a deck to play: $( @bind DECK_NAME Select(DECKS) )
 	"""
@@ -86,8 +83,8 @@ if GAME_TYPE != "" && GAME_NAME != "" && DECK_NAME != ""
 	GAME_DIR = join(split(@__DIR__,"/")[begin:end-2],"/") * "/$GAME_TYPE/$GAME_NAME"
 
 	md"""
-	###### Simulating an $GAME_TYPE $GAME_NAME game with a $DECK_NAME deck, please wait... 
-	
+	###### Simulating an $GAME_TYPE $GAME_NAME game with a $DECK_NAME deck, please wait...
+
 	*press alt+F4 to quit*
 	"""
 else
@@ -111,7 +108,7 @@ html"""<br><br><br><br><br><br>"""
 
 # ╔═╡ Cell order:
 # ╟─e90001ca-4b3f-11eb-0ccd-7785902a32e3
-# ╟─6e33e012-4b3d-11eb-30ea-2b5f82c16b8e
+# ╠═6e33e012-4b3d-11eb-30ea-2b5f82c16b8e
 # ╟─b324b2e0-4b46-11eb-3261-9d90a80205e2
 # ╟─65e7c338-4b42-11eb-014a-017404d2040a
 # ╟─e86a6936-4b43-11eb-33b9-3ddefed762c7

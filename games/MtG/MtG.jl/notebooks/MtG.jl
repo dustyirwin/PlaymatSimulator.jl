@@ -76,6 +76,7 @@ function reset_stage!(gs::Dict)
     end
 
     deck = deserialize("$DECK_DIR/$DECK_NAME.jls")
+
 	gs[:CARDS] = []
 
 	for (name, imgs) in gs[:deck][:CARD_FACES]
@@ -193,7 +194,7 @@ function on_mouse_move(g::Game, pos::Tuple)
 
 	for c in gs[:group][:selected]
 		c.x = gs[:MOUSE_POS][1] + c.data[:mouse_offset][1]
-        c.y = gs[:MOUSE_POS][2] + c.data[:mouse_offset][2]
+		c.y = gs[:MOUSE_POS][2] + c.data[:mouse_offset][2]
     end
 end
 
@@ -570,6 +571,10 @@ function on_mouse_up(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
 		                "Battlefield: $(length(gs[:zone]["Battlefield"]))")
 
 					filter!(x->x!==a, gs[:group][:clickables])
+
+					a.x = round_to(15, a.x)
+					a.y = round_to(30, a.y)
+
 					a.scale = [1, 1]
 
 				else
@@ -809,6 +814,7 @@ end
 
 # ╔═╡ 70d25e54-468e-11eb-160f-9bdafa1ee16c
 begin
+	round_to(n, x) = round(Int, x / n) * n
 	draw(x::Card) = draw(x.faces[begin])
 	draw(x::Dice) = draw(x.faces[begin])
 	draw(x::Counter) = draw(x.faces[begin])
