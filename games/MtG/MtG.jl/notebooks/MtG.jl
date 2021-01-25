@@ -572,8 +572,8 @@ function on_mouse_up(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
 
 					filter!(x->x!==a, gs[:group][:clickables])
 
-					a.x = round_to(15, a.x)
-					a.y = round_to(30, a.y)
+					a.x = round_to(15, a.x)  # snap in x
+					a.y = round_to(30, a.y)  # snap in y
 
 					a.scale = [1, 1]
 

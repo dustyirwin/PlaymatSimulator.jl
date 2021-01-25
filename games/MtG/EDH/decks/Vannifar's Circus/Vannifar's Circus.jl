@@ -114,6 +114,7 @@ deck = Dict{Symbol,Any}(
 		"Pemmin's Aura",
 		"Phyrexian Metamorph",
 		"Pili-Pala",
+		"Prime Speaker Vannifar",
         "Ramunap Excavator",
         "Reclamation Sage",
         "Reflecting Pool",
@@ -171,12 +172,12 @@ begin
 
 	mtg_cards is of type Array{Any}. The dicts contained within are of type Dict{String,Any}.
 
-	Alrighty, let's collect the data we need to download the card images!
+	Alrighty, let's collect the data we need to download the card images:
 	"""
 end
 
 # ╔═╡ 7420cf10-45cc-11eb-2780-4f320bd8a2cf
-begin  # note: this func only downloads the first card with a matching name and then moves to the next.
+begin
 	deck_cards = []
 	commander_cards = []
 
@@ -229,11 +230,7 @@ end
 # ╔═╡ 312411ce-5a06-11eb-35e6-efa6cc924b90
 md"""
 or:
-$(@bind customhw CheckBox(default=true)) specify the default card width: $(@bind card_width NumberField(1:10; default=237)) and height: $(@bind card_height NumberField(1:500; default=332)) in pixels
-
-h = 1080 / 3.25 = 332.3076923076923
-
-w = h / 1.4 = 237.3626373626374
+$(@bind customhw CheckBox(default=false)) specify the default card width: $(@bind card_width NumberField(1:10; default=237)) and height: $(@bind card_height NumberField(1:500; default=332)) in pixels
 """
 
 # ╔═╡ 614764b8-4648-11eb-0493-732a00df7bca
@@ -267,17 +264,6 @@ function get_card_preview_img(c)
 	end
 end
 
-# ╔═╡ 73d1cd18-4647-11eb-3994-7d4eb92eddca
-if (@isdefined all_cards) && length(all_cards) > 0
-	deck_card_preview = if customhw
-		imresize(get_card_preview_img(all_cards[i]), card_height, card_width)
-	else
-		imresize(get_card_preview_img(all_cards[i]), ratio=card_ratio)
-	end
-else
-	nothing
-end
-
 # ╔═╡ 97bc3768-50ce-11eb-3f74-95d4fefe3792
 function get_card_faces(c, faces=[])
 	if haskey(c, "image_uris")
@@ -290,6 +276,17 @@ function get_card_faces(c, faces=[])
 	end
 			
 	return faces
+end
+
+# ╔═╡ 73d1cd18-4647-11eb-3994-7d4eb92eddca
+if length(all_cards) > 0 && (@isdefined all_cards)
+	deck_card_preview = if customhw
+		imresize.(get_card_faces(all_cards[i]), card_height, card_width)
+	else
+		imresize.(get_card_faces(all_cards[i]), ratio=card_ratio)
+	end
+else
+	nothing
 end
 
 # ╔═╡ dfc9b56e-50ce-11eb-0e7f-83ec6e831901
@@ -344,18 +341,35 @@ end
 # ╔═╡ cec924ac-50c7-11eb-3795-85b3c183a8eb
 search_mtg_cards_by_keyword("Jwari", mtg_cards)
 
+# ╔═╡ 8961102a-5eb5-11eb-3c58-8bae7d3766c0
+
+
+# ╔═╡ 7cbdfda6-5eb5-11eb-2be6-0f93c3374a47
+function hbox(x, y, gap=16; sy=size(y), sx=size(x))
+	w,h = (max(sx[1], sy[1]),
+		   gap + sx[2] + sy[2])
+	
+	slate = fill(RGB(1,1,1), w,h)
+	slate[1:size(x,1), 1:size(x,2)] .= RGB.(x)
+	slate[1:size(y,1), size(x,2) + gap .+ (1:size(y,2))] .= RGB.(y)
+	slate
+end
+
+# ╔═╡ 85103516-5eb5-11eb-3abc-dfc9ae9caf96
+vbox(x,y, gap=16) = hbox(x', y')'
+
 # ╔═╡ Cell order:
 # ╟─c7952ee6-45b5-11eb-1158-5bb2ff274ce9
 # ╟─0c145632-3927-11eb-19b9-877e05c1bcdc
+# ╠═cec924ac-50c7-11eb-3795-85b3c183a8eb
 # ╟─621b08a4-384e-11eb-0109-61e9b9ecf125
 # ╟─fb61d01c-458d-11eb-2c2a-f711dc7ab7f4
 # ╟─5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
 # ╟─c61fa79e-4583-11eb-3b71-2d334aca843d
-# ╟─7420cf10-45cc-11eb-2780-4f320bd8a2cf
+# ╠═7420cf10-45cc-11eb-2780-4f320bd8a2cf
 # ╟─c31dd202-50c6-11eb-0631-13c70535635e
-# ╠═cec924ac-50c7-11eb-3795-85b3c183a8eb
-# ╟─73d1cd18-4647-11eb-3994-7d4eb92eddca
 # ╟─2775088a-4648-11eb-2218-af69e0e95f1f
+# ╟─73d1cd18-4647-11eb-3994-7d4eb92eddca
 # ╟─c5374766-4ef1-11eb-2555-c159dba953f0
 # ╟─312411ce-5a06-11eb-35e6-efa6cc924b90
 # ╟─614764b8-4648-11eb-0493-732a00df7bca
@@ -367,3 +381,6 @@ search_mtg_cards_by_keyword("Jwari", mtg_cards)
 # ╟─2ab53d00-50cd-11eb-1cd4-5bf94ce53692
 # ╟─97bc3768-50ce-11eb-3f74-95d4fefe3792
 # ╟─d654ad1e-468a-11eb-2348-695621b7b9b0
+# ╠═8961102a-5eb5-11eb-3c58-8bae7d3766c0
+# ╟─7cbdfda6-5eb5-11eb-2be6-0f93c3374a47
+# ╟─85103516-5eb5-11eb-3abc-dfc9ae9caf96
