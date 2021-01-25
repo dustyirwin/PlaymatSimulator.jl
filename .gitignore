@@ -1,7 +1,7 @@
 scratch.jl
 papers/
 *.so
-trace.jl
+trace_main.jl
 *.png
 *.jpg
 *.mp3

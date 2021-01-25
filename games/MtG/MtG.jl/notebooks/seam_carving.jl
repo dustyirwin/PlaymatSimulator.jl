@@ -21,6 +21,7 @@ begin
 	@quickactivate
 
 	using Images
+	using Random
 	using PlutoUI
 	using Statistics
 	using Rotations
@@ -28,87 +29,72 @@ begin
 	
 	deck_dir = "$(projectdir())/games/MtG/EDH/decks/Vannifar's Circus"
 	deck = deserialize("$deck_dir/Vannifar's Circus.jls")
+	custom_imgs_dir = "$(projectdir())/games/MtG/EDH/decks/Vannifar's Circus/custom_images/"
+	custom_img_names = [ fn for fn in readdir(custom_imgs_dir) if occursin("png", fn) ]
 	
 	md"""
-## Carve card faces for $(deck[:name])!
+## Carve custom faces for $(deck[:name])!
 	"""
 end
 
-# ╔═╡ 4136bc24-5d1a-11eb-1666-71cd66cc87bc
-begin
-	custom_imgs_dir = "$(projectdir())/games/MtG/EDH/decks/Vannifar's Circus/custom_images/"
-	custom_img_names = [ fn for fn in readdir(custom_imgs_dir) if occursin("png", fn) ]
-end;
+# ╔═╡ b978978c-5ee0-11eb-1443-33825d99e295
+md"""
+#### $(@bind carve_custom_card CheckBox()) Carve cards in custom images dir $(@bind custom_img_select Slider(1:length(custom_img_names), show_value=true))
+"""
 
 # ╔═╡ 39f36f30-5d75-11eb-137f-53e5fcb95134
-md"""
-### Custom cards
-"""
-
-# ╔═╡ 2efdbb86-5d1a-11eb-3f64-03dddab37413
-md"""
-Carve custom card
-$(@bind custom_img_select Slider(1:length(custom_img_names), show_value=true))
-"""
-
-# ╔═╡ 8e802610-5d70-11eb-1b9a-6d8fe90aabe7
 begin
-	custom_imgs = [ imresize(load("$custom_imgs_dir/$(custom_img_names[custom_img_select])"), ratio=1) ]
-	custom_imgs[end]
+	custom_img = load("$custom_imgs_dir/$(custom_img_names[custom_img_select])")
+
+	md"""
+	Custom cards in $deck_dir
+	"""
+end
+
+# ╔═╡ c4bb34e4-5ede-11eb-0871-e16410f0c048
+if carve_custom_card
+	md"""Shrink custom card $(@bind custom_img_ratio Slider(0:0.01:1, default=0.5, show_value=true)) by percentage or $(@bind specify_custom_size CheckBox(default=true)) specify card width $(@bind custom_width NumberField(200:10:300, default=270))"""
 end
 
 # ╔═╡ b92971e6-5d70-11eb-1713-7327a0bca668
 md"""
-### Deck cards
+#### $(@bind carve_deck_card CheckBox()) Carve cards in deck $(@bind deck_img_select Slider(1:length(deck[:CARD_FACES]), show_value=true)) 
 """
 
-# ╔═╡ cae91d46-5d70-11eb-2659-f93e71faf9b2
-md"""
-Export changes to deck? $(@bind export_to_deck CheckBox()) 
-$(@bind deck_img_select Slider(1:length(deck[:CARD_FACES]), show_value=true)) 
-"""
+# ╔═╡ 501cb384-5d73-11eb-20cb-d3b96fc930d0
+imgs = carve_deck_card ? [deck_img] : [custom_img];
+
+# ╔═╡ 4c43b0ba-5ed7-11eb-3fa3-7d9b1ba5e434
+if carve_custom_card
+	card_ratio = height(custom_img) / width(custom_img)
+	imgs[end] = specify_custom_size ? imresize(custom_img, ceil(Int, custom_width * card_ratio), custom_width) : imresize(custom_img, ratio=custom_img_ratio)
+end
 
 # ╔═╡ 6ff626d4-5d72-11eb-110e-49b0464e95a7
-begin
+if carve_deck_card
 	deck_imgs = deck[:CARD_FACES][deck_img_select][end]
 	deck_imgs[end]
 end
 
-# ╔═╡ 501cb384-5d73-11eb-20cb-d3b96fc930d0
-imgs = export_to_deck ? deck_imgs : custom_imgs;
-
-# ╔═╡ a89decf2-5d76-11eb-2414-6396c3cdb08c
-limv, limh = size(imgs[end]) .÷ 4
-
 # ╔═╡ 4ecd1258-5d11-11eb-1b53-71740a55b68d
-md"#### Compute vertically shrunk image: $(@bind shrink_greedy_v CheckBox())"
-
-# ╔═╡ 039e61e0-5d13-11eb-3cd1-e721db97c94e
-if shrink_greedy_v
-	md"""
-Save changes to img? $(@bind save_v CheckBox())
+md"""
+##### Vertically shrink image up to : $(@bind vert_shrink_by NumberField(0:200, default=100)) pixels $(@bind shrink_greedy_v CheckBox())
 """
-end
 
 # ╔═╡ 72c7f7b6-5c8e-11eb-26a8-61e826cea075
-md"#### Compute horizontally shrunk image: $(@bind shrink_greedy_h CheckBox())"
-
-# ╔═╡ 254ff99e-5d12-11eb-118b-79d1d04a3b65
-if shrink_greedy_h
-	md"""
-Save changes to img? $(@bind save_h CheckBox())
+md"""
+##### Horizontally shrink image up to : $(@bind hor_shrink_by NumberField(0:40, default=20)) pixels $(@bind shrink_greedy_h CheckBox())
 """
-end
 
 # ╔═╡ 4a156ba2-5d1b-11eb-07a5-730b3f65033f
 md"""
-##### Export img? $(@bind export_img CheckBox())
+#####  Export img? $(@bind export_img CheckBox())
 """
 
 # ╔═╡ 148ab572-5d15-11eb-2a54-89eaf1d95ca4
 if export_img
-	save("$deck_dir/mini.png", imgs[end])
-	if export_to_deck
+	save("$deck_dir/mini$(randstring(5)).png", imgs[end])
+	if carve_deck_card
 		deck[:CARD_FACES][deck_img_select] = deck[:CARD_FACES][deck_img_select][begin] => [ imgs[end] ]
 	end
 end
@@ -117,6 +103,11 @@ end
 if export_img
 	serialize("$deck_dir/Vannifar's Circus.jls", deck)
 end
+
+# ╔═╡ 26ba7e48-5ecb-11eb-22f1-b5013af4ec24
+md"""
+Custom functions
+"""
 
 # ╔═╡ deffb654-5c8d-11eb-3138-a5c7634793bc
 begin
@@ -212,8 +203,13 @@ end
 
 # ╔═╡ d1dd1162-5d10-11eb-3d7f-8f10be30efa7
 if shrink_greedy_v
-	greedy_carved_v = shrink_n(rotr90(imgs[end]), limv, greedy_seam, show_lightning=false)
-	md"Shrink by: $(@bind greedy_v Slider(1:limv, show_value=true))"
+	greedy_carved_v = shrink_n(rotr90(imgs[end]), vert_shrink_by, greedy_seam, show_lightning=false)
+	md"""Shrink by: $(@bind greedy_v Slider(1:vert_shrink_by, show_value=true)) Save changes to img? $(@bind save_v CheckBox())"""
+end
+
+# ╔═╡ 38bc0512-5ee4-11eb-1576-1fac86b5e112
+if shrink_greedy_v
+	size(rotl90(greedy_carved_v[greedy_v]))
 end
 
 # ╔═╡ e061aca2-5d12-11eb-3661-59430c9f0ce4
@@ -223,14 +219,23 @@ end
 
 # ╔═╡ 0d2b79d4-5d13-11eb-03c5-f90edc2114e0
 if (@isdefined save_v) && save_v
-	imgs[end] = rotl90(deepcopy(greedy_carved_v[greedy_v]))
+	imgs[end] = deepcopy(rotl90(greedy_carved_v[greedy_v]))
 	"Changes saved!"
 end
 
 # ╔═╡ 3fe076c8-5c8e-11eb-3222-ad52ddd23256
 if shrink_greedy_h
-	greedy_carved_h = shrink_n(imgs[end], limh, greedy_seam, show_lightning=false)
-	md"Shrink by: $(@bind greedy_h Slider(1:limh; show_value=true))"
+	greedy_carved_h = shrink_n(imgs[end], hor_shrink_by, greedy_seam, show_lightning=false)
+	
+	md"""
+	Shrink by: $(@bind greedy_h Slider(1:hor_shrink_by, show_value=true))
+	Save changes to img? $(@bind save_h CheckBox())
+	"""
+end
+
+# ╔═╡ e1c05af0-5ee4-11eb-153f-af5abf6bd5a9
+if shrink_greedy_h
+	size(greedy_carved_h[greedy_h])
 end
 
 # ╔═╡ a3c7f5f8-5c8e-11eb-3807-290228dc3ea8
@@ -247,28 +252,27 @@ end
 # ╔═╡ Cell order:
 # ╟─bf40c8ca-5c8c-11eb-2e48-7b906e8e6c5e
 # ╟─1ef22dae-5c88-11eb-1276-231730d144f6
-# ╟─4136bc24-5d1a-11eb-1666-71cd66cc87bc
 # ╟─501cb384-5d73-11eb-20cb-d3b96fc930d0
 # ╟─39f36f30-5d75-11eb-137f-53e5fcb95134
-# ╟─8e802610-5d70-11eb-1b9a-6d8fe90aabe7
-# ╟─a89decf2-5d76-11eb-2414-6396c3cdb08c
-# ╟─2efdbb86-5d1a-11eb-3f64-03dddab37413
+# ╟─b978978c-5ee0-11eb-1443-33825d99e295
+# ╟─c4bb34e4-5ede-11eb-0871-e16410f0c048
+# ╟─4c43b0ba-5ed7-11eb-3fa3-7d9b1ba5e434
 # ╟─b92971e6-5d70-11eb-1713-7327a0bca668
 # ╟─6ff626d4-5d72-11eb-110e-49b0464e95a7
-# ╟─cae91d46-5d70-11eb-2659-f93e71faf9b2
 # ╟─4ecd1258-5d11-11eb-1b53-71740a55b68d
+# ╟─38bc0512-5ee4-11eb-1576-1fac86b5e112
 # ╟─d1dd1162-5d10-11eb-3d7f-8f10be30efa7
 # ╟─e061aca2-5d12-11eb-3661-59430c9f0ce4
-# ╟─039e61e0-5d13-11eb-3cd1-e721db97c94e
 # ╟─0d2b79d4-5d13-11eb-03c5-f90edc2114e0
 # ╟─72c7f7b6-5c8e-11eb-26a8-61e826cea075
 # ╟─3fe076c8-5c8e-11eb-3222-ad52ddd23256
+# ╟─e1c05af0-5ee4-11eb-153f-af5abf6bd5a9
 # ╟─a3c7f5f8-5c8e-11eb-3807-290228dc3ea8
-# ╟─254ff99e-5d12-11eb-118b-79d1d04a3b65
 # ╟─b4d3252a-5d10-11eb-16c2-1330d81f5f7c
 # ╟─4a156ba2-5d1b-11eb-07a5-730b3f65033f
 # ╟─148ab572-5d15-11eb-2a54-89eaf1d95ca4
 # ╟─2c06e12e-5d7d-11eb-0da4-c71de86166e8
+# ╟─26ba7e48-5ecb-11eb-22f1-b5013af4ec24
 # ╟─deffb654-5c8d-11eb-3138-a5c7634793bc
 # ╟─e5dad786-5c8d-11eb-1da6-e5fd55842485
 # ╟─f334877c-5ce4-11eb-1d51-83452cede3d8

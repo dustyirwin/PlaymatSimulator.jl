@@ -409,7 +409,7 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
     elseif button == GZ2.MouseButtons.RIGHT
         if !isempty(gs[:group][:selected])
             for a in gs[:group][:selected]
-                a.angle = a.angle == 0 ? 90 : 0
+                a.angle = a.angle == 0 ? g.keyboard.LALT ? 270 : 90 : 0
             end
 
         elseif !isempty(ib)
@@ -572,7 +572,7 @@ function on_mouse_up(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
 
 					filter!(x->x!==a, gs[:group][:clickables])
 
-					a.x = round_to(15, a.x)  # snap in x
+					a.x = round_to(30, a.x)  # snap in x
 					a.y = round_to(30, a.y)  # snap in y
 
 					a.scale = [1, 1]

@@ -30,12 +30,14 @@ project_symbols = [
     :Dates,
     :Pkg,
     :Random,
-    :Serialization
+    :Serialization,
+    :Statistics,
+    :Rotations,
     ]
 
 create_sysimage(project_symbols,
-    precompile_statements_file="tmp/trace.jl",
-    sysimage_path="sys_PS-unix.so"
+    precompile_statements_file="tmp/trace_main.jl",
+    sysimage_path="sys_PS-unix-main.so"
     )
 
 PackageCompiler.audit_app(".")  # passing!

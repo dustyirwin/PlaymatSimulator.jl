@@ -34,9 +34,12 @@ begin
 	AC = PlaymatSimulator.Actors
 
 	plotly()
+	
+	include("$(projectdir())/games/MtG/MtG.jl/notebooks/seam_carving.jl")
+	mtg_cards = JSON.parsefile("$(projectdir())/games/MtG/MtG.jl/json/oracle-cards-20201224220555.json")
 
 	md"""
-	*game settings loaded!*
+	*mtg_cards loaded from JSON*
 
 	## MtG EDH Deck: Vannifar's Circus (UG Creature Ramp Combo) by Dustin Irwin
 	For simple games, a "deck" in PlaymatSimulator is simply a collection of images, one for each card in the deck. Let's build an example EDH deck `Vannifar's Circus`.
@@ -46,7 +49,8 @@ begin
 end
 
 # ╔═╡ 621b08a4-384e-11eb-0109-61e9b9ecf125
-deck = Dict{Symbol,Any}(
+if !(@isdefined deck)
+	deck = Dict{Symbol,Any}(
 	:name => split(@__DIR__, "/")[end],
     :commander_names => [
         "Prime Speaker Vannifar",
@@ -154,65 +158,57 @@ deck = Dict{Symbol,Any}(
         "Young Wolf",
     ]
 )
+else 
+	nothing
+end
 
 # ╔═╡ fb61d01c-458d-11eb-2c2a-f711dc7ab7f4
-(length(deck[:card_names]) + length(deck[:commander_names]))
+length(deck[:card_names])
+
+# ╔═╡ 6b8f4da4-5ed1-11eb-0797-71d7bba5ea3b
+
 
 # ╔═╡ c61fa79e-4583-11eb-3b71-2d334aca843d
-begin
-	mtg_cards = JSON.parsefile("$(projectdir())/games/MtG/MtG.jl/json/oracle-cards-20201224220555.json")
+md"""
+Look OK? Keep in mind that images that do not require in-game scaling will suffer less distortion.
 
-	md"""Look OK? Keep in mind that images that do not require in-game scaling will suffer less distortion.
+Alright, lets load up a JSON file with the URIs we need to grab the card images. For MtG, we can use the .json file available here: TODO
 
-	Alright, lets load up a JSON file with the URIs we need to grab the card images. For MtG, we can use the .json file available here: TODO
+Save the json file to the /json directory in the MtG project directory and modify the following cell to point at the json file.
 
-	Save the json file to the /json directory in the MtG project directory and modify the following cell to point at the json file.
+##### MtG database loaded! Found $(length(mtg_cards)) unique cards (by name).
 
-	##### MtG database loaded! Found $(length(mtg_cards)) unique cards (by name).
+mtg_cards is of type Array{Any}. The dicts contained within are of type Dict{String,Any}.
 
-	mtg_cards is of type Array{Any}. The dicts contained within are of type Dict{String,Any}.
-
-	Alrighty, let's collect the data we need to download the card images:
-	"""
-end
+Alrighty, let's collect the data we need to download the card images:
+"""
 
 # ╔═╡ 7420cf10-45cc-11eb-2780-4f320bd8a2cf
 begin
-	deck_cards = []
-	commander_cards = []
+	cards = []
 
 	for n in sort(deck[:card_names])
 
 		for c in mtg_cards
 
 			if n == c["name"]
-				push!(deck_cards, c)
+				push!(cards, c)
 			end
 		end
 	end
-
-	for n in deck[:commander_names]
-
-		for c in mtg_cards
-
-			if n == c["name"]
-				push!(commander_cards, c)
-			end
-		end
-	end
-
-	all_cards = vcat(commander_cards, deck_cards)
 
 	md"""
-	Found $(length(deck_cards) + length(commander_cards)) matching cards in mtg_cards!
+	Found $(length(cards)) matching cards in mtg_cards!
 	"""
 end
 
 # ╔═╡ c31dd202-50c6-11eb-0631-13c70535635e
-missing_cards = filter!(x->!(x in [ c["name"] for c in all_cards ]), vcat(deck[:card_names], deck[:commander_names]))
+missing_cards = filter!(x->!(x in [ c["name"] for c in cards ]), vcat(deck[:card_names], deck[:commander_names]))
 
 # ╔═╡ 2775088a-4648-11eb-2218-af69e0e95f1f
-@bind i Slider(1:length(all_cards), show_value=true)
+md"""
+card # $(@bind i Slider(1:length(cards), show_value=true))
+"""
 
 # ╔═╡ c5374766-4ef1-11eb-2555-c159dba953f0
 md"""
@@ -220,12 +216,6 @@ md"""
 
 $(@bind card_ratio Slider(0.1:0.05:1.25, default=0.5, show_value=true))
 """
-
-# ╔═╡ 5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
-begin
-	CARD_BACK_PATH = "$(projectdir())/games/MtG/MtG.jl/ui/cards/card_back.png"
-	CARD_BACK_IMG = imresize(load(CARD_BACK_PATH), ratio=card_ratio)
-end
 
 # ╔═╡ 312411ce-5a06-11eb-35e6-efa6cc924b90
 md"""
@@ -279,11 +269,11 @@ function get_card_faces(c, faces=[])
 end
 
 # ╔═╡ 73d1cd18-4647-11eb-3994-7d4eb92eddca
-if length(all_cards) > 0 && (@isdefined all_cards)
+if length(cards) > 0 && (@isdefined cards)
 	deck_card_preview = if customhw
-		imresize.(get_card_faces(all_cards[i]), card_height, card_width)
+		imresize.(get_card_faces(cards[i]), card_height, card_width)
 	else
-		imresize.(get_card_faces(all_cards[i]), ratio=card_ratio)
+		imresize.(get_card_faces(cards[i]), ratio=card_ratio)
 	end
 else
 	nothing
@@ -323,16 +313,6 @@ if download_imgs
 	CARD_FACES, COMMANDER_FACES
 end
 
-# ╔═╡ 5e6f7046-4da5-11eb-0122-bd82397aab4f
-if save_data
-	deck[:CARD_BACK_IMG] = CARD_BACK_IMG
-	deck[:CARD_FACES] = CARD_FACES
-	deck[:COMMANDER_FACES] = COMMANDER_FACES
-
-	fn = "$(projectdir())/games/MtG/EDH/decks/$(deck[:name])/$(deck[:name]).jls"
-	serialize(fn, deck)
-end
-
 # ╔═╡ d654ad1e-468a-11eb-2348-695621b7b9b0
 function search_mtg_cards_by_keyword(q::String, mtg_cards::Array)
 	[ n for n in [ c["name"] for c in mtg_cards ] if occursin(q, n) ]
@@ -355,6 +335,24 @@ function hbox(x, y, gap=16; sy=size(y), sx=size(x))
 	slate
 end
 
+# ╔═╡ 5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
+begin
+	CARD_BACK_PATH = "$(projectdir())/games/MtG/MtG.jl/ui/cards/card_back.png"
+	CARD_BACK_IMG = imresize(load(CARD_BACK_PATH), ratio=card_ratio)
+	
+	hbox(CARD_BACK_IMG, CARD_BACK_IMG)
+end
+
+# ╔═╡ 5e6f7046-4da5-11eb-0122-bd82397aab4f
+if save_data
+	deck[:CARD_BACK_IMG] = CARD_BACK_IMG
+	deck[:CARD_FACES] = CARD_FACES
+	deck[:COMMANDER_FACES] = COMMANDER_FACES
+
+	fn = "$(projectdir())/games/MtG/EDH/decks/$(deck[:name])/$(deck[:name]).jls"
+	serialize(fn, deck)
+end
+
 # ╔═╡ 85103516-5eb5-11eb-3abc-dfc9ae9caf96
 vbox(x,y, gap=16) = hbox(x', y')'
 
@@ -364,12 +362,13 @@ vbox(x,y, gap=16) = hbox(x', y')'
 # ╠═cec924ac-50c7-11eb-3795-85b3c183a8eb
 # ╟─621b08a4-384e-11eb-0109-61e9b9ecf125
 # ╟─fb61d01c-458d-11eb-2c2a-f711dc7ab7f4
-# ╟─5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
+# ╠═5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
+# ╠═6b8f4da4-5ed1-11eb-0797-71d7bba5ea3b
 # ╟─c61fa79e-4583-11eb-3b71-2d334aca843d
-# ╠═7420cf10-45cc-11eb-2780-4f320bd8a2cf
-# ╟─c31dd202-50c6-11eb-0631-13c70535635e
+# ╟─7420cf10-45cc-11eb-2780-4f320bd8a2cf
+# ╠═c31dd202-50c6-11eb-0631-13c70535635e
 # ╟─2775088a-4648-11eb-2218-af69e0e95f1f
-# ╟─73d1cd18-4647-11eb-3994-7d4eb92eddca
+# ╠═73d1cd18-4647-11eb-3994-7d4eb92eddca
 # ╟─c5374766-4ef1-11eb-2555-c159dba953f0
 # ╟─312411ce-5a06-11eb-35e6-efa6cc924b90
 # ╟─614764b8-4648-11eb-0493-732a00df7bca
@@ -382,5 +381,5 @@ vbox(x,y, gap=16) = hbox(x', y')'
 # ╟─97bc3768-50ce-11eb-3f74-95d4fefe3792
 # ╟─d654ad1e-468a-11eb-2348-695621b7b9b0
 # ╠═8961102a-5eb5-11eb-3c58-8bae7d3766c0
-# ╟─7cbdfda6-5eb5-11eb-2be6-0f93c3374a47
+# ╠═7cbdfda6-5eb5-11eb-2be6-0f93c3374a47
 # ╟─85103516-5eb5-11eb-3abc-dfc9ae9caf96
