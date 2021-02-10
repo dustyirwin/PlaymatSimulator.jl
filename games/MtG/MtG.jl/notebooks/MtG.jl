@@ -100,43 +100,7 @@ function reset_stage!(gs::Dict)
 		push!(gs[:CARDS], c)
 	end
 
-	gs[:COMMANDERS] = []
-
-	for (name, imgs) in gs[:deck][:COMMANDER_FACES]
-		id = randstring(10)
-		c = try Card(
-			id,
-			name,
-			"Player1",
-			"Player1",
-			[ Image("Backside", deck[:CARD_BACK_IMG]), [ Image(name, img) for img in imgs ]... ],
-			false,
-			false,
-			[1,1],
-			Dict(),
-		)
-		catch
-			Card(
-				id,
-				name,
-				"Player1",
-				"Player1",
-				[ Image("Backside", deck[:CARD_BACK_IMG]), [ GIF(name, img) for img in imgs ]... ],
-				false,
-				false,
-				[1,1],
-				Dict(),
-			)
-		end
-
-		for a in c.faces
-			a.data[:parent_id] = c.id
-		end
-
-		push!(gs[:COMMANDERS], c)
-	end
-
-	gs[:zone]["Command"] = gs[:COMMANDERS]
+	gs[:zone]["Command"] = [ c for c in gs[:CARDS] if c.name in deck[:commander_names] ]
 	gs[:zone]["Library"] = shuffle(gs[:CARDS])
 	gs[:zone]["Hand"] = reverse([ pop!(gs[:zone]["Library"]) for i in 1:7 ])
 

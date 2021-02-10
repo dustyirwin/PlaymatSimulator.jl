@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.18
+# v0.12.20
 
 using Markdown
 using InteractiveUtils
@@ -23,8 +23,7 @@ begin
 	using GZ2
 	using JSON
 	using HTTP
-	using Plots
-	using Images: load, ARGB
+	using Images: load, RGB
 	using PlutoUI
 	using Serialization
 	using PlaymatSimulator
@@ -32,10 +31,7 @@ begin
 	using ImageTransformations: imresize
 
 	AC = PlaymatSimulator.Actors
-
-	plotly()
 	
-	include("$(projectdir())/games/MtG/MtG.jl/notebooks/seam_carving.jl")
 	mtg_cards = JSON.parsefile("$(projectdir())/games/MtG/MtG.jl/json/oracle-cards-20201224220555.json")
 
 	md"""
@@ -165,9 +161,6 @@ end
 # ╔═╡ fb61d01c-458d-11eb-2c2a-f711dc7ab7f4
 length(deck[:card_names])
 
-# ╔═╡ 6b8f4da4-5ed1-11eb-0797-71d7bba5ea3b
-
-
 # ╔═╡ c61fa79e-4583-11eb-3b71-2d334aca843d
 md"""
 Look OK? Keep in mind that images that do not require in-game scaling will suffer less distortion.
@@ -205,27 +198,11 @@ end
 # ╔═╡ c31dd202-50c6-11eb-0631-13c70535635e
 missing_cards = filter!(x->!(x in [ c["name"] for c in cards ]), vcat(deck[:card_names], deck[:commander_names]))
 
-# ╔═╡ 2775088a-4648-11eb-2218-af69e0e95f1f
-md"""
-card # $(@bind i Slider(1:length(cards), show_value=true))
-"""
-
 # ╔═╡ c5374766-4ef1-11eb-2555-c159dba953f0
-md"""
-##### *Adjust this slider to shrink / grow the cards while preserving the aspect ratio*
+md"""Card #: $(@bind i Slider(1:length(cards), default=50, show_value=true))
+Shrink card by $(@bind card_ratio Slider(0.1:0.05:1.25, default=0.5, show_value=true)) 
 
-$(@bind card_ratio Slider(0.1:0.05:1.25, default=0.5, show_value=true))
-"""
-
-# ╔═╡ 312411ce-5a06-11eb-35e6-efa6cc924b90
-md"""
-or:
-$(@bind customhw CheckBox(default=false)) specify the default card width: $(@bind card_width NumberField(1:10; default=237)) and height: $(@bind card_height NumberField(1:500; default=332)) in pixels
-"""
-
-# ╔═╡ 614764b8-4648-11eb-0493-732a00df7bca
-md"""
-#### Look good? These images will be displayed in-game!
+or: $(@bind customw CheckBox(default=true)) specify the default card width: $(@bind card_width NumberField(1:10; default=270)) in pixels
 """
 
 # ╔═╡ 0899b1d0-5972-11eb-0470-4d480cf95d53
@@ -237,6 +214,9 @@ md"""
 md"""
 ##### Save data to disk? $(@bind save_data CheckBox()) 
 """
+
+# ╔═╡ 43cdcbdc-5f68-11eb-11bd-51fbbf610333
+deck
 
 # ╔═╡ ce216c54-468a-11eb-13b8-7f3dac7af44a
 function get_face_img(img_uri::String)
@@ -270,10 +250,13 @@ end
 
 # ╔═╡ 73d1cd18-4647-11eb-3994-7d4eb92eddca
 if length(cards) > 0 && (@isdefined cards)
-	deck_card_preview = if customhw
-		imresize.(get_card_faces(cards[i]), card_height, card_width)
+	
+	if customw
+		fs = get_card_faces(cards[i])
+		sz = size(fs[end])
+		imresize.(fs, ceil(Int, card_width * sz[1]/sz[2]), card_width)[end]
 	else
-		imresize.(get_card_faces(cards[i]), ratio=card_ratio)
+		imresize.(get_card_faces(cards[i]), ratio=card_ratio)[end]
 	end
 else
 	nothing
@@ -282,35 +265,25 @@ end
 # ╔═╡ dfc9b56e-50ce-11eb-0e7f-83ec6e831901
 if download_imgs
 	CARD_FACES = []
-	COMMANDER_FACES = []
 
-	for c in deck_cards
+	for c in cards
 		faces = get_card_faces(c)
 		
-		face = if customhw
-			imresize.(faces, card_height, card_width)
+		if customw
+			sz = size(faces[end])
+			faces = imresize.(faces, ceil(Int, card_width * sz[1]/sz[2]), card_width)
 		else
-			imresize.(faces, ratio=card_ratio)
+			faces = imresize.(faces, ratio=card_ratio)
 		end
 		
-		push!(CARD_FACES, c["name"] => face)
+		push!(CARD_FACES, c["name"] => faces)
 		sleep(0.1)
 	end
+end
 
-	for c in commander_cards
-		faces = get_card_faces(c)
-		
-		face = if customhw
-			imresize.(faces, card_height, card_width)
-		else
-			imresize.(faces, ratio=card_ratio)
-		end
-		
-		push!(COMMANDER_FACES, c["name"] => imresize.(faces, ratio=1.1))
-		sleep(0.1)
-	end
-
-	CARD_FACES, COMMANDER_FACES
+# ╔═╡ 3a17fc4c-5f69-11eb-29a1-c9bb584fee32
+if @isdefined CARD_FACES
+	CARD_FACES[i][end][end]
 end
 
 # ╔═╡ d654ad1e-468a-11eb-2348-695621b7b9b0
@@ -320,9 +293,6 @@ end
 
 # ╔═╡ cec924ac-50c7-11eb-3795-85b3c183a8eb
 search_mtg_cards_by_keyword("Jwari", mtg_cards)
-
-# ╔═╡ 8961102a-5eb5-11eb-3c58-8bae7d3766c0
-
 
 # ╔═╡ 7cbdfda6-5eb5-11eb-2be6-0f93c3374a47
 function hbox(x, y, gap=16; sy=size(y), sx=size(x))
@@ -347,7 +317,6 @@ end
 if save_data
 	deck[:CARD_BACK_IMG] = CARD_BACK_IMG
 	deck[:CARD_FACES] = CARD_FACES
-	deck[:COMMANDER_FACES] = COMMANDER_FACES
 
 	fn = "$(projectdir())/games/MtG/EDH/decks/$(deck[:name])/$(deck[:name]).jls"
 	serialize(fn, deck)
@@ -363,23 +332,20 @@ vbox(x,y, gap=16) = hbox(x', y')'
 # ╟─621b08a4-384e-11eb-0109-61e9b9ecf125
 # ╟─fb61d01c-458d-11eb-2c2a-f711dc7ab7f4
 # ╠═5f7ebd78-3db7-11eb-0690-1b8ee4ebe7db
-# ╠═6b8f4da4-5ed1-11eb-0797-71d7bba5ea3b
 # ╟─c61fa79e-4583-11eb-3b71-2d334aca843d
 # ╟─7420cf10-45cc-11eb-2780-4f320bd8a2cf
-# ╠═c31dd202-50c6-11eb-0631-13c70535635e
-# ╟─2775088a-4648-11eb-2218-af69e0e95f1f
-# ╠═73d1cd18-4647-11eb-3994-7d4eb92eddca
+# ╟─c31dd202-50c6-11eb-0631-13c70535635e
 # ╟─c5374766-4ef1-11eb-2555-c159dba953f0
-# ╟─312411ce-5a06-11eb-35e6-efa6cc924b90
-# ╟─614764b8-4648-11eb-0493-732a00df7bca
+# ╟─73d1cd18-4647-11eb-3994-7d4eb92eddca
 # ╟─0899b1d0-5972-11eb-0470-4d480cf95d53
+# ╟─3a17fc4c-5f69-11eb-29a1-c9bb584fee32
 # ╟─dfc9b56e-50ce-11eb-0e7f-83ec6e831901
 # ╟─be2af776-5971-11eb-13ec-3d7982a01ea3
-# ╠═5e6f7046-4da5-11eb-0122-bd82397aab4f
+# ╟─5e6f7046-4da5-11eb-0122-bd82397aab4f
+# ╟─43cdcbdc-5f68-11eb-11bd-51fbbf610333
 # ╟─ce216c54-468a-11eb-13b8-7f3dac7af44a
 # ╟─2ab53d00-50cd-11eb-1cd4-5bf94ce53692
 # ╟─97bc3768-50ce-11eb-3f74-95d4fefe3792
 # ╟─d654ad1e-468a-11eb-2348-695621b7b9b0
-# ╠═8961102a-5eb5-11eb-3c58-8bae7d3766c0
-# ╠═7cbdfda6-5eb5-11eb-2be6-0f93c3374a47
+# ╟─7cbdfda6-5eb5-11eb-2be6-0f93c3374a47
 # ╟─85103516-5eb5-11eb-3abc-dfc9ae9caf96

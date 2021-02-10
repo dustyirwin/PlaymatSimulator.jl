@@ -1,14 +1,12 @@
-try
-    using Pluto
-    using Revise
-catch
-    Pkg.instantiate()
-    using Pluto
-    using Revise
-end
+
+using Pluto
+using Revise
 
 function real_main()
-    Pluto.run(notebook="src/welcome.jl", workspace_use_distributed=false)
+    Pluto.run(
+        notebook="src/welcome.jl",
+        workspace_use_distributed=false,
+    )
 end
 
 function julia_main()::Cint

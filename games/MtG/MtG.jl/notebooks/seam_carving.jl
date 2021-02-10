@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.18
+# v0.12.20
 
 using Markdown
 using InteractiveUtils
@@ -31,9 +31,11 @@ begin
 	deck = deserialize("$deck_dir/Vannifar's Circus.jls")
 	custom_imgs_dir = "$(projectdir())/games/MtG/EDH/decks/Vannifar's Circus/custom_images/"
 	custom_img_names = [ fn for fn in readdir(custom_imgs_dir) if occursin("png", fn) ]
+	push!(custom_img_names, "Backside.png")
 	
 	md"""
-## Carve custom faces for $(deck[:name])!
+# Carve custom faces from card images! deck: $(deck[:name])
+	Setup dropdown for available decks?
 	"""
 end
 
@@ -61,6 +63,13 @@ md"""
 #### $(@bind carve_deck_card CheckBox()) Carve cards in deck $(@bind deck_img_select Slider(1:length(deck[:CARD_FACES]), show_value=true)) 
 """
 
+# ╔═╡ 6ff626d4-5d72-11eb-110e-49b0464e95a7
+if carve_deck_card
+	deck_img = deck[:CARD_FACES][deck_img_select][end][end]
+	save("blot_img.png", deck_img)
+	deck_img
+end
+
 # ╔═╡ 501cb384-5d73-11eb-20cb-d3b96fc930d0
 imgs = carve_deck_card ? [deck_img] : [custom_img];
 
@@ -70,15 +79,9 @@ if carve_custom_card
 	imgs[end] = specify_custom_size ? imresize(custom_img, ceil(Int, custom_width * card_ratio), custom_width) : imresize(custom_img, ratio=custom_img_ratio)
 end
 
-# ╔═╡ 6ff626d4-5d72-11eb-110e-49b0464e95a7
-if carve_deck_card
-	deck_imgs = deck[:CARD_FACES][deck_img_select][end]
-	deck_imgs[end]
-end
-
 # ╔═╡ 4ecd1258-5d11-11eb-1b53-71740a55b68d
 md"""
-##### Vertically shrink image up to : $(@bind vert_shrink_by NumberField(0:200, default=100)) pixels $(@bind shrink_greedy_v CheckBox())
+##### Vertically shrink image up to : $(@bind vert_shrink_by NumberField(0:200, default=160)) pixels $(@bind shrink_greedy_v CheckBox())
 """
 
 # ╔═╡ 72c7f7b6-5c8e-11eb-26a8-61e826cea075
