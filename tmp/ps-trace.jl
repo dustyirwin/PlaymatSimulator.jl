@@ -1398,3 +1398,5 @@ precompile(Tuple{typeof(Base.readuntil), HTTP.ConnectionPool.Transaction{Sockets
 precompile(Tuple{HTTP.Servers.var"#13#14"{HTTP.Handlers.var"#4#5"{HTTP.Handlers.StreamHandlerFunction{Pluto.var"#214#224"{Pluto.ServerSession, HTTP.Handlers.Router{Symbol("##253")}, Base.RefValue{Function}}}}, HTTP.ConnectionPool.Transaction{Sockets.TCPSocket}, HTTP.Streams.Stream{HTTP.Messages.Request, HTTP.ConnectionPool.Transaction{Sockets.TCPSocket}}}})
 precompile(Tuple{typeof(Base.:(>=)), Base.VersionNumber, Base.VersionNumber})
 precompile(Tuple{typeof(Base._uv_hook_close), FileWatching.FileMonitor})
+precompile(Tuple{typeof(Base.Filesystem.temp_cleanup_purge)})
+precompile(Tuple{typeof(FileWatching.uvfinalize), FileWatching.FileMonitor})
