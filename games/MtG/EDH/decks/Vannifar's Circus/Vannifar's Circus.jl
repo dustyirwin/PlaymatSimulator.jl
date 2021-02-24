@@ -320,6 +320,8 @@ if save_data
 
 	fn = "$(projectdir())/games/MtG/EDH/decks/$(deck[:name])/$(deck[:name]).jls"
 	serialize(fn, deck)
+	
+	md"Deck data saved to $fn"
 end
 
 # ╔═╡ 85103516-5eb5-11eb-3abc-dfc9ae9caf96

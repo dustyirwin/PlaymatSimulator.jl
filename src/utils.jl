@@ -4,16 +4,13 @@
 
 
 # DO NOT compile GZ2! Julia will not compile local dev pkg changes??
-using Pkg
 
-Pkg.activate(".")
 using PackageCompiler
 
 project_symbols = [
     :Colors,
     :DataStructures,
     :DrWatson,
-    :Flux,
     :GZ2,
     :HTTP,
     :ImageMagick,
@@ -36,8 +33,8 @@ project_symbols = [
     ]
 
 create_sysimage(project_symbols,
-    precompile_statements_file="tmp/trace_main.jl",
-    sysimage_path="sys_PS-unix-main.so"
+    precompile_statements_file="tmp/ps-trace.jl",
+    sysimage_path="sys-ps.so"
     )
 
 PackageCompiler.audit_app(".")  # passing!
@@ -58,13 +55,3 @@ using UUID
 using Random
 
 uuid4(MersenneTwister(Int(floor(datetime2unix(now())))))
-
-
-M = Module(:M)
-
-using Main.M
-
-
-
-
-M

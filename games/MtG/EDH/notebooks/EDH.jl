@@ -66,10 +66,6 @@ end
 # ╔═╡ c811ed82-4c09-11eb-3506-9b30dae8eaa6
 add_texts!(gs)
 
-# ╔═╡ 5d5e4990-4c1b-11eb-04c8-5da74ff7c314
-begin
-end
-
 # ╔═╡ 0146b240-4c0a-11eb-371c-19ef327394c7
 reset_stage!(gs)
 
@@ -88,6 +84,5 @@ end
 # ╠═ac00106c-4bff-11eb-29db-b1f869ba2c70
 # ╟─1e72fb94-4c0a-11eb-1186-e717e9acc1e6
 # ╠═c811ed82-4c09-11eb-3506-9b30dae8eaa6
-# ╠═5d5e4990-4c1b-11eb-04c8-5da74ff7c314
 # ╠═0146b240-4c0a-11eb-371c-19ef327394c7
 # ╠═32229134-4cc0-11eb-2c68-d11134987c56
