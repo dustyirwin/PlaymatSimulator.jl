@@ -2,7 +2,7 @@ module Actors
 
 using Dates
 using Images
-using GZ2
+using GameZero
 using ShiftedArrays
 using SimpleDirectMediaLayer
 

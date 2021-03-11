@@ -27,7 +27,7 @@ end;
 begin
 	@quickactivate
 
-	using GZ2
+	using GameZero
 	using Random
     using DataStructures
     using Serialization

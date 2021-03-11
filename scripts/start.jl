@@ -6,6 +6,7 @@ function real_main()
     Pluto.run(
         notebook="src/welcome.jl",
         workspace_use_distributed=false,
+        port=8001
     )
 end
 

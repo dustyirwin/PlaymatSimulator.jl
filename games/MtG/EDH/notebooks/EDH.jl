@@ -27,8 +27,8 @@ end;
 begin
 	@quickactivate
 
-    using GZ2
     using Colors
+	using GameZero
 	using Serialization
     using PlaymatSimulator
 
@@ -70,7 +70,7 @@ add_texts!(gs)
 reset_stage!(gs)
 
 # ╔═╡ 32229134-4cc0-11eb-2c68-d11134987c56
-begin  # required GZ2 variables
+begin  # required GameZero variables
 	SCREEN_HEIGHT = gs[:SCREEN_HEIGHT]
 	SCREEN_WIDTH = gs[:SCREEN_WIDTH]
 	BACKGROUND = gs[:BACKGROUND]

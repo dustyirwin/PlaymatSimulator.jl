@@ -29,7 +29,7 @@ begin
 
 	using SimpleDirectMediaLayer
 	using DataStructures
-	using GZ2
+	using GameZero
 
 	md"""
 	## GAME RULES (INACTIVE)

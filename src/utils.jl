@@ -3,7 +3,7 @@
 # PackageCompiler.restore_default_sysimage()
 
 
-# DO NOT compile GZ2! Julia will not compile local dev pkg changes??
+# DO NOT compile GameZero! Julia will not compile local dev pkg changes??
 
 using PackageCompiler
 
@@ -11,7 +11,7 @@ project_symbols = [
     :Colors,
     :DataStructures,
     :DrWatson,
-    :GZ2,
+    :GameZero,
     :HTTP,
     :ImageMagick,
     :ImageTransformations,
@@ -48,7 +48,7 @@ create_app(
     #force=true
 )
 
-# UUID for GZ2 5cf23aef-9907-41d4-9cbf-0482fdc672a3
+# UUID for GameZero 5cf23aef-9907-41d4-9cbf-0482fdc672a3
 # UUID for PlaymatSimulator
 using Dates
 using UUID

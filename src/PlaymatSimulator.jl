@@ -1,6 +1,6 @@
 module PlaymatSimulator
 
-using GZ2
+using GameZero
 using SimpleDirectMediaLayer
 
 export Actors, Animations, in_bounds, copy_actor

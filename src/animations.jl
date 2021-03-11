@@ -5,7 +5,7 @@ using DrWatson
 
 using Dates
 using Random
-using GZ2
+using GameZero
 using DataStructures
 using SimpleDirectMediaLayer
 

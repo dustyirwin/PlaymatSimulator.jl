@@ -11,7 +11,7 @@ using DrWatson
 begin
 	@quickactivate
 
-	using GZ2
+	using GameZero
 	using Dates
 	using Colors
 	using Random
@@ -280,12 +280,12 @@ function in_bounds(gs::Dict, as=Actor[])
 end
 
 # ╔═╡ 4cbb84f2-468e-11eb-09af-718f893c0449
-function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
+function on_mouse_down(g::Game, pos::Tuple, button::GameZero.MouseButtons.MouseButton)
     global gs
     ib = in_bounds(gs)
 	GAME_DIR = projectdir() * "games/MtG/MtG.jl"
 
-    if button == GZ2.MouseButtons.LEFT
+    if button == GameZero.MouseButtons.LEFT
 
 		if isempty(ib)
 
@@ -370,7 +370,7 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
 			end
         end
 
-    elseif button == GZ2.MouseButtons.RIGHT
+    elseif button == GameZero.MouseButtons.RIGHT
         if !isempty(gs[:group][:selected])
             for a in gs[:group][:selected]
                 a.angle = a.angle == 0 ? g.keyboard.LALT ? 270 : 90 : 0
@@ -453,12 +453,12 @@ function on_mouse_down(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton
 end
 
 # ╔═╡ 54761f68-468e-11eb-3ab9-db06b7174615
-function on_mouse_up(g::Game, pos::Tuple, button::GZ2.MouseButtons.MouseButton)
+function on_mouse_up(g::Game, pos::Tuple, button::GameZero.MouseButtons.MouseButton)
     global gs
     ib = in_bounds(gs)
 	GAME_DIR = projectdir() * "games/MtG/MtG.jl"
 
-    if button == GZ2.MouseButtons.LEFT
+    if button == GameZero.MouseButtons.LEFT
 
 		if gs[:sfx][:sel_box] in gs[:overlay][:shades]
             sb = gs[:sfx][:sel_box]

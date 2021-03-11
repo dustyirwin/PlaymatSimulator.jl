@@ -1,6 +1,6 @@
 module Terminal
 
-using GZ2
+using GameZero
 using SimpleDirectMediaLayer
 SDL2 = SimpleDirectMediaLayer
 
@@ -13,7 +13,7 @@ function start_terminal(g::Game, gs::Dict, AN::Module)
     SDL2.StartTextInput()
 
     while !done
-        event, success = GZ2.pollEvent!()
+        event, success = GameZero.pollEvent!()
         
         if success
             

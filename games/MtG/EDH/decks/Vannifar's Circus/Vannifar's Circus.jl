@@ -20,7 +20,7 @@ using DrWatson
 begin
 	@quickactivate
 
-	using GZ2
+	using GameZero
 	using JSON
 	using HTTP
 	using Images: load, RGB
