@@ -1,21 +1,10 @@
 # PlaymatSimulator
 
-This code base is using the Julia Language and [DrWatson](https://juliadynamics.github.io/DrWatson.jl/stable/)
-to make a reproducible scientific project named
-> PlaymatSimulator
+PlaymatSimulator is a WIP project intended to provide a simple and intuitive
+framework to create and simulate custom card games using Julia.
 
-It is authored by Dustin Irwin 2020.
+**This project makes generous use of the open source projects SDL2.jl and GameZero.jl**
 
-To (locally) reproduce this project, do the following:
-
-0. Download this code base. Notice that raw data are typically not included in the
-   git-history and may need to be downloaded independently.
-1. Open a Julia console and do:
-   ```
-   julia> using Pkg
-   julia> Pkg.activate("path/to/this/project")
-   julia> Pkg.instantiate()
-   ```
-
-This will install all necessary packages for you to be able to run the scripts and
-everything should work out of the box.
+__Known issues__
+- No audio on Linux
+- Text input API incomplete
