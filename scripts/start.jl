@@ -1,6 +1,9 @@
 
+using DrWatson
+
+@quickactivate
+
 using Pluto
-using Revise
 
 function real_main()
     Pluto.run(

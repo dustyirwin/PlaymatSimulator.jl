@@ -17,7 +17,7 @@ function Image(img_name::String, img; x=0, y=0, kv...)
         w,
         h,
         Int32(32),
-        Int32(4 * w),
+        Int32(4w),
         SDL2.PIXELFORMAT_ARGB32,
     )
 

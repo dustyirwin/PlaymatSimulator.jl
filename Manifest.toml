@@ -111,9 +111,9 @@ version = "3.10.2"
 
 [[ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
-git-tree-sha1 = "5e9769a17f17b587c951d57ba4319782b40c3513"
+git-tree-sha1 = "b4e0a91196272ccab0f951cfc2b25473b791db8b"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
-version = "0.10.10"
+version = "0.10.11"
 
 [[ColorVectorSpace]]
 deps = ["ColorTypes", "Colors", "FixedPointNumbers", "LinearAlgebra", "SpecialFunctions", "Statistics", "StatsBase"]
@@ -288,9 +288,9 @@ version = "1.3.3+2"
 
 [[FileIO]]
 deps = ["Pkg", "Requires", "UUIDs"]
-git-tree-sha1 = "8800ec70aee7292931a3d3c10a3be3445b9c6141"
+git-tree-sha1 = "9cdfbf5c0ed88ad0dcdb02544416c8e5a73addef"
 uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
-version = "1.6.2"
+version = "1.6.4"
 
 [[FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
@@ -327,9 +327,9 @@ version = "0.4.2"
 
 [[ForwardDiff]]
 deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "NaNMath", "Random", "SpecialFunctions", "StaticArrays"]
-git-tree-sha1 = "d48a40c0f54f29a5c8748cfb3225719accc72b77"
+git-tree-sha1 = "c68fb7481b71519d313114dca639b35262ff105f"
 uuid = "f6369f11-7733-5829-9624-2563aa707210"
-version = "0.10.16"
+version = "0.10.17"
 
 [[FreeType2_jll]]
 deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "Pkg", "Zlib_jll"]
@@ -387,7 +387,9 @@ version = "0.53.0+0"
 
 [[GameZero]]
 deps = ["Colors", "Random", "SimpleDirectMediaLayer"]
-path = "/home/dusty/.julia/dev/GameZero"
+git-tree-sha1 = "d42d0fe76b4e5ac70ffbd21aa4f6e23fa2e45026"
+repo-rev = "master"
+repo-url = "https://github.com/dustyirwin/GameZero.jl.git"
 uuid = "9da27670-f782-11e9-1da1-f53579315bfe"
 version = "0.1.3"
 
@@ -948,9 +950,9 @@ version = "0.12.21"
 
 [[PlutoUI]]
 deps = ["Base64", "Dates", "InteractiveUtils", "Logging", "Markdown", "Random", "Reexport", "Suppressor"]
-git-tree-sha1 = "b1c7a139fe6f4daaba29dc10a962f64541b41db3"
+git-tree-sha1 = "8b7989f1918a5ea044e05d8e2012822c9e63df4c"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.2"
+version = "0.7.4"
 
 [[Printf]]
 deps = ["Unicode"]
