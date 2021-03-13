@@ -2,7 +2,7 @@
 
 PlaymatSimulator is a WIP project intended to provide a simple and intuitive framework to create and simulate custom card games using Julia.
 
-**This project makes generous use of the open source projects Pluto.jl, SDL2.jl and a custom fork of GameZero.jl**
+**This project makes generous use of the open source projects https://github.com/fonsp/Pluto.jl, https://github.com/JuliaMultimedia/SimpleDirectMediaLayer.jl and a custom fork of https://github.com/aviks/GameZero.jl**
 
 __Features__
 - Julia performance and composability of code
