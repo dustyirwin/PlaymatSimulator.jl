@@ -12,6 +12,3 @@ __Features__
 __Known issues__
 - No audio on Linux
 - Text input API incomplete
-
-
-This project is
