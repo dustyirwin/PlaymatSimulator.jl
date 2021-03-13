@@ -33,11 +33,11 @@ begin
 end
 
 # ╔═╡ 63b7dc70-839f-11eb-0701-4389ed6b3380
-md"""PlaymatSimulator games direcory: $(@bind games_dir TextField(default="/home/dusty/Shared/PlaymatProjects/PlaymatGames"))"""
+md"""PlaymatSimulator games direcory: $(@bind GAMES_DIR TextField(default="/home/dusty/Shared/PlaymatProjects/PlaymatGames"))"""
 
 # ╔═╡ b324b2e0-4b46-11eb-3261-9d90a80205e2
 begin
-	GAME_TYPES = [ gt => gt for gt in readdir(games_dir) if !(occursin(".", gt)) ]
+	GAME_TYPES = [ gt => gt for gt in readdir(GAMES_DIR) if !(occursin(".", gt)) ]
 	pushfirst!(GAME_TYPES, ""=>"")
 	
 	md"""
@@ -47,7 +47,7 @@ end
 
 # ╔═╡ 65e7c338-4b42-11eb-014a-017404d2040a
 if GAME_TYPE != ""
-	GAMES = [ gn=>gn for gn in readdir("$games_dir/$GAME_TYPE") if !(occursin(".", gn)) ]
+	GAMES = [ gn=>gn for gn in readdir("$GAMES_DIR/$GAME_TYPE") if !(occursin(".", gn)) ]
 	pushfirst!(GAMES,""=>"")
 
 	md"""
@@ -57,7 +57,7 @@ end
 
 # ╔═╡ e86a6936-4b43-11eb-33b9-3ddefed762c7
 try if GAME_TYPE != "" && GAME_NAME != ""
-	DECKS = [ gn=>gn for gn in readdir("$games_dir/$GAME_TYPE/$GAME_NAME/decks") if !(occursin(".", gn)) ]
+	DECKS = [ gn=>gn for gn in readdir("$GAMES_DIR/$GAME_TYPE/$GAME_NAME/decks") if !(occursin(".", gn)) ]
 	pushfirst!(DECKS,""=>"")
 
 	md"""
@@ -70,8 +70,10 @@ end
 
 # ╔═╡ eb1a3e94-4cca-11eb-2b39-a5794006c375
 if GAME_TYPE != "" && GAME_NAME != "" && DECK_NAME != ""
+	GAME_DIR = "$GAMES_DIR/$GAME_TYPE/$GAME_NAME"
+	
 	US = Dict(
-		:GAMES_DIR => games_dir,
+		:GAME_DIR => GAME_DIR,
 		:GAME_TYPE => GAME_TYPE,
 		:GAME_NAME => GAME_NAME,
 		:DECK_NAME => DECK_NAME,
@@ -84,8 +86,6 @@ end;
 
 # ╔═╡ e11fc3c8-4b44-11eb-0c25-3d787ef9da0a
 if GAME_TYPE != "" && GAME_NAME != "" && DECK_NAME != ""
-	GAME_DIR = join(split(@__DIR__,"/")[begin:end-2],"/") * "/$GAME_TYPE/$GAME_NAME"
-
 	md"""
 	###### Simulating an $GAME_TYPE $GAME_NAME game with a $DECK_NAME deck, please wait...
 
@@ -97,7 +97,7 @@ end
 
 # ╔═╡ a6cc0f5c-4cab-11eb-10d1-b351e17004e3
 if (@isdefined DECK_NAME) && !(DECK_NAME == "")
-	rungame("$games_dir/$GAME_TYPE/$GAME_NAME/notebooks/$GAME_NAME.jl")
+	rungame("$GAME_DIR/notebooks/$GAME_NAME.jl")
 else
 	nothing
 end
@@ -112,12 +112,12 @@ html"""<br><br><br><br><br><br>"""
 
 # ╔═╡ Cell order:
 # ╟─e90001ca-4b3f-11eb-0ccd-7785902a32e3
-# ╟─6e33e012-4b3d-11eb-30ea-2b5f82c16b8e
+# ╠═6e33e012-4b3d-11eb-30ea-2b5f82c16b8e
 # ╟─63b7dc70-839f-11eb-0701-4389ed6b3380
 # ╟─b324b2e0-4b46-11eb-3261-9d90a80205e2
 # ╟─65e7c338-4b42-11eb-014a-017404d2040a
 # ╟─e86a6936-4b43-11eb-33b9-3ddefed762c7
-# ╠═eb1a3e94-4cca-11eb-2b39-a5794006c375
+# ╟─eb1a3e94-4cca-11eb-2b39-a5794006c375
 # ╟─e11fc3c8-4b44-11eb-0c25-3d787ef9da0a
 # ╠═a6cc0f5c-4cab-11eb-10d1-b351e17004e3
 # ╟─386f2d76-4ef1-11eb-032b-1715050b4952
