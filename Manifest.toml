@@ -387,7 +387,7 @@ version = "0.53.0+0"
 
 [[GameZero]]
 deps = ["Colors", "Random", "SimpleDirectMediaLayer"]
-git-tree-sha1 = "d42d0fe76b4e5ac70ffbd21aa4f6e23fa2e45026"
+git-tree-sha1 = "4c429e8955255063c6b245654ec82ef348d00fc5"
 repo-rev = "master"
 repo-url = "https://github.com/dustyirwin/GameZero.jl.git"
 uuid = "9da27670-f782-11e9-1da1-f53579315bfe"

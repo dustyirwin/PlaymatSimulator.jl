@@ -93,6 +93,4 @@ function download_mtg_imgs(deck_cards::Vector{Any}, save_dir="images", throttle=
 	end
 end
 
-finalizer(kill_actor!, Actor)
-
 end # module
