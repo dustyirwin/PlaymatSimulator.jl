@@ -49,9 +49,8 @@ create_app(
 )
 
 # UUID for GameZero 5cf23aef-9907-41d4-9cbf-0482fdc672a3
-# UUID for PlaymatSimulator
+# UUID for PlaymatSimulator e5f19dc6-78e9-41ab-ba95-fec0547b5fb9
 using Dates
-using UUID
 using Random
-
+using UUIDs
 uuid4(MersenneTwister(Int(floor(datetime2unix(now())))))
