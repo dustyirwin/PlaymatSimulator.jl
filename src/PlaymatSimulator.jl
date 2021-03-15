@@ -2,10 +2,12 @@ module PlaymatSimulator
 
 using GameZero
 using SimpleDirectMediaLayer
+using Reexport
 
-import GameZero: rungame
+@reexport using GameZero
 
-export Actors, Animations, in_bounds, copy_actor, rungame
+export Actors, Animations, in_bounds, copy_actor
+
 
 SDL2 = SimpleDirectMediaLayer
 Animations = include("animations.jl")
