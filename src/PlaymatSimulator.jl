@@ -3,6 +3,7 @@ module PlaymatSimulator
 using SimpleDirectMediaLayer
 using Reexport
 
+@reexport using Images
 @reexport using GameZero
 @reexport using SimpleDirectMediaLayer
 
