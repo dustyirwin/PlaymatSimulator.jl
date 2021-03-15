@@ -4,6 +4,7 @@ using SimpleDirectMediaLayer
 using Reexport
 
 @reexport using GameZero
+@reexport using SimpleDirectMediaLayer
 
 export Actors, Animations, in_bounds, copy_actor
 
