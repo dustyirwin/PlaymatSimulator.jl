@@ -95,6 +95,4 @@ end
 
 finalizer(kill_actor!, Actor)
 
-SimpleDirectMediaLayer.ShowCursor(Int32(0))  # hides system mouse cursor
-
 end # module
