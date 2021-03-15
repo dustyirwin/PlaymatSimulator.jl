@@ -1,6 +1,5 @@
 module PlaymatSimulator
 
-using GameZero
 using SimpleDirectMediaLayer
 using Reexport
 
