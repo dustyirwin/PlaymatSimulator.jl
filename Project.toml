@@ -1,5 +1,5 @@
 name = "PlaymatSimulator"
-UUID = "e5f19dc6-78e9-41ab-ba95-fec0547b5fb9"
+uuid = "e5f19dc6-78e9-41ab-ba95-fec0547b5fb9"
 authors = ["Dustin Irwin"]
 version = "0.1.0"
 
