@@ -27,7 +27,8 @@ function copy_actor(a::Actor)
     c.x = a.x + 20
     c.y = a.y + 20
     c.data = a.data
-    return c
+    
+    c
 end
 
 function download_card_by_name(card_name::String, card_data::Array, found_card=false)
@@ -42,7 +43,7 @@ function download_card_by_name(card_name::String, card_data::Array, found_card=f
 	if !found_card
 		@warn "$card_name not found in the database!"
 	else
-		return card_name
+		card_name
 	end
 end
 
