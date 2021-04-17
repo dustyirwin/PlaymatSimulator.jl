@@ -8,7 +8,7 @@ Mage.jl, a WIP card game using PlaymatSimulator:
 
 __Features__
 - Julia performance and composability of code
-- Notebook interface for rapid prototyping and testing of ideas
+- Notebook interface for rapid prototyping and testing
 - Cross-platform support
 
 __Known issues__
