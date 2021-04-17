@@ -15,7 +15,7 @@ __Known issues__
 - No audio on Linux
 - Text input API incomplete
 
-**This project makes generous use code and ideas from the following open source projects:**
+**This project makes generous use of code and ideas from the following open source projects:**
 - https://github.com/fonsp/Pluto.jl
 - https://github.com/JuliaMultimedia/SimpleDirectMediaLayer.jl
 - https://github.com/dustyirwin/GameZero.jl, which is a custom fork of https://github.com/aviks/GameZero.jl
