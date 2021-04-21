@@ -1,6 +1,6 @@
 # PlaymatSimulator
 
-PlaymatSimulator is an open-source WIP project intended to provide a simple and intuitive framework to create and simulate custom card games using [Julia](https://julialang.org) and Julia and Pluto.jl notebooks.
+PlaymatSimulator is an open-source WIP project intended to provide a simple and intuitive framework to create and simulate custom card games using [Julia](https://julialang.org) and Pluto.jl notebooks.
 
 Mage.jl, a WIP card game using PlaymatSimulator:
 
