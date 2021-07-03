@@ -13,7 +13,7 @@ function start_terminal(g::Game, gs::Dict, AN::Module)
     SDL2.StartTextInput()
 
     while !done
-        event, success = GameZero.pollEvent!()
+        event, success = GameOne.pollEvent!()
         
         if success
             

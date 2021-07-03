@@ -18,4 +18,4 @@ __Known issues__
 **This project makes generous use of code and ideas from the following open source projects:**
 - https://github.com/fonsp/Pluto.jl
 - https://github.com/JuliaMultimedia/SimpleDirectMediaLayer.jl
-- https://github.com/dustyirwin/GameZero.jl, which is a custom fork of https://github.com/aviks/GameZero.jl
+- https://github.com/dustyirwin/GameOne.jl, which is a custom fork of https://github.com/aviks/GameOne.jl
