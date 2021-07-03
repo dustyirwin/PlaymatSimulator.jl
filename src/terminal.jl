@@ -1,6 +1,6 @@
 module Terminal
 
-using GameZero
+using GameOne
 using SimpleDirectMediaLayer
 SDL2 = SimpleDirectMediaLayer
 
