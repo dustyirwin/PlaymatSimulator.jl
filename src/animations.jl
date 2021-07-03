@@ -1,8 +1,5 @@
 module Animations
 
-using DrWatson
-@quickactivate
-
 using Dates
 using Random
 using GameOne
