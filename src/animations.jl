@@ -6,7 +6,7 @@ using GameOne
 using DataStructures
 using SimpleDirectMediaLayer
 
-SDL2 = SimpleDirectMediaLayer
+const SDL2 = SimpleDirectMediaLayer.LibSDL2
 AN_list = [:spin, :shake, :fade, :grow, :shrink, :squish]
 
 function bomb_card(a::Actor)

@@ -6,7 +6,8 @@ using GameOne
 using ShiftedArrays
 using SimpleDirectMediaLayer
 
-SDL2 = SimpleDirectMediaLayer
+
+const SDL2 = SimpleDirectMediaLayer.LibSDL2
 
 
 function Image(img_name::String, img; x=0, y=0, kv...)

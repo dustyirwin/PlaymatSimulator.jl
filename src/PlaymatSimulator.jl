@@ -11,7 +11,7 @@ using Reexport
 export Actors, Animations, in_bounds, copy_actor
 
 
-SDL2 = SimpleDirectMediaLayer
+const SDL2 = SimpleDirectMediaLayer.LibSDL2
 Animations = include("animations.jl")
 Actors = include("actors.jl")
 include("terminal.jl")
