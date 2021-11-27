@@ -6,7 +6,8 @@ using Reexport
 @reexport using GameOne
 @reexport using DataStructures
 
-export Actors, Animations, in_bounds, copy_actor
+export Actors, Animations
+export in_bounds, copy_actor
 
 
 const SDL2 = GameOne.SDL2
