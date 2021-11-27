@@ -3,7 +3,7 @@
 # PackageCompiler.restore_default_sysimage()
 
 
-# DO NOT compile GameZero! Julia will not compile local dev pkg changes??
+# DO NOT compile GameOne! Julia will not compile local dev pkg changes??
 
 using PackageCompiler
 
@@ -11,14 +11,12 @@ project_symbols = [
     :Colors,
     :DataStructures,
     :DrWatson,
-    :GameZero,
+    :GameOne,
     :HTTP,
-    :ImageMagick,
     :ImageTransformations,
     :Images,
     :ImageIO,
     :JSON,
-    :PackageCompiler,
     :Plots,
     :Pluto,
     :PlutoUI,
@@ -48,7 +46,7 @@ create_app(
     #force=true
 )
 
-# UUID for GameZero 5cf23aef-9907-41d4-9cbf-0482fdc672a3
+# UUID for GameOne b831c3d0-16f1-4eaa-ad23-1d0424ad4597
 # UUID for PlaymatSimulator e5f19dc6-78e9-41ab-ba95-fec0547b5fb9
 using Dates
 using Random

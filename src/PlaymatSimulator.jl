@@ -9,7 +9,6 @@ using Reexport
 export Actors, Animations
 export in_bounds, copy_actor
 
-
 const SDL2 = GameOne.SDL2
 Animations = include("animations.jl")
 Actors = include("actors.jl")
