@@ -4,11 +4,8 @@ using Dates
 using Images
 using GameOne
 using ShiftedArrays
-using SimpleDirectMediaLayer
 
-
-const SDL2 = SimpleDirectMediaLayer.LibSDL2
-
+const SDL2 = GameOne.SDL2
 
 function Image(img_name::String, img; x=0, y=0, kv...)
     @show img_name
@@ -24,7 +21,7 @@ function Image(img_name::String, img; x=0, y=0, kv...)
     )
 
     r = SDL2.Rect(x, y, w, h)
-    a = Actor(
+    a = GameOne.Actor(
         img_name,
         [sf],
         [],
@@ -62,7 +59,7 @@ function Text(text::String, font_path::String; x=0, y=0, pt_size=24,
     w, h = size(sf)
     r = SDL2.Rect(x, y, w, h)
 
-    a = Actor(
+    a = GameOne.Actor(
         text,
         [sf],
         [],
@@ -113,7 +110,7 @@ function GIF(gif_name::String, gif; x=0, y=0, frame_delay=Millisecond(120), kv..
     end
 
     r = SDL2.Rect(x, y, w, h)
-    a = Actor(
+    a = GameOne.Actor(
         gif_name,
         surfaces,
         [],

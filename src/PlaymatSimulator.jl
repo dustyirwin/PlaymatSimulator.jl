@@ -1,17 +1,15 @@
 module PlaymatSimulator
 
-using SimpleDirectMediaLayer
 using Reexport
 
 @reexport using Images
 @reexport using GameOne
-@reexport using SimpleDirectMediaLayer
 @reexport using DataStructures
 
 export Actors, Animations, in_bounds, copy_actor
 
 
-const SDL2 = SimpleDirectMediaLayer.LibSDL2
+const SDL2 = GameOne.SDL2
 Animations = include("animations.jl")
 Actors = include("actors.jl")
 include("terminal.jl")
