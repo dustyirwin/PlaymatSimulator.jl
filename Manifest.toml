@@ -264,12 +264,12 @@ uuid = "fb4132e2-a121-4a70-b8a1-d5b831dcdcc2"
 version = "0.4.3"
 
 [[deps.GameOne]]
-deps = ["Colors", "Random", "SimpleDirectMediaLayer"]
-git-tree-sha1 = "0e5bb96b2a64c177099fe636d158b6153435ee8e"
-repo-rev = "dev-text-api"
-repo-url = "https://github.com/dustyirwin/GameOne.jl"
-uuid = "b831c3d0-16f1-4eaa-ad23-1d0424ad4597"
-version = "0.1.0"
+deps = ["Colors", "Dates", "Images", "Random", "ShiftedArrays", "SimpleDirectMediaLayer"]
+git-tree-sha1 = "94a3c1c9c2fa72211a899f009bd8adea4aaf4565"
+repo-rev = "main"
+repo-url = "https://github.com/dustyirwin/GameOne.jl#dev-text-api"
+uuid = "9da27670-f782-11e9-1da1-f53579315bfe"
+version = "0.0.1"
 
 [[deps.Gettext_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
@@ -902,10 +902,10 @@ uuid = "1277b4bf-5013-50f5-be3d-901d8477a67a"
 version = "1.0.0"
 
 [[deps.SimpleDirectMediaLayer]]
-deps = ["ColorTypes", "Libdl", "SDL2_image_jll", "SDL2_jll", "SDL2_mixer_jll", "SDL2_ttf_jll"]
-git-tree-sha1 = "f81e641b1479708e54a6181b460874f8d1d2b3ca"
+deps = ["CEnum", "ColorTypes", "SDL2_image_jll", "SDL2_jll", "SDL2_mixer_jll", "SDL2_ttf_jll"]
+git-tree-sha1 = "d4cc228569cb33abc3d69aeaaf1cf95b1f40bfd6"
 uuid = "98e33af6-2ee5-5afd-9e75-cbc738b767c4"
-version = "0.2.1"
+version = "0.3.0"
 
 [[deps.SimpleTraits]]
 deps = ["InteractiveUtils", "MacroTools"]
