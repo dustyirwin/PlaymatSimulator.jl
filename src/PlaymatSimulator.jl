@@ -9,9 +9,9 @@ using Reexport
 export Animations
 export in_bounds, copy_actor, kill_actor!
 
+
 const SDL2 = GameOne.SDL2
 Animations = include("animations.jl")
-include("terminal.jl")
 include("auth.jl")
 include("IO.jl")
 include("logging.jl")
