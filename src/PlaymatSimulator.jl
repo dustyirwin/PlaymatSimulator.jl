@@ -6,12 +6,11 @@ using Reexport
 @reexport using GameOne
 @reexport using DataStructures
 
-export Actors, Animations
-export in_bounds, copy_actor
+export Animations
+export in_bounds, copy_actor, kill_actor!
 
 const SDL2 = GameOne.SDL2
 Animations = include("animations.jl")
-Actors = include("actors.jl")
 include("terminal.jl")
 include("auth.jl")
 include("IO.jl")

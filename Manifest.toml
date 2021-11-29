@@ -32,9 +32,9 @@ version = "0.2.0"
 
 [[deps.ArrayInterface]]
 deps = ["Compat", "IfElse", "LinearAlgebra", "Requires", "SparseArrays", "Static"]
-git-tree-sha1 = "e527b258413e0c6d4f66ade574744c94edef81f8"
+git-tree-sha1 = "265b06e2b1f6a216e0e8f183d28e4d354eab3220"
 uuid = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
-version = "3.1.40"
+version = "3.2.1"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -203,9 +203,9 @@ version = "0.6.5"
 
 [[deps.EllipsisNotation]]
 deps = ["ArrayInterface"]
-git-tree-sha1 = "9aad812fb7c4c038da7cab5a069f502e6e3ae030"
+git-tree-sha1 = "028b97126da0988991575282ee99ff49cb47973b"
 uuid = "da5c29d0-fa7d-589e-88eb-ea29b0a81949"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.ExproniconLite]]
 git-tree-sha1 = "8b08cc88844e4d01db5a2405a08e9178e19e479e"
@@ -264,8 +264,8 @@ uuid = "fb4132e2-a121-4a70-b8a1-d5b831dcdcc2"
 version = "0.4.3"
 
 [[deps.GameOne]]
-deps = ["Colors", "Dates", "Images", "Random", "ShiftedArrays", "SimpleDirectMediaLayer"]
-git-tree-sha1 = "ca0f5bfcdf5d00c771dd2225517f8cdc91cc150a"
+deps = ["Colors", "Dates", "Images", "Random", "Reexport", "ShiftedArrays", "SimpleDirectMediaLayer"]
+git-tree-sha1 = "0608203f9e0d056f3f1f24a7f765e6048387dc43"
 repo-rev = "main"
 repo-url = "https://github.com/dustyirwin/GameOne.jl"
 uuid = "9da27670-f782-11e9-1da1-f53579315bfe"

@@ -3,6 +3,8 @@ papers/
 *.so
 trace_main.jl
 utils.jl
+tmp
+
 
 *.png
 *.jpg

@@ -3,7 +3,6 @@ module Animations
 using Dates
 using Random
 using GameOne
-using DataStructures
 
 
 const SDL2 = GameOne.SDL2
