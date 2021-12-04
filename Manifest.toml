@@ -454,10 +454,10 @@ uuid = "83e8ac13-25f8-5344-8a64-a9f2b223428f"
 version = "0.5.0"
 
 [[deps.IntegralArrays]]
-deps = ["IntervalSets"]
-git-tree-sha1 = "4fdfe55b432bbb97adbb0c85c39dd208a7b2bd36"
+deps = ["ColorTypes", "FixedPointNumbers", "IntervalSets"]
+git-tree-sha1 = "00019244715621f473d399e4e1842e479a69a42e"
 uuid = "1d092043-8f09-5a30-832f-7509e371ab51"
-version = "0.1.1"
+version = "0.1.2"
 
 [[deps.IntelOpenMP_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
