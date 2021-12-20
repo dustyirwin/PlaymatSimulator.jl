@@ -5,44 +5,51 @@
 
 # DO NOT compile GameOne! Julia will not compile local dev pkg changes??
 
+import Pkg
+
+Pkg.add(url="https://botm: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@github.com/dustyirwin/GameOne.jl")
+Pkg.instantiate()
+
 using PackageCompiler
 
 project_symbols = [
-    :Colors,
-    :DataStructures,
-    :DrWatson,
-    :GameOne,
-    :HTTP,
-    :ImageTransformations,
-    :Images,
-    :ImageIO,
-    :JSON,
-    :Plots,
-    :Pluto,
-    :PlutoUI,
-    :ShiftedArrays,
-    :SimpleDirectMediaLayer,
-    :Dates,
-    :Pkg,
-    :Random,
-    :Serialization,
-    :Statistics,
-    :Rotations,
-    ]
+    :Colors
+    :DataStructures
+    :GameOne
+    :HTTP
+    :ImageFiltering
+    :ImageMagick
+    :ImageTransformations
+    :Images
+    :JSON
+    :Pluto
+    :PlutoUI
+    :Reexport
+    :Revise
+    :Rotations
+    :ShiftedArrays
+    :Dates
+    :Logging
+    :Pkg
+    :Random
+    :SHA
+    :Serialization
+]
 
 create_sysimage(project_symbols,
-    precompile_statements_file="tmp/ps-trace.jl",
-    sysimage_path="sys-ps.so"
-    )
+    precompile_statements_file = "BotM-trace.jl",
+    sysimage_path = "botm.so"
+)
 
+#=
 PackageCompiler.audit_app(".")  # passing!
 
 create_app(
     "../PlaymatSimulator.jl",
     "../PS.compiled",
-    filter_stdlibs=false,
+    filter_stdlibs = false,
     #precompile_statements_file="tmp/trace.jl",
-    incremental=true,
+    incremental = true,
     #force=true
 )
 
@@ -52,3 +59,6 @@ using Dates
 using Random
 using UUIDs
 uuid4(MersenneTwister(Int(floor(datetime2unix(now())))))
+
+
+=#
