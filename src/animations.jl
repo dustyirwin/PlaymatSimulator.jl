@@ -8,9 +8,6 @@ using GameOne
 const SDL2 = GameOne.SDL2
 AN_list = [:spin, :shake, :fade, :grow, :shrink, :squish]
 
-function bomb_card(a::Actor)
-    then = now()
-end
 
 function shake_actor!(a::Actor, f=2)
     if a.angle > 0
@@ -85,7 +82,7 @@ function reset_actor!(a::Actor, h::Int32, w::Int32)
 end
 
 function change_face!(o::T) where T
-	@show "Changing face of $(o.name)!"
+	@info "Changing face of $(o.name)!"
 	o.faces = circshift(o.faces, -1)
 	o.faces[begin].angle = o.faces[end].angle
 	return o
@@ -103,7 +100,7 @@ function splay_actors!(actors::Vector{Actor}, x::Int32, y::Int32,
 
         if pitch[2] > 0 && y + a.h * a.scale[2] > SCREEN_HEIGHT - SCREEN_BORDER
             y = SCREEN_BORDER
-            @show x += ceil(Int32, pitch[1] > 0 ? 0.55a.w : -0.55a.w)
+            @info x += ceil(Int32, pitch[1] > 0 ? 0.55a.w : -0.55a.w)
         end
 
         a.x = x

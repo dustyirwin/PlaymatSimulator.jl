@@ -23,7 +23,7 @@ function copy_actor(a::Actor)
     c.h = a.h
     c.x = a.x + 20
     c.y = a.y + 20
-    c.data = a.data
+    c.data = deepcopy(a.data)
     
     c
 end

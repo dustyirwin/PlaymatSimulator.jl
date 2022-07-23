@@ -7,7 +7,7 @@
 
 import Pkg
 
-Pkg.add(url="https://botm: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@github.com/dustyirwin/GameOne.jl")
+Pkg.add(url = "https://dustyirwin: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@github.com/dustyirwin/GameOne.jl.git")
 Pkg.instantiate()
 
 using PackageCompiler
@@ -37,8 +37,8 @@ project_symbols = [
 ]
 
 create_sysimage(project_symbols,
-    precompile_statements_file = "BotM-trace.jl",
-    sysimage_path = "botm.so"
+    precompile_statements_file = "data/BotM-trace.jl",
+    sysimage_path = "botm.so",
 )
 
 #=
